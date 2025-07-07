@@ -1,12 +1,11 @@
 #!/bin/bash
 # Custom build script for Railway that handles alias imports
 
-# Install dependencies
+# Install all dependencies (including devDependencies)
 npm ci
 
-# Build the client with NODE_ENV set to production
-# This ensures Vite uses the correct configuration
-export NODE_ENV=production
+# Build the client
 npm run build:client
 
+# Keep all dependencies for runtime (tsx needs them)
 echo "Build completed successfully"
