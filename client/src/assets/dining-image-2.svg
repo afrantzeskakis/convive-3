@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="800" height="400">
+  <rect width="800" height="400" fill="#f8f9fa"/>
+  <!-- Upscale restaurant background -->
+  <rect x="0" y="0" width="800" height="400" fill="#1a2a3a" opacity="0.9"/>
+  
+  <!-- Round dinner table -->
+  <circle cx="400" cy="270" r="100" fill="#34495e"/>
+  <circle cx="400" cy="270" r="90" fill="#2c3e50"/>
+  <circle cx="400" cy="270" r="85" fill="#233140"/>
+  
+  <!-- Elegant tablecloth -->
+  <circle cx="400" cy="270" r="80" fill="#ecf0f1"/>
+  <circle cx="400" cy="270" r="75" fill="#f5f5f5"/>
+  
+  <!-- Center piece -->
+  <rect x="385" y="250" width="30" height="40" fill="#9b59b6"/>
+  <path d="M380,250 C380,240 420,240 420,250" fill="#8e44ad"/>
+  
+  <!-- Plates and glassware -->
+  <!-- Person 1 plate -->
+  <circle cx="320" cy="210" r="25" fill="#f5f5f5"/>
+  <circle cx="320" cy="210" r="20" fill="#e74c3c" opacity="0.7"/>
+  
+  <!-- Person 2 plate -->
+  <circle cx="480" cy="210" r="25" fill="#f5f5f5"/>
+  <circle cx="480" cy="210" r="20" fill="#2ecc71" opacity="0.7"/>
+  
+  <!-- Person 3 plate -->
+  <circle cx="360" cy="330" r="25" fill="#f5f5f5"/>
+  <circle cx="360" cy="330" r="20" fill="#f39c12" opacity="0.7"/>
+  
+  <!-- Person 4 plate -->
+  <circle cx="440" cy="330" r="25" fill="#f5f5f5"/>
+  <circle cx="440" cy="330" r="20" fill="#3498db" opacity="0.7"/>
+  
+  <!-- Wine glasses -->
+  <path d="M345,200 L355,180 L365,200 z" fill="#c0392b" opacity="0.5"/>
+  <path d="M340,180 L370,180 L365,160 L345,160 z" fill="#ecf0f1" opacity="0.2"/>
+  
+  <path d="M435,200 L445,180 L455,200 z" fill="#c0392b" opacity="0.5"/>
+  <path d="M430,180 L460,180 L455,160 L435,160 z" fill="#ecf0f1" opacity="0.2"/>
+  
+  <path d="M335,310 L345,290 L355,310 z" fill="#c0392b" opacity="0.5"/>
+  <path d="M330,290 L360,290 L355,270 L335,270 z" fill="#ecf0f1" opacity="0.2"/>
+  
+  <path d="M445,310 L455,290 L465,310 z" fill="#c0392b" opacity="0.5"/>
+  <path d="M440,290 L470,290 L465,270 L445,270 z" fill="#ecf0f1" opacity="0.2"/>
+  
+  <!-- People silhouettes around the table -->
+  <!-- Person 1 -->
+  <circle cx="320" cy="140" r="22" fill="#f1c40f"/>
+  <rect x="305" y="162" width="30" height="40" rx="10" fill="#f1c40f"/>
+  
+  <!-- Person 2 -->
+  <circle cx="480" cy="140" r="22" fill="#9b59b6"/>
+  <rect x="465" y="162" width="30" height="40" rx="10" fill="#9b59b6"/>
+  
+  <!-- Person 3 -->
+  <circle cx="320" cy="380" r="22" fill="#3498db"/>
+  <rect x="305" y="380" width="30" height="40" rx="10" fill="#3498db" opacity="0.5"/>
+  
+  <!-- Person 4 -->
+  <circle cx="480" cy="380" r="22" fill="#e74c3c"/>
+  <rect x="465" y="380" width="30" height="40" rx="10" fill="#e74c3c" opacity="0.5"/>
+  
+  <!-- Smiles and facial features -->
+  <path d="M310,140 Q320,155 330,140" stroke="#fff" fill="none" stroke-width="2"/>
+  <path d="M470,140 Q480,155 490,140" stroke="#fff" fill="none" stroke-width="2"/>
+  <path d="M310,380 Q320,395 330,380" stroke="#fff" fill="none" stroke-width="2"/>
+  <path d="M470,380 Q480,395 490,380" stroke="#fff" fill="none" stroke-width="2"/>
+  
+  <!-- Eyes -->
+  <circle cx="315" cy="135" r="2" fill="#fff"/>
+  <circle cx="325" cy="135" r="2" fill="#fff"/>
+  
+  <circle cx="475" cy="135" r="2" fill="#fff"/>
+  <circle cx="485" cy="135" r="2" fill="#fff"/>
+  
+  <circle cx="315" cy="375" r="2" fill="#fff"/>
+  <circle cx="325" cy="375" r="2" fill="#fff"/>
+  
+  <circle cx="475" cy="375" r="2" fill="#fff"/>
+  <circle cx="485" cy="375" r="2" fill="#fff"/>
+  
+  <!-- Ambient lighting -->
+  <circle cx="400" cy="120" r="50" fill="#f1c40f" opacity="0.1"/>
+  <circle cx="200" cy="200" r="40" fill="#f1c40f" opacity="0.05"/>
+  <circle cx="600" cy="200" r="40" fill="#f1c40f" opacity="0.05"/>
+  
+  <!-- Text overlay -->
+  <text x="400" y="20" font-family="Arial" font-size="14" fill="#ffffff" text-anchor="middle">Sharing great food and conversation</text>
+</svg>

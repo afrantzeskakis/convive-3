@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>OpenAI Status Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 5px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>OpenAI Status Test</h1>
+  
+  <div>
+    <h2>Login</h2>
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" value="superadmin">
+    </div>
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" value="superadmin123">
+    </div>
+    <button id="loginBtn">Login</button>
+    <div id="loginResult"></div>
+  </div>
+  
+  <div>
+    <h2>Check OpenAI Status</h2>
+    <button id="statusBtn">Check Status</button>
+    <div id="statusResult"></div>
+  </div>
+
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      try {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password }),
+          credentials: 'include'
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          document.getElementById('loginResult').innerHTML = `
+            <p>Login successful!</p>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+          `;
+        } else {
+          document.getElementById('loginResult').innerHTML = `
+            <p class="error">Login failed</p>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        document.getElementById('loginResult').innerHTML = `
+          <p class="error">Error</p>
+          <pre>${error.message}</pre>
+        `;
+      }
+    });
+
+    document.getElementById('statusBtn').addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/group-meetups/openai-status', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+          document.getElementById('statusResult').innerHTML = `
+            <p>Status check successful</p>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+          `;
+        } else {
+          document.getElementById('statusResult').innerHTML = `
+            <p class="error">Status check failed</p>
+            <pre>${JSON.stringify(result, null, 2)}</pre>
+          `;
+        }
+      } catch (error) {
+        document.getElementById('statusResult').innerHTML = `
+          <p class="error">Error</p>
+          <pre>${error.message}</pre>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

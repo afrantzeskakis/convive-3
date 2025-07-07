@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine List Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4a67d8;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #3a57c8;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+        .file-upload {
+            margin-top: 30px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wine List Upload Test</h1>
+    
+    <div class="form-group">
+        <label for="wineText">Enter Wine List (each wine on a new line):</label>
+        <textarea id="wineText">Tenuta dell'Ornellaia Ornellaia 2019, Bolgheri, Tuscany, Italy - $225
+Château Margaux 2015, Margaux, Bordeaux, France - $995
+Screaming Eagle Cabernet Sauvignon 2018, Napa Valley, California - $3,500</textarea>
+    </div>
+    
+    <button id="uploadText">Upload Wine List as Text</button>
+    
+    <div class="file-upload">
+        <h2>Or Upload a File</h2>
+        <div class="form-group">
+            <label for="wineFile">Select a wine list file:</label>
+            <input type="file" id="wineFile">
+        </div>
+        
+        <button id="uploadFile">Upload Wine List File</button>
+    </div>
+    
+    <h2>Response:</h2>
+    <div id="response">(Response will appear here)</div>
+    
+    <script>
+        document.getElementById('uploadText').addEventListener('click', async () => {
+            const wineText = document.getElementById('wineText').value;
+            const responseDiv = document.getElementById('response');
+            
+            responseDiv.innerText = 'Processing...';
+            
+            try {
+                const response = await fetch('/api/sommelier/ingest-wine-list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: wineText })
+                });
+                
+                const data = await response.json();
+                responseDiv.innerText = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.innerText = 'Error: ' + error.message;
+            }
+        });
+        
+        document.getElementById('uploadFile').addEventListener('click', async () => {
+            const fileInput = document.getElementById('wineFile');
+            const responseDiv = document.getElementById('response');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                responseDiv.innerText = 'Please select a file first';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            responseDiv.innerText = 'Processing...';
+            
+            try {
+                const response = await fetch('/api/sommelier/ingest-wine-list-file', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                responseDiv.innerText = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseDiv.innerText = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

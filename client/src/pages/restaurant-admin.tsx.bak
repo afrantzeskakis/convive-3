@@ -1,0 +1,2441 @@
+import React, { useState, useEffect } from "react";
+import { 
+  Building2, 
+  Users as UsersIcon, 
+  Calendar, 
+  FileText, 
+  Wine, 
+  Star, 
+  ChevronRight, 
+  MapPin, 
+  Clock, 
+  Group, 
+  Utensils, 
+  User as UserIcon, 
+  Loader2,
+  Edit,
+  Trash2,
+  Activity,
+  BarChart3,
+  MessageSquare,
+  UserPlus,
+  AlertTriangle,
+  CheckCircle2,
+  Coffee,
+  DollarSign,
+  Bell,
+  Award,
+  Send,
+  PlusCircle,
+  Info,
+  RefreshCcw
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContextProvider";
+import { 
+  Restaurant, 
+  Meetup, 
+  User, 
+  UserPreferences, 
+  UserActivityLog, 
+  HostPerformanceMetric, 
+  RestaurantAnnouncement, 
+  AnnouncementRecipient 
+} from "@shared/schema";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
+
+interface ParticipantWithPreferences {
+  user: User;
+  preferences?: UserPreferences;
+  outgoingScore?: number;
+  punctualityScore?: number;
+}
+
+interface MeetupWithParticipants extends Meetup {
+  restaurant: Restaurant;
+  participants: ParticipantWithPreferences[];
+}
+
+export default function RestaurantAdmin() {
+  const { toast } = useToast();
+  const { user, logout } = useAuth();
+  
+  const [activeTab, setActiveTab] = useState("restaurants");
+  
+  // Restaurant State
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const [restaurantsLoading, setRestaurantsLoading] = useState(true);
+  
+  // Meetup State
+  const [todaysMeetups, setTodaysMeetups] = useState<MeetupWithParticipants[]>([]);
+  const [meetupsLoading, setMeetupsLoading] = useState(true);
+  
+  // Recipe Analysis State
+  const [selectedRestaurant, setSelectedRestaurant] = useState<number | null>(null);
+  const [recipeFile, setRecipeFile] = useState<File | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [recipeAnalysis, setRecipeAnalysis] = useState<any>(null);
+  
+  // Wine Pairing State
+  const [wineFile, setWineFile] = useState<File | null>(null);
+  const [isAnalyzingWine, setIsAnalyzingWine] = useState(false);
+  const [winePairingData, setWinePairingData] = useState<any>(null);
+  
+  // Activity Monitoring State
+  const [userActivities, setUserActivities] = useState<UserActivityLog[]>([]);
+  const [activitiesLoading, setActivitiesLoading] = useState(true);
+  const [activityFilterRestaurant, setActivityFilterRestaurant] = useState<number | null>(null);
+  const [activityFilterType, setActivityFilterType] = useState<string | null>(null);
+  const [activityDateRange, setActivityDateRange] = useState<{ start: Date | null; end: Date | null }>({ start: null, end: null });
+  
+  // Host Performance Metrics State
+  const [hostMetrics, setHostMetrics] = useState<HostPerformanceMetric[]>([]);
+  const [metricsLoading, setMetricsLoading] = useState(true);
+  const [selectedHost, setSelectedHost] = useState<number | null>(null);
+  const [metricsFilterRestaurant, setMetricsFilterRestaurant] = useState<number | null>(null);
+  const [newMetric, setNewMetric] = useState<{
+    userId: number | null;
+    restaurantId: number | null;
+    customerSatisfactionScore: number | null;
+    tablesTurned: number | null;
+    averageSpendPerTable: number | null;
+    knowledgeScore: number | null;
+    communicationScore: number | null;
+    notes: string;
+  }>({
+    userId: null,
+    restaurantId: null,
+    customerSatisfactionScore: null,
+    tablesTurned: null,
+    averageSpendPerTable: null,
+    knowledgeScore: null, 
+    communicationScore: null,
+    notes: ''
+  });
+  
+  // Restaurant Announcements State
+  const [announcements, setAnnouncements] = useState<RestaurantAnnouncement[]>([]);
+  const [announcementsLoading, setAnnouncementsLoading] = useState(true);
+  const [announcementFilterRestaurant, setAnnouncementFilterRestaurant] = useState<number | null>(null);
+  const [showPinnedOnly, setShowPinnedOnly] = useState(false);
+  const [showUrgentOnly, setShowUrgentOnly] = useState(false);
+  const [newAnnouncement, setNewAnnouncement] = useState<{
+    restaurantId: number | null;
+    title: string;
+    content: string;
+    isUrgent: boolean;
+    isPinned: boolean;
+    expiresAt: Date | null;
+  }>({
+    restaurantId: null,
+    title: '',
+    content: '',
+    isUrgent: false,
+    isPinned: false,
+    expiresAt: null
+  });
+  
+  // Bulk User Operations State
+  const [restaurantHosts, setRestaurantHosts] = useState<User[]>([]);
+  const [hostsLoading, setHostsLoading] = useState(true);
+  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [bulkActionType, setBulkActionType] = useState<string | null>(null);
+  
+  useEffect(() => {
+    fetchRestaurants();
+    fetchTodaysMeetups();
+  }, []);
+  
+  // Load data based on active tab
+
+  useEffect(() => {
+    if (activeTab === "activity" && activitiesLoading) {
+      fetchUserActivities();
+    } else if (activeTab === "performance" && metricsLoading) {
+      fetchHostMetrics();
+      fetchRestaurantHosts();
+    } else if (activeTab === "announcements" && announcementsLoading) {
+      fetchAnnouncements();
+    } else if (activeTab === "bulk-operations" && hostsLoading) {
+      fetchRestaurantHosts();
+    }
+  }, [activeTab]);
+  
+  async function fetchRestaurants() {
+    try {
+      setRestaurantsLoading(true);
+      const response = await fetch("/api/restaurants/managed-by-me", {
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch restaurants");
+      }
+      
+      const data = await response.json();
+      setRestaurants(data);
+    } catch (error) {
+      console.error("Error fetching restaurants:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch restaurants",
+        variant: "destructive"
+      });
+    } finally {
+      setRestaurantsLoading(false);
+    }
+  }
+  
+  async function fetchTodaysMeetups() {
+    try {
+      setMeetupsLoading(true);
+      const response = await fetch("/api/meetups/today", {
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch today's meetups");
+      }
+      
+      const meetupsData = await response.json();
+      
+      // For each meetup, fetch participant details
+      const meetupsWithDetails = await Promise.all(
+        meetupsData.map(async (meetup: Meetup) => {
+          // Fetch restaurant details
+          const restaurantResponse = await fetch(`/api/restaurants/${meetup.restaurantId}`, {
+            credentials: "include"
+          });
+          const restaurant = await restaurantResponse.json();
+          
+          // Fetch participant details
+          const participantsResponse = await fetch(`/api/meetups/${meetup.id}/participants`, {
+            credentials: "include"
+          });
+          const participantsData = await participantsResponse.json();
+          
+          // Fetch user preferences for participants
+          const participantsWithPreferences = await Promise.all(
+            participantsData.map(async (participant: any) => {
+              try {
+                const userResponse = await fetch(`/api/users/${participant.userId}`, {
+                  credentials: "include"
+                });
+                const userData = await userResponse.json();
+                
+                const preferencesResponse = await fetch(`/api/users/${participant.userId}/preferences`, {
+                  credentials: "include"
+                });
+                
+                if (!preferencesResponse.ok) {
+                  return {
+                    user: userData,
+                    preferences: null,
+                    outgoingScore: Math.floor(Math.random() * 5) + 1, // Mock data
+                    punctualityScore: Math.floor(Math.random() * 5) + 1 // Mock data
+                  };
+                }
+                
+                const preferencesData = await preferencesResponse.json();
+                
+                return {
+                  user: userData,
+                  preferences: preferencesData,
+                  outgoingScore: Math.floor(Math.random() * 5) + 1, // Mock data
+                  punctualityScore: Math.floor(Math.random() * 5) + 1 // Mock data
+                };
+              } catch (error) {
+                console.error("Error fetching participant details:", error);
+                return {
+                  user: { id: participant.userId, fullName: "Unknown User" },
+                  preferences: null
+                };
+              }
+            })
+          );
+          
+          return {
+            ...meetup,
+            restaurant,
+            participants: participantsWithPreferences
+          };
+        })
+      );
+      
+      setTodaysMeetups(meetupsWithDetails);
+    } catch (error) {
+      console.error("Error fetching today's meetups:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch today's meetups",
+        variant: "destructive"
+      });
+    } finally {
+      setMeetupsLoading(false);
+    }
+  }
+  
+  // Handle recipe file change
+  const handleRecipeFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setRecipeFile(e.target.files[0]);
+    }
+  };
+  
+  // Handle recipe analysis
+  const handleAnalyzeRecipe = async () => {
+    if (!recipeFile || !selectedRestaurant) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a restaurant and upload a recipe file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsAnalyzing(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append("recipeFile", recipeFile);
+      formData.append("restaurantId", selectedRestaurant.toString());
+      
+      const response = await fetch("/api/restaurants/analyze-recipe", {
+        method: "POST",
+        credentials: "include",
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to analyze recipe");
+      }
+      
+      const data = await response.json();
+      setRecipeAnalysis(data);
+      
+      toast({
+        title: "Analysis Complete",
+        description: "Recipe has been successfully analyzed",
+      });
+    } catch (error) {
+      console.error("Error analyzing recipe:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "Failed to analyze recipe",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+  
+  // Handle wine file change
+  const handleWineFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setWineFile(e.target.files[0]);
+    }
+  };
+  
+  // Handle wine analysis
+  const handleAnalyzeWine = async () => {
+    if (!wineFile || !selectedRestaurant) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a restaurant and upload a wine list file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsAnalyzingWine(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append("wineFile", wineFile);
+      formData.append("restaurantId", selectedRestaurant.toString());
+      
+      const response = await fetch("/api/restaurants/analyze-wine", {
+        method: "POST",
+        credentials: "include",
+        body: formData
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to analyze wine list");
+      }
+      
+      const data = await response.json();
+      setWinePairingData(data);
+      
+      toast({
+        title: "Analysis Complete",
+        description: "Wine list has been successfully analyzed",
+      });
+    } catch (error) {
+      console.error("Error analyzing wine list:", error);
+      toast({
+        title: "Analysis Failed",
+        description: "Failed to analyze wine list",
+        variant: "destructive"
+      });
+    } finally {
+      setIsAnalyzingWine(false);
+    }
+  };
+  
+  // Fetch User Activities for Activity Monitoring
+  async function fetchUserActivities() {
+    try {
+      setActivitiesLoading(true);
+      let url = "/api/activity-logs";
+      
+      // Add filters if they exist
+      const params = new URLSearchParams();
+      if (activityFilterRestaurant) {
+        params.append("restaurantId", activityFilterRestaurant.toString());
+      }
+      if (activityFilterType) {
+        params.append("activityType", activityFilterType);
+      }
+      if (activityDateRange.start) {
+        params.append("startDate", activityDateRange.start.toISOString());
+      }
+      if (activityDateRange.end) {
+        params.append("endDate", activityDateRange.end.toISOString());
+      }
+      
+      const queryString = params.toString();
+      if (queryString) {
+        url = `${url}?${queryString}`;
+      }
+      
+      const response = await fetch(url, {
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch user activities");
+      }
+      
+      const data = await response.json();
+      setUserActivities(data);
+    } catch (error) {
+      console.error("Error fetching user activities:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch user activities",
+        variant: "destructive"
+      });
+    } finally {
+      setActivitiesLoading(false);
+    }
+  }
+  
+  // Fetch Host Performance Metrics
+  async function fetchHostMetrics() {
+    try {
+      setMetricsLoading(true);
+      let url = "/api/host-metrics";
+      
+      // Add filters if they exist
+      const params = new URLSearchParams();
+      if (metricsFilterRestaurant) {
+        params.append("restaurantId", metricsFilterRestaurant.toString());
+      }
+      if (selectedHost) {
+        params.append("userId", selectedHost.toString());
+      }
+      
+      const queryString = params.toString();
+      if (queryString) {
+        url = `${url}?${queryString}`;
+      }
+      
+      const response = await fetch(url, {
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch host metrics");
+      }
+      
+      const data = await response.json();
+      setHostMetrics(data);
+    } catch (error) {
+      console.error("Error fetching host metrics:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch host performance metrics",
+        variant: "destructive"
+      });
+    } finally {
+      setMetricsLoading(false);
+    }
+  }
+  
+  // Fetch Restaurant Announcements
+  async function fetchAnnouncements() {
+    try {
+      setAnnouncementsLoading(true);
+      let url = "/api/restaurant-announcements";
+      
+      // Add filters if they exist
+      const params = new URLSearchParams();
+      if (announcementFilterRestaurant) {
+        params.append("restaurantId", announcementFilterRestaurant.toString());
+      }
+      if (showPinnedOnly) {
+        params.append("isPinned", "true");
+      }
+      if (showUrgentOnly) {
+        params.append("isUrgent", "true");
+      }
+      
+      const queryString = params.toString();
+      if (queryString) {
+        url = `${url}?${queryString}`;
+      }
+      
+      const response = await fetch(url, {
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch announcements");
+      }
+      
+      const data = await response.json();
+      setAnnouncements(data);
+    } catch (error) {
+      console.error("Error fetching announcements:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch restaurant announcements",
+        variant: "destructive"
+      });
+    } finally {
+      setAnnouncementsLoading(false);
+    }
+  }
+  
+  // Fetch Restaurant Hosts for Performance Metrics and Bulk Operations
+  async function fetchRestaurantHosts() {
+    try {
+      setHostsLoading(true);
+      const response = await fetch("/api/restaurant-hosts", {
+        credentials: "include"
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch restaurant hosts");
+      }
+      
+      const data = await response.json();
+      setRestaurantHosts(data);
+    } catch (error) {
+      console.error("Error fetching restaurant hosts:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch restaurant hosts",
+        variant: "destructive"
+      });
+    } finally {
+      setHostsLoading(false);
+    }
+  }
+  
+  // Create New Host Performance Metric
+  async function createHostMetric() {
+    if (!newMetric.userId || !newMetric.restaurantId) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a host and restaurant",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      const response = await fetch("/api/host-metrics", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newMetric)
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to create host metric");
+      }
+      
+      toast({
+        title: "Success",
+        description: "Host performance metric has been added"
+      });
+      
+      // Reset form and refresh metrics
+      setNewMetric({
+        userId: null,
+        restaurantId: null,
+        customerSatisfactionScore: null,
+        tablesTurned: null,
+        averageSpendPerTable: null,
+        knowledgeScore: null,
+        communicationScore: null,
+        notes: ''
+      });
+      
+      fetchHostMetrics();
+    } catch (error) {
+      console.error("Error creating host metric:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add host performance metric",
+        variant: "destructive"
+      });
+    }
+  }
+  
+  // Create New Restaurant Announcement
+  async function createAnnouncement() {
+    if (!newAnnouncement.restaurantId || !newAnnouncement.title || !newAnnouncement.content) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide title, content, and select a restaurant",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      const response = await fetch("/api/restaurant-announcements", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ...newAnnouncement,
+          authorId: user?.id || 0
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to create announcement");
+      }
+      
+      toast({
+        title: "Success",
+        description: "Announcement has been created"
+      });
+      
+      // Reset form and refresh announcements
+      setNewAnnouncement({
+        restaurantId: null,
+        title: '',
+        content: '',
+        isUrgent: false,
+        isPinned: false,
+        expiresAt: null
+      });
+      
+      fetchAnnouncements();
+    } catch (error) {
+      console.error("Error creating announcement:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create announcement",
+        variant: "destructive"
+      });
+    }
+  }
+  
+
+  
+  // Perform Bulk Action on Selected Users
+  async function performBulkAction() {
+    if (selectedUsers.length === 0 || !bulkActionType) {
+      toast({
+        title: "Missing Information",
+        description: "Please select users and an action to perform",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    try {
+      const response = await fetch("/api/bulk-user-operations", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userIds: selectedUsers,
+          actionType: bulkActionType
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to perform bulk action");
+      }
+      
+      toast({
+        title: "Success",
+        description: `Bulk action '${bulkActionType}' performed on ${selectedUsers.length} users`
+      });
+      
+      // Reset selections
+      setSelectedUsers([]);
+      setBulkActionType(null);
+      
+      // Refresh host list
+      fetchRestaurantHosts();
+    } catch (error) {
+      console.error("Error performing bulk action:", error);
+      toast({
+        title: "Error",
+        description: "Failed to perform bulk action on users",
+        variant: "destructive"
+      });
+    }
+  }
+  
+  // Toggle user selection for bulk operations
+  const toggleUserSelection = (userId: number) => {
+    setSelectedUsers(prev => {
+      if (prev.includes(userId)) {
+        return prev.filter(id => id !== userId);
+      } else {
+        return [...prev, userId];
+      }
+    });
+  };
+  
+  const handleLogout = () => {
+    logout();
+    window.location.href = "/auth";
+  };
+  
+  // Social outgoingness visualization
+  const renderSocialOutgoingness = (participant: ParticipantWithPreferences) => {
+    if (!participant.outgoingScore) return null;
+    
+    const outgoingLevel = participant.outgoingScore;
+    let levelText = "";
+    let color = "";
+    
+    if (outgoingLevel <= 1) {
+      levelText = "Very Reserved";
+      color = "bg-blue-500";
+    } else if (outgoingLevel === 2) {
+      levelText = "Somewhat Reserved";
+      color = "bg-sky-500";
+    } else if (outgoingLevel === 3) {
+      levelText = "Moderately Social";
+      color = "bg-green-500";
+    } else if (outgoingLevel === 4) {
+      levelText = "Outgoing";
+      color = "bg-yellow-500";
+    } else if (outgoingLevel >= 5) {
+      levelText = "Very Outgoing";
+      color = "bg-red-500";
+    }
+    
+    return (
+      <div className="mt-3">
+        <p className="text-sm font-medium mb-1">Social Style: {levelText}</p>
+        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className={`h-full ${color}`} 
+            style={{ width: `${outgoingLevel * 20}%` }}
+          ></div>
+        </div>
+      </div>
+    );
+  };
+  
+  // Punctuality visualization
+  const renderPunctuality = (participant: ParticipantWithPreferences) => {
+    if (!participant.punctualityScore) return null;
+    
+    const punctualityLevel = participant.punctualityScore;
+    let levelText = "";
+    let color = "";
+    
+    if (punctualityLevel <= 1) {
+      levelText = "Often Late";
+      color = "bg-red-500";
+    } else if (punctualityLevel === 2) {
+      levelText = "Sometimes Late";
+      color = "bg-orange-500";
+    } else if (punctualityLevel === 3) {
+      levelText = "Sometimes On Time";
+      color = "bg-yellow-500";
+    } else if (punctualityLevel === 4) {
+      levelText = "Usually On Time";
+      color = "bg-emerald-500";
+    } else if (punctualityLevel >= 5) {
+      levelText = "Always On Time";
+      color = "bg-green-500";
+    }
+    
+    return (
+      <div className="mt-3">
+        <p className="text-sm font-medium mb-1">Punctuality: {levelText}</p>
+        <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+          <div 
+            className={`h-full ${color}`} 
+            style={{ width: `${punctualityLevel * 20}%` }}
+          ></div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="container mx-auto py-8 px-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <h1 className="text-3xl font-bold">Restaurant Admin Dashboard</h1>
+        <div className="flex items-center gap-3">
+          <Badge variant="outline" className="text-sm py-1 px-3">
+            {user?.fullName || "User"}
+          </Badge>
+          {user?.role === "super_admin" && (
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={() => window.location.href = "/super-admin-dashboard"}
+            >
+              Return to Super Admin
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            Logout
+          </Button>
+        </div>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex flex-col space-y-4">
+          {/* Page selector - mobile-optimized dropdown */}
+          <div className="w-full">
+            <label htmlFor="page-selector" className="text-sm font-medium mb-2 block">
+              Select Dashboard Page
+            </label>
+            <Select value={activeTab} onValueChange={setActiveTab}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a page" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="restaurants" className="flex items-center">
+                  <Building2 className="h-4 w-4 mr-2 inline" />
+                  Your Restaurants
+                </SelectItem>
+                <SelectItem value="today" className="flex items-center">
+                  <Calendar className="h-4 w-4 mr-2 inline" />
+                  Today's Meetups
+                </SelectItem>
+                <SelectItem value="revenue" className="flex items-center">
+                  <DollarSign className="h-4 w-4 mr-2 inline" />
+                  Revenue & Stats
+                </SelectItem>
+                <SelectItem value="recipes" className="flex items-center">
+                  <FileText className="h-4 w-4 mr-2 inline" />
+                  Recipe Analysis
+                </SelectItem>
+                <SelectItem value="wine" className="flex items-center">
+                  <Wine className="h-4 w-4 mr-2 inline" />
+                  Wine Pairing
+                </SelectItem>
+                <SelectItem value="users" className="flex items-center" 
+                  onClick={() => {
+                    // Need to handle this separately as it's a navigation, not a tab switch
+                    setTimeout(() => window.location.href = '/manage-restaurant-users', 100);
+                  }}>
+                  <UsersIcon className="h-4 w-4 mr-2 inline" />
+                  Manage Users
+                </SelectItem>
+                <SelectItem value="activity" className="flex items-center">
+                  <Activity className="h-4 w-4 mr-2 inline" />
+                  Activity Monitoring
+                </SelectItem>
+                <SelectItem value="performance" className="flex items-center">
+                  <BarChart3 className="h-4 w-4 mr-2 inline" />
+                  Performance Metrics
+                </SelectItem>
+                <SelectItem value="announcements" className="flex items-center">
+                  <MessageSquare className="h-4 w-4 mr-2 inline" />
+                  Announcements
+                </SelectItem>
+                <SelectItem value="bulk-operations" className="flex items-center">
+                  <UserPlus className="h-4 w-4 mr-2 inline" />
+                  Bulk User Operations
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          {/* Quick access buttons for most common actions */}
+          <div className="grid grid-cols-3 gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex flex-col items-center justify-center p-3 h-auto"
+              onClick={() => setActiveTab("restaurants")}
+            >
+              <Building2 className="h-5 w-5 mb-1" />
+              <span className="text-xs">Restaurants</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex flex-col items-center justify-center p-3 h-auto"
+              onClick={() => setActiveTab("today")}
+            >
+              <Calendar className="h-5 w-5 mb-1" />
+              <span className="text-xs">Today</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex flex-col items-center justify-center p-3 h-auto"
+              onClick={() => setActiveTab("activity")}
+            >
+              <Activity className="h-5 w-5 mb-1" />
+              <span className="text-xs">Activity</span>
+            </Button>
+          </div>
+        </div>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
+
+        {/* Restaurants Tab */}
+        <TabsContent value="restaurants">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Your Restaurants</h2>
+            <p className="text-muted-foreground mb-6">
+              Manage the restaurants you administer and view their details.
+            </p>
+          </div>
+
+          {restaurantsLoading ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : restaurants.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {restaurants.map((restaurant: Restaurant) => (
+                <Card key={restaurant.id} className="overflow-hidden">
+                  <div 
+                    className="h-48 bg-cover bg-center" 
+                    style={{ 
+                      backgroundImage: restaurant.imageUrl 
+                        ? `url(${restaurant.imageUrl})` 
+                        : 'url(/placeholder-restaurant.jpg)' 
+                    }}
+                  ></div>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle>{restaurant.name}</CardTitle>
+                        <CardDescription>{restaurant.cuisineType} Cuisine</CardDescription>
+                      </div>
+                      {restaurant.isFeatured && (
+                        <Badge className="bg-amber-500 hover:bg-amber-600">Featured</Badge>
+                      )}
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-start gap-2 mb-2">
+                      <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
+                      <p className="text-sm">{restaurant.address}</p>
+                    </div>
+                    <p className="text-sm line-clamp-3">{restaurant.description}</p>
+                  </CardContent>
+                  <CardFooter className="flex justify-between">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setSelectedRestaurant(restaurant.id);
+                        setActiveTab("recipes");
+                      }}
+                    >
+                      Manage Content
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => window.location.href = `/restaurant/${restaurant.id}`}
+                    >
+                      View Details
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8 border rounded-lg bg-background/50">
+              <Building2 className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+              <h3 className="mt-4 text-lg font-medium">No Restaurants Found</h3>
+              <p className="mt-2 text-muted-foreground">
+                You don't have any restaurants assigned to your account yet.
+              </p>
+              <Button 
+                className="mt-4" 
+                onClick={() => window.location.href = "/contact-support"}
+              >
+                Contact Support
+              </Button>
+            </div>
+          )}
+        </TabsContent>
+        
+        {/* Today's Meetups Tab */}
+        <TabsContent value="today">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Today's Meetups</h2>
+            <p className="text-muted-foreground mb-6">
+              View and manage today's scheduled meetups at your restaurants.
+            </p>
+          </div>
+          
+          {meetupsLoading ? (
+            <div className="flex justify-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : todaysMeetups.length > 0 ? (
+            <div className="space-y-6">
+              {todaysMeetups.map((meetup) => (
+                <Card key={meetup.id}>
+                  <CardHeader>
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <CardTitle>{meetup.title}</CardTitle>
+                        <CardDescription className="flex items-center gap-1 mt-1">
+                          <Building2 className="h-4 w-4" />
+                          {meetup.restaurant.name}
+                        </CardDescription>
+                      </div>
+                      <Badge variant={
+                        meetup.status === "confirmed" ? "default" :
+                        meetup.status === "pending" ? "secondary" :
+                        meetup.status === "cancelled" ? "destructive" :
+                        "outline"
+                      }>
+                        {meetup.status.charAt(0).toUpperCase() + meetup.status.slice(1)}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex flex-col md:flex-row justify-between gap-6">
+                      <div className="flex-1">
+                        <h4 className="font-medium mb-2 flex items-center gap-1">
+                          <Clock className="h-4 w-4" />
+                          Schedule
+                        </h4>
+                        <div className="bg-secondary/30 p-3 rounded-md">
+                          <p className="text-sm flex items-center gap-2">
+                            <span className="font-medium">Time:</span> 
+                            {meetup.startTime} - {meetup.endTime}
+                          </p>
+                          <p className="text-sm flex items-center gap-2 mt-1">
+                            <span className="font-medium">Date:</span> 
+                            {new Date(meetup.date).toLocaleDateString('en-US', {
+                              weekday: 'long',
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                          <p className="text-sm flex items-center gap-2 mt-1">
+                            <span className="font-medium">Capacity:</span> 
+                            {meetup.participants?.length || 0} / {meetup.maxParticipants} participants
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex-1">
+                        <h4 className="font-medium mb-2 flex items-center gap-1">
+                          <Group className="h-4 w-4" />
+                          Participants
+                        </h4>
+                        <div className="bg-secondary/30 p-3 rounded-md">
+                          {meetup.participants && meetup.participants.length > 0 ? (
+                            <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
+                              {meetup.participants.map((participant) => (
+                                <div key={participant.user.id} className="border-b border-border pb-3 last:border-0 last:pb-0">
+                                  <div className="flex items-start justify-between">
+                                    <div>
+                                      <p className="font-medium">{participant.user.fullName}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {participant.user.occupation || 'No occupation listed'}
+                                      </p>
+                                    </div>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="icon" 
+                                      className="h-6 w-6"
+                                      onClick={() => window.location.href = `/user/${participant.user.id}`}
+                                    >
+                                      <ChevronRight className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                  
+                                  {/* Social outgoingness and punctuality visualizations */}
+                                  {renderSocialOutgoingness(participant)}
+                                  {renderPunctuality(participant)}
+                                  
+                                  {/* Dietary preferences if available */}
+                                  {participant.preferences && (
+                                    <div className="mt-2">
+                                      <p className="text-xs text-muted-foreground font-medium mb-1">
+                                        Dietary Preferences:
+                                      </p>
+                                      <div className="flex flex-wrap gap-1">
+                                        {participant.preferences.dietaryRestrictions && (
+                                          <Badge variant="outline" className="text-xs">
+                                            {participant.preferences.dietaryRestrictions}
+                                          </Badge>
+                                        )}
+                                        {participant.preferences.diningPreferences && (
+                                          <Badge variant="outline" className="text-xs">
+                                            Preferences: {participant.preferences.diningPreferences}
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              No participants have joined this meetup yet.
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.href = `/meetup/${meetup.id}`}
+                    >
+                      View Details
+                    </Button>
+                    {meetup.status === "pending" && (
+                      <Button
+                        variant="default"
+                        size="sm"
+                      >
+                        Confirm Meetup
+                      </Button>
+                    )}
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center p-8 border rounded-lg bg-background/50">
+              <Calendar className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+              <h3 className="mt-4 text-lg font-medium">No Meetups Today</h3>
+              <p className="mt-2 text-muted-foreground">
+                There are no meetups scheduled at your restaurants for today.
+              </p>
+            </div>
+          )}
+        </TabsContent>
+        
+        {/* Revenue & Stats Tab */}
+        <TabsContent value="revenue">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Revenue & Statistics</h2>
+            <p className="text-muted-foreground mb-6">
+              Track revenue, view statistics, and analyze the performance of your restaurants.
+            </p>
+          </div>
+          
+          <div className="p-8 text-center border rounded-md">
+            <Star className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+            <h3 className="mt-4 text-lg font-medium">Coming Soon</h3>
+            <p className="mt-2 text-muted-foreground">
+              Detailed revenue tracking and analytics will be available in a future update.
+            </p>
+          </div>
+        </TabsContent>
+        
+        {/* Recipe Analysis Tab */}
+        <TabsContent value="recipes">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Recipe Analysis</h2>
+            <p className="text-muted-foreground mb-6">
+              Upload your recipes to analyze and get insights for your restaurant.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <FileText className="mr-2 h-5 w-5" />
+                  Upload Recipe
+                </CardTitle>
+                <CardDescription>
+                  Select a restaurant and upload a recipe document for analysis
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="restaurant">Select Restaurant</Label>
+                    <select 
+                      id="restaurant"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={selectedRestaurant || ""}
+                      onChange={(e) => setSelectedRestaurant(e.target.value ? Number(e.target.value) : null)}
+                    >
+                      <option value="">Select a restaurant</option>
+                      {restaurants.map((restaurant) => (
+                        <option key={restaurant.id} value={restaurant.id}>
+                          {restaurant.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="recipeFile">Recipe Document</Label>
+                    <Input 
+                      id="recipeFile" 
+                      type="file" 
+                      accept=".txt,.doc,.docx,.pdf"
+                      onChange={handleRecipeFileChange}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Supported formats: .txt, .doc, .docx, .pdf
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    className="w-full" 
+                    onClick={handleAnalyzeRecipe}
+                    disabled={isAnalyzing || !recipeFile || !selectedRestaurant}
+                  >
+                    {isAnalyzing ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      "Analyze Recipe"
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Utensils className="mr-2 h-5 w-5" />
+                  Recipe Analysis
+                </CardTitle>
+                <CardDescription>
+                  View insights and analysis for your recipes
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {recipeAnalysis ? (
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium mb-2">Recipe Name</h4>
+                      <p className="text-sm bg-secondary/30 p-3 rounded-md">
+                        {recipeAnalysis.recipe?.name || "Untitled Recipe"}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2">Key Ingredients</h4>
+                      <ul className="space-y-1 bg-secondary/30 p-3 rounded-md">
+                        {recipeAnalysis.recipe?.keyIngredients?.map((ingredient: string, i: number) => (
+                          <li key={i} className="text-sm flex items-center">
+                            <span className="h-1.5 w-1.5 bg-primary rounded-full mr-2"></span>
+                            {ingredient}
+                          </li>
+                        )) || "No key ingredients identified"}
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2">Dietary Notes</h4>
+                      <p className="text-sm bg-secondary/30 p-3 rounded-md">
+                        {recipeAnalysis.recipe?.dietaryNotes || "No dietary notes available"}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2">Talking Points</h4>
+                      <ul className="space-y-1 bg-secondary/30 p-3 rounded-md">
+                        {recipeAnalysis.recipe?.talkingPoints?.map((point: string, i: number) => (
+                          <li key={i} className="text-sm flex items-start">
+                            <span className="h-1.5 w-1.5 bg-primary rounded-full mr-2 mt-1.5"></span>
+                            {point}
+                          </li>
+                        )) || "No talking points available"}
+                      </ul>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2">Preparation Method</h4>
+                      <p className="text-sm bg-secondary/30 p-3 rounded-md">
+                        {recipeAnalysis.recipe?.preparationMethod || "No preparation method available"}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center p-6">
+                    <FileText className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                    <p className="mt-4 text-muted-foreground">
+                      No recipe analysis available. Upload and analyze a recipe to see insights.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        {/* Wine Pairing Tab */}
+        <TabsContent value="wine">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Wine Pairing Guide</h2>
+            <p className="text-muted-foreground mb-6">
+              Upload your wine list to analyze and get pairing recommendations based on customer preferences.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Wine className="mr-2 h-5 w-5" />
+                  Upload Wine List
+                </CardTitle>
+                <CardDescription>
+                  Select a restaurant and upload your wine list for analysis
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="wine-restaurant">Select Restaurant</Label>
+                    <select 
+                      id="wine-restaurant"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={selectedRestaurant || ""}
+                      onChange={(e) => setSelectedRestaurant(e.target.value ? Number(e.target.value) : null)}
+                    >
+                      <option value="">Select a restaurant</option>
+                      {restaurants.map((restaurant) => (
+                        <option key={restaurant.id} value={restaurant.id}>
+                          {restaurant.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="wineFile">Wine List Document</Label>
+                    <Input 
+                      id="wineFile" 
+                      type="file" 
+                      accept=".txt,.doc,.docx,.pdf"
+                      onChange={handleWineFileChange}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Supported formats: .txt, .doc, .docx, .pdf
+                    </p>
+                  </div>
+                  
+                  <Button 
+                    className="w-full" 
+                    onClick={handleAnalyzeWine}
+                    disabled={isAnalyzingWine || !wineFile || !selectedRestaurant}
+                  >
+                    {isAnalyzingWine ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      "Analyze Wine List"
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Wine className="mr-2 h-5 w-5" />
+                  Wine Pairing Analysis
+                </CardTitle>
+                <CardDescription>
+                  View wine pairing recommendations and details
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {winePairingData ? (
+                  <div className="space-y-4">
+                    <div>
+                      <h4 className="font-medium mb-2">Wine List Overview</h4>
+                      <p className="text-sm bg-secondary/30 p-3 rounded-md">
+                        {winePairingData.overview || "No overview available"}
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <h4 className="font-medium mb-2">Featured Wines</h4>
+                      <div className="space-y-2">
+                        {winePairingData.featuredWines?.map((wine: any, i: number) => (
+                          <div key={i} className="bg-secondary/30 p-3 rounded-md">
+                            <p className="font-medium text-sm">{wine.name}</p>
+                            <p className="text-xs text-muted-foreground">{wine.region} • {wine.varietal}</p>
+                            <p className="text-xs mt-1">{wine.description}</p>
+                            {wine.pairings && (
+                              <div className="mt-2">
+                                <p className="text-xs font-medium">Pairs well with:</p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {wine.pairings.map((pairing: string, j: number) => (
+                                    <Badge key={j} variant="outline" className="text-xs">
+                                      {pairing}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )) || (
+                          <p className="text-sm text-muted-foreground">
+                            No featured wines available
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {winePairingData.recommendations && (
+                      <div>
+                        <h4 className="font-medium mb-2">Recommendations for Servers</h4>
+                        <ul className="space-y-1 bg-secondary/30 p-3 rounded-md">
+                          {winePairingData.recommendations.map((recommendation: string, i: number) => (
+                            <li key={i} className="text-sm flex items-start">
+                              <span className="h-1.5 w-1.5 bg-primary rounded-full mr-2 mt-1.5"></span>
+                              {recommendation}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center p-6">
+                    <Wine className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                    <p className="mt-4 text-muted-foreground">
+                      Please upload and analyze your wine list first to get recommendations.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        
+        {/* Restaurant Users Tab - Empty content, redirects to standalone page */}
+        <TabsContent value="users">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Manage Restaurant Users</h2>
+            <p className="text-muted-foreground mb-6">
+              Create and manage users who can access your restaurant's data. These users will be able to view recipe analysis and wine pairings.
+            </p>
+            <p>Redirecting to user management page...</p>
+          </div>
+        </TabsContent>
+
+        {/* Activity Monitoring Tab */}
+        <TabsContent value="activity">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">User Activity Monitoring</h2>
+            <p className="text-muted-foreground mb-6">
+              Track user engagement and activity across your restaurants.
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5" />
+                Activity Filters
+              </CardTitle>
+              <CardDescription>
+                Filter activities by restaurant, type, and date range
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                  <Label htmlFor="restaurant-filter">Restaurant</Label>
+                  <Select
+                    value={activityFilterRestaurant?.toString() || ""}
+                    onValueChange={(value) => {
+                      setActivityFilterRestaurant(value ? parseInt(value) : null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Restaurants" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Restaurants</SelectItem>
+                      {restaurants.map(restaurant => (
+                        <SelectItem key={restaurant.id} value={restaurant.id.toString()}>
+                          {restaurant.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="activity-type-filter">Activity Type</Label>
+                  <Select
+                    value={activityFilterType || ""}
+                    onValueChange={(value) => {
+                      setActivityFilterType(value || null);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Activities" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Activities</SelectItem>
+                      <SelectItem value="login">Login</SelectItem>
+                      <SelectItem value="logout">Logout</SelectItem>
+                      <SelectItem value="view_recipe">View Recipe</SelectItem>
+                      <SelectItem value="view_wine">View Wine</SelectItem>
+                      <SelectItem value="book_meetup">Book Meetup</SelectItem>
+                      <SelectItem value="cancel_meetup">Cancel Meetup</SelectItem>
+                      <SelectItem value="profile_update">Profile Update</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Date Range</Label>
+                  <div className="flex space-x-2 mt-2">
+                    <Button
+                      size="sm"
+                      variant={!activityDateRange.start && !activityDateRange.end ? "default" : "outline"}
+                      onClick={() => setActivityDateRange({ start: null, end: null })}
+                    >
+                      All Time
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={activityDateRange.start && Date.now() - activityDateRange.start.getTime() < 86400000 ? "default" : "outline"}
+                      onClick={() => {
+                        const start = new Date();
+                        start.setHours(0, 0, 0, 0);
+                        setActivityDateRange({ start, end: null });
+                      }}
+                    >
+                      Today
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant={activityDateRange.start && Date.now() - activityDateRange.start.getTime() < 604800000 ? "default" : "outline"}
+                      onClick={() => {
+                        const start = new Date();
+                        start.setDate(start.getDate() - 7);
+                        start.setHours(0, 0, 0, 0);
+                        setActivityDateRange({ start, end: null });
+                      }}
+                    >
+                      Last 7 Days
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-between mb-4">
+                <h3 className="text-lg font-medium">Activity Log</h3>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={fetchUserActivities}
+                >
+                  <RefreshCcw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+
+              {activitiesLoading ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : userActivities.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Restaurant</TableHead>
+                        <TableHead>Activity</TableHead>
+                        <TableHead>Description</TableHead>
+                        <TableHead>Time</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {userActivities.map((activity) => (
+                        <TableRow key={activity.id}>
+                          <TableCell className="font-medium">
+                            {activity.userId}
+                          </TableCell>
+                          <TableCell>
+                            {activity.restaurantId ? restaurants.find(r => r.id === activity.restaurantId)?.name || activity.restaurantId : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">
+                              {activity.activityType}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            {activity.description || 'No description'}
+                          </TableCell>
+                          <TableCell className="text-xs">
+                            {new Date(activity.createdAt).toLocaleString()}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center p-8 border rounded-lg bg-background/50">
+                  <Activity className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                  <h3 className="mt-4 text-lg font-medium">No Activities Found</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    Try changing your filters or check back later.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Performance Metrics Tab */}
+        <TabsContent value="performance">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Host Performance Metrics</h2>
+            <p className="text-muted-foreground mb-6">
+              Track and analyze host performance across your restaurants.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Performance Metrics
+                  </CardTitle>
+                  <CardDescription>
+                    View and analyze host performance data
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                      <Label htmlFor="restaurant-filter">Restaurant</Label>
+                      <Select
+                        value={metricsFilterRestaurant?.toString() || ""}
+                        onValueChange={(value) => {
+                          setMetricsFilterRestaurant(value ? parseInt(value) : null);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All Restaurants" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Restaurants</SelectItem>
+                          {restaurants.map(restaurant => (
+                            <SelectItem key={restaurant.id} value={restaurant.id.toString()}>
+                              {restaurant.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="host-filter">Host</Label>
+                      <Select
+                        value={selectedHost?.toString() || ""}
+                        onValueChange={(value) => {
+                          setSelectedHost(value ? parseInt(value) : null);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All Hosts" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Hosts</SelectItem>
+                          {restaurantHosts.map(host => (
+                            <SelectItem key={host.id} value={host.id.toString()}>
+                              {host.fullName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between mb-4">
+                    <h3 className="text-lg font-medium">Host Metrics Log</h3>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={fetchHostMetrics}
+                    >
+                      <RefreshCcw className="h-4 w-4 mr-2" />
+                      Refresh
+                    </Button>
+                  </div>
+
+                  {metricsLoading ? (
+                    <div className="flex justify-center p-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : hostMetrics.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Host</TableHead>
+                            <TableHead>Restaurant</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Satisfaction</TableHead>
+                            <TableHead>Tables</TableHead>
+                            <TableHead>Avg. Spend</TableHead>
+                            <TableHead>Knowledge</TableHead>
+                            <TableHead>Comm.</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {hostMetrics.map((metric) => (
+                            <TableRow key={metric.id}>
+                              <TableCell className="font-medium">
+                                {restaurantHosts.find(h => h.id === metric.userId)?.fullName || metric.userId}
+                              </TableCell>
+                              <TableCell>
+                                {restaurants.find(r => r.id === metric.restaurantId)?.name || metric.restaurantId}
+                              </TableCell>
+                              <TableCell className="text-xs">
+                                {new Date(metric.metricsDate).toLocaleDateString()}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex items-center">
+                                  <Star className="h-4 w-4 text-yellow-500 mr-1" />
+                                  {metric.customerSatisfactionScore}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                {metric.tablesTurned}
+                              </TableCell>
+                              <TableCell>
+                                ${metric.averageSpendPerTable ? parseFloat(metric.averageSpendPerTable.toString()).toFixed(2) : '0.00'}
+                              </TableCell>
+                              <TableCell>
+                                <Progress value={Number(metric.knowledgeScore) * 20} className="h-2" />
+                              </TableCell>
+                              <TableCell>
+                                <Progress value={Number(metric.communicationScore) * 20} className="h-2" />
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <div className="text-center p-8 border rounded-lg bg-background/50">
+                      <BarChart3 className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                      <h3 className="mt-4 text-lg font-medium">No Metrics Found</h3>
+                      <p className="mt-2 text-muted-foreground">
+                        Try changing your filters or add new metrics.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PlusCircle className="h-5 w-5" />
+                    Add New Metric
+                  </CardTitle>
+                  <CardDescription>
+                    Record new host performance data
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="new-metric-host">Host</Label>
+                      <Select
+                        value={newMetric.userId?.toString() || ""}
+                        onValueChange={(value) => {
+                          setNewMetric({
+                            ...newMetric,
+                            userId: value ? parseInt(value) : null
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Host" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {restaurantHosts.map(host => (
+                            <SelectItem key={host.id} value={host.id.toString()}>
+                              {host.fullName}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="new-metric-restaurant">Restaurant</Label>
+                      <Select
+                        value={newMetric.restaurantId?.toString() || ""}
+                        onValueChange={(value) => {
+                          setNewMetric({
+                            ...newMetric,
+                            restaurantId: value ? parseInt(value) : null
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Restaurant" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {restaurants.map(restaurant => (
+                            <SelectItem key={restaurant.id} value={restaurant.id.toString()}>
+                              {restaurant.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="customer-satisfaction">Customer Satisfaction (1-5)</Label>
+                      <Input 
+                        id="customer-satisfaction"
+                        type="number" 
+                        min={1} 
+                        max={5} 
+                        step={0.1}
+                        value={newMetric.customerSatisfactionScore?.toString() || ""}
+                        onChange={(e) => {
+                          setNewMetric({
+                            ...newMetric,
+                            customerSatisfactionScore: e.target.value ? parseFloat(e.target.value) : null
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="tables-turned">Tables Turned</Label>
+                      <Input 
+                        id="tables-turned"
+                        type="number" 
+                        min={0}
+                        value={newMetric.tablesTurned?.toString() || ""}
+                        onChange={(e) => {
+                          setNewMetric({
+                            ...newMetric,
+                            tablesTurned: e.target.value ? parseInt(e.target.value) : null
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="avg-spend">Average Spend per Table ($)</Label>
+                      <Input 
+                        id="avg-spend"
+                        type="number" 
+                        min={0}
+                        step={0.01}
+                        value={newMetric.averageSpendPerTable?.toString() || ""}
+                        onChange={(e) => {
+                          setNewMetric({
+                            ...newMetric,
+                            averageSpendPerTable: e.target.value ? parseFloat(e.target.value) : null
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="knowledge-score">Knowledge Score (1-5)</Label>
+                      <Input 
+                        id="knowledge-score"
+                        type="number" 
+                        min={1} 
+                        max={5} 
+                        step={0.1}
+                        value={newMetric.knowledgeScore?.toString() || ""}
+                        onChange={(e) => {
+                          setNewMetric({
+                            ...newMetric,
+                            knowledgeScore: e.target.value ? parseFloat(e.target.value) : null
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="communication-score">Communication Score (1-5)</Label>
+                      <Input 
+                        id="communication-score"
+                        type="number" 
+                        min={1} 
+                        max={5} 
+                        step={0.1}
+                        value={newMetric.communicationScore?.toString() || ""}
+                        onChange={(e) => {
+                          setNewMetric({
+                            ...newMetric,
+                            communicationScore: e.target.value ? parseFloat(e.target.value) : null
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="notes">Notes</Label>
+                      <Textarea 
+                        id="notes"
+                        value={newMetric.notes}
+                        onChange={(e) => {
+                          setNewMetric({
+                            ...newMetric,
+                            notes: e.target.value
+                          });
+                        }}
+                        placeholder="Enter additional notes about the host's performance"
+                        className="min-h-[80px]"
+                      />
+                    </div>
+
+                    <Button 
+                      className="w-full" 
+                      onClick={createHostMetric}
+                    >
+                      Submit Metric
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Announcements Tab */}
+        <TabsContent value="announcements">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Restaurant Announcements</h2>
+            <p className="text-muted-foreground mb-6">
+              Create and manage announcements for your restaurant staff and users.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <MessageSquare className="h-5 w-5" />
+                    Announcements
+                  </CardTitle>
+                  <CardDescription>
+                    View and manage restaurant announcements
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                      <Label htmlFor="announcement-restaurant-filter">Restaurant</Label>
+                      <Select
+                        value={announcementFilterRestaurant?.toString() || ""}
+                        onValueChange={(value) => {
+                          setAnnouncementFilterRestaurant(value ? parseInt(value) : null);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="All Restaurants" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="">All Restaurants</SelectItem>
+                          {restaurants.map(restaurant => (
+                            <SelectItem key={restaurant.id} value={restaurant.id.toString()}>
+                              {restaurant.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-4 mt-8">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="pinned-only" 
+                          checked={showPinnedOnly}
+                          onCheckedChange={(checked) => {
+                            setShowPinnedOnly(checked === true);
+                          }}
+                        />
+                        <label
+                          htmlFor="pinned-only"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Pinned Only
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Checkbox 
+                          id="urgent-only" 
+                          checked={showUrgentOnly}
+                          onCheckedChange={(checked) => {
+                            setShowUrgentOnly(checked === true);
+                          }}
+                        />
+                        <label
+                          htmlFor="urgent-only"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Urgent Only
+                        </label>
+                      </div>
+                    </div>
+                    <div className="md:text-right mt-6 md:mt-0">
+                      <Button 
+                        variant="outline"
+                        onClick={fetchAnnouncements}
+                      >
+                        <RefreshCcw className="h-4 w-4 mr-2" />
+                        Refresh
+                      </Button>
+                    </div>
+                  </div>
+
+                  {announcementsLoading ? (
+                    <div className="flex justify-center p-8">
+                      <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : announcements.length > 0 ? (
+                    <div className="space-y-4">
+                      {announcements.map((announcement) => (
+                        <Card key={announcement.id} className={`
+                          ${announcement.isUrgent ? 'border-red-500 border-2' : ''}
+                          ${announcement.isPinned ? 'bg-secondary/20' : ''}
+                        `}>
+                          <CardHeader className="pb-2">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <CardTitle className="flex items-center gap-2">
+                                  {announcement.isPinned && <PlusCircle className="h-4 w-4 text-primary" />}
+                                  {announcement.title}
+                                </CardTitle>
+                                <CardDescription>
+                                  {restaurants.find(r => r.id === announcement.restaurantId)?.name || 'Unknown Restaurant'}
+                                  {' • '}
+                                  {restaurantHosts.find(h => h.id === announcement.authorId)?.fullName || 'Unknown Author'}
+                                </CardDescription>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                {announcement.isUrgent && (
+                                  <Badge variant="destructive">Urgent</Badge>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  {new Date(announcement.createdAt).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="whitespace-pre-wrap">{announcement.content}</p>
+                          </CardContent>
+                          <CardFooter className="flex justify-between pt-0">
+                            <div>
+                              {announcement.expiresAt && (
+                                <span className="text-xs text-muted-foreground">
+                                  Expires: {new Date(announcement.expiresAt).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex space-x-2">
+                              <Button variant="outline" size="sm">
+                                <Edit className="h-4 w-4 mr-1" /> Edit
+                              </Button>
+                              <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700">
+                                <Trash2 className="h-4 w-4 mr-1" /> Delete
+                              </Button>
+                            </div>
+                          </CardFooter>
+                        </Card>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center p-8 border rounded-lg bg-background/50">
+                      <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                      <h3 className="mt-4 text-lg font-medium">No Announcements Found</h3>
+                      <p className="mt-2 text-muted-foreground">
+                        Create a new announcement to get started.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <PlusCircle className="h-5 w-5" />
+                    New Announcement
+                  </CardTitle>
+                  <CardDescription>
+                    Create a new announcement for your restaurant
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="announcement-restaurant">Restaurant</Label>
+                      <Select
+                        value={newAnnouncement.restaurantId?.toString() || ""}
+                        onValueChange={(value) => {
+                          setNewAnnouncement({
+                            ...newAnnouncement,
+                            restaurantId: value ? parseInt(value) : null
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Restaurant" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {restaurants.map(restaurant => (
+                            <SelectItem key={restaurant.id} value={restaurant.id.toString()}>
+                              {restaurant.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="announcement-title">Title</Label>
+                      <Input 
+                        id="announcement-title"
+                        value={newAnnouncement.title}
+                        onChange={(e) => {
+                          setNewAnnouncement({
+                            ...newAnnouncement,
+                            title: e.target.value
+                          });
+                        }}
+                        placeholder="Announcement title"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="announcement-content">Content</Label>
+                      <Textarea 
+                        id="announcement-content"
+                        value={newAnnouncement.content}
+                        onChange={(e) => {
+                          setNewAnnouncement({
+                            ...newAnnouncement,
+                            content: e.target.value
+                          });
+                        }}
+                        placeholder="Enter the announcement content"
+                        className="min-h-[150px]"
+                      />
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <Switch 
+                          id="is-urgent"
+                          checked={newAnnouncement.isUrgent}
+                          onCheckedChange={(checked) => {
+                            setNewAnnouncement({
+                              ...newAnnouncement,
+                              isUrgent: checked
+                            });
+                          }}
+                        />
+                        <Label htmlFor="is-urgent">Mark as Urgent</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch 
+                          id="is-pinned"
+                          checked={newAnnouncement.isPinned}
+                          onCheckedChange={(checked) => {
+                            setNewAnnouncement({
+                              ...newAnnouncement,
+                              isPinned: checked
+                            });
+                          }}
+                        />
+                        <Label htmlFor="is-pinned">Pin Announcement</Label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="expires-at">Expiration Date (Optional)</Label>
+                      <Input 
+                        id="expires-at"
+                        type="date"
+                        value={newAnnouncement.expiresAt ? new Date(newAnnouncement.expiresAt).toISOString().split('T')[0] : ""}
+                        onChange={(e) => {
+                          setNewAnnouncement({
+                            ...newAnnouncement,
+                            expiresAt: e.target.value ? new Date(e.target.value) : null
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <Button 
+                      className="w-full" 
+                      onClick={createAnnouncement}
+                    >
+                      Create Announcement
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Bulk User Operations Tab */}
+        <TabsContent value="bulk-operations">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-4">Bulk User Operations</h2>
+            <p className="text-muted-foreground mb-6">
+              Perform actions on multiple restaurant users at once.
+            </p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserPlus className="h-5 w-5" />
+                Restaurant Hosts
+              </CardTitle>
+              <CardDescription>
+                Select users to perform bulk actions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox 
+                    id="select-all"
+                    checked={restaurantHosts.length > 0 && selectedUsers.length === restaurantHosts.length}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedUsers(restaurantHosts.map(host => host.id));
+                      } else {
+                        setSelectedUsers([]);
+                      }
+                    }}
+                  />
+                  <Label htmlFor="select-all">Select All</Label>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={fetchRestaurantHosts}
+                >
+                  <RefreshCcw className="h-4 w-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+
+              {hostsLoading ? (
+                <div className="flex justify-center p-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : restaurantHosts.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-[50px]">Select</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Registered</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {restaurantHosts.map((host) => (
+                        <TableRow key={host.id}>
+                          <TableCell>
+                            <Checkbox 
+                              checked={selectedUsers.includes(host.id)}
+                              onCheckedChange={() => toggleUserSelection(host.id)}
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            {host.fullName}
+                          </TableCell>
+                          <TableCell>
+                            {host.email}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline">{host.role}</Badge>
+                          </TableCell>
+                          <TableCell className="text-xs">
+                            {new Date(host.createdAt).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell>
+                            <Badge 
+                              variant={host.role === "active" ? "default" : "secondary"}
+                            >
+                              {host.role === "active" ? "Active" : "Inactive"}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center p-8 border rounded-lg bg-background/50">
+                  <UserPlus className="h-12 w-12 mx-auto text-muted-foreground opacity-50" />
+                  <h3 className="mt-4 text-lg font-medium">No Users Found</h3>
+                  <p className="mt-2 text-muted-foreground">
+                    Add restaurant users to see them here.
+                  </p>
+                </div>
+              )}
+
+              {selectedUsers.length > 0 && (
+                <div className="mt-6 p-4 border rounded-md">
+                  <h3 className="text-lg font-medium mb-2">Bulk Actions</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {selectedUsers.length} user{selectedUsers.length !== 1 ? 's' : ''} selected
+                  </p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <Label htmlFor="bulk-action">Select Action</Label>
+                      <Select
+                        value={bulkActionType || ""}
+                        onValueChange={(value) => {
+                          setBulkActionType(value || null);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose an action" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="activate">Activate Users</SelectItem>
+                          <SelectItem value="deactivate">Deactivate Users</SelectItem>
+                          <SelectItem value="promote">Promote to Admin</SelectItem>
+                          <SelectItem value="demote">Demote to User</SelectItem>
+                          <SelectItem value="reset_password">Reset Password</SelectItem>
+                          <SelectItem value="send_notification">Send Notification</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex items-end">
+                      <Button 
+                        className="w-full" 
+                        onClick={performBulkAction}
+                        disabled={!bulkActionType}
+                      >
+                        Apply Action
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <Alert className="mt-4">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Please confirm your action</AlertTitle>
+                    <AlertDescription>
+                      This will perform the selected action on all {selectedUsers.length} selected users. This action cannot be undone.
+                    </AlertDescription>
+                  </Alert>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+      </div>
+    </div>
+  );
+}

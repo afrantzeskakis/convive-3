@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine List Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            min-height: 250px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        button {
+            background-color: #4a67d8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #3a57c8;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            min-height: 100px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .file-upload {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3a57c8;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <h1>Wine List Upload</h1>
+    <p>Use this form to upload wine lists for processing. Each wine should be on a separate line.</p>
+    
+    <div class="form-group">
+        <label for="wineListText">Enter Wine List Text:</label>
+        <textarea id="wineListText">Tenuta dell'Ornellaia Ornellaia 2019, Bolgheri, Tuscany, Italy - $225
+Château Margaux 2015, Margaux, Bordeaux, France - $995
+Screaming Eagle Cabernet Sauvignon 2018, Napa Valley, California - $3,500
+Domaine de la Romanée-Conti La Tâche Grand Cru 2017, Burgundy, France - $5,995
+Penfolds Grange 2016, South Australia - $850
+Sassicaia, Tenuta San Guido 2018, Bolgheri, Italy - $275
+Dom Pérignon Vintage Brut 2012, Champagne, France - $250
+Château d'Yquem 2015, Sauternes, Bordeaux, France - $495
+Vega Sicilia Único 2011, Ribera del Duero, Spain - $650
+Opus One 2018, Napa Valley, California - $395</textarea>
+    </div>
+    
+    <button id="uploadTextBtn">Process Wine List</button>
+    
+    <div class="loading" id="loadingIndicator">
+        <div class="spinner"></div>
+        <p>Processing wine list... This may take a few moments.</p>
+    </div>
+    
+    <div class="file-upload">
+        <h2>Or Upload a Wine List File</h2>
+        <div class="form-group">
+            <label for="wineListFile">Select a text file containing your wine list:</label>
+            <input type="file" id="wineListFile" accept=".txt">
+        </div>
+        
+        <button id="uploadFileBtn">Upload File</button>
+    </div>
+    
+    <h2>API Response:</h2>
+    <div id="response">(Response will appear here)</div>
+    
+    <script>
+        document.getElementById('uploadTextBtn').addEventListener('click', async () => {
+            const wineListText = document.getElementById('wineListText').value;
+            const responseDiv = document.getElementById('response');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            if (!wineListText.trim()) {
+                responseDiv.innerHTML = '<div class="status error">Please enter wine list text</div>';
+                return;
+            }
+            
+            // Show loading indicator
+            loadingIndicator.style.display = 'block';
+            responseDiv.textContent = '';
+            
+            try {
+                const response = await fetch('/api/sommelier/ingest-wine-list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: wineListText })
+                });
+                
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseDiv.innerHTML = '<div class="status success">Wine list processed successfully!</div>';
+                    responseDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                } else {
+                    responseDiv.innerHTML = '<div class="status error">Error: ' + data.message + '</div>';
+                    responseDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                }
+            } catch (error) {
+                // Hide loading indicator
+                loadingIndicator.style.display = 'none';
+                
+                responseDiv.innerHTML = '<div class="status error">Error: ' + error.message + '</div>';
+            }
+        });
+        
+        document.getElementById('uploadFileBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById('wineListFile');
+            const responseDiv = document.getElementById('response');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                responseDiv.innerHTML = '<div class="status error">Please select a file</div>';
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            
+            // Check if file is a text file
+            if (!file.name.endsWith('.txt') && file.type !== 'text/plain') {
+                responseDiv.innerHTML = '<div class="status error">Please select a text file (.txt)</div>';
+                return;
+            }
+            
+            // Read file content
+            const reader = new FileReader();
+            
+            reader.onload = async (e) => {
+                const fileContent = e.target.result;
+                
+                // Show loading indicator
+                loadingIndicator.style.display = 'block';
+                responseDiv.textContent = '';
+                
+                try {
+                    const response = await fetch('/api/sommelier/ingest-wine-list', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text: fileContent })
+                    });
+                    
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        responseDiv.innerHTML = '<div class="status success">Wine list processed successfully!</div>';
+                        responseDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    } else {
+                        responseDiv.innerHTML = '<div class="status error">Error: ' + data.message + '</div>';
+                        responseDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    }
+                } catch (error) {
+                    // Hide loading indicator
+                    loadingIndicator.style.display = 'none';
+                    
+                    responseDiv.innerHTML = '<div class="status error">Error: ' + error.message + '</div>';
+                }
+            };
+            
+            reader.onerror = () => {
+                responseDiv.innerHTML = '<div class="status error">Error reading file</div>';
+            };
+            
+            reader.readAsText(file);
+        });
+    </script>
+</body>
+</html>

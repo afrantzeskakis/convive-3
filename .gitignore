@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Production
+dist/
+build/
+
+# Misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+
+# Database
+*.db
+*.sqlite
+
+# OS files
+Thumbs.db
+
+# Uploads
+uploads/
+
+# IMPORTANT: Ignore all attached_assets to prevent secrets
+attached_assets/
+
+# Ignore test files that might contain tokens
+test-*.js
+verify-*.js
+*-test.js
+*-test.mjs
+
+# Ignore any push scripts
+push-*.sh
+
+# Ignore files with tokens in filenames
+*ghp_*
+*apfy_*

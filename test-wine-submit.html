@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wine List Upload - Direct Test</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      padding: 2rem;
+      max-width: 1000px;
+      margin: 0 auto;
+      color: #333;
+    }
+    h1 {
+      color: #1d4ed8;
+      margin-bottom: 1rem;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.5rem;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    textarea {
+      width: 100%;
+      min-height: 200px;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.375rem;
+      margin-bottom: 1rem;
+      font-family: monospace;
+    }
+    button {
+      background-color: #1d4ed8;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover {
+      background-color: #1e40af;
+    }
+    .progress {
+      margin: 1rem 0;
+      background-color: #f3f4f6;
+      border-radius: 0.25rem;
+      height: 0.5rem;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background-color: #1d4ed8;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .result {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: #f9fafb;
+      border-radius: 0.375rem;
+      border: 1px solid #e5e7eb;
+      white-space: pre-wrap;
+      font-family: monospace;
+      font-size: 0.875rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .stats {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .stat {
+      background-color: #f3f4f6;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      font-weight: 500;
+    }
+    .wine-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 0.375rem;
+      padding: 1rem;
+      margin-bottom: 0.5rem;
+    }
+    .wine-name {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+    .wine-details {
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Wine List Upload - Direct Test</h1>
+  <p>This page allows you to directly upload and process wine lists using GPT-4o without navigating between different areas of the application.</p>
+  
+  <div class="container">
+    <div class="card">
+      <h2>Wine List Input</h2>
+      <textarea id="wine-list-text" placeholder="Paste your wine list here, one wine per line..."></textarea>
+      <div>
+        <button id="process-btn">Process Wine List</button>
+        <button id="sample-btn">Load Sample Wine List</button>
+      </div>
+      
+      <div class="progress" style="margin-top: 1rem;">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div id="status-message" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+    </div>
+    
+    <div class="card">
+      <h2>Processing Results</h2>
+      <div class="stats">
+        <div class="stat">Processed: <span id="processed-count">0</span></div>
+        <div class="stat">Errors: <span id="error-count">0</span></div>
+        <div class="stat">Total in DB: <span id="total-count">0</span></div>
+      </div>
+      
+      <h3>Processed Wines</h3>
+      <div id="wine-results" style="max-height: 400px; overflow-y: auto;"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Sample wine list
+    const sampleWineList = `Château Margaux 2015, Bordeaux, France
+Opus One 2018, Napa Valley, USA
+Sassicaia 2019, Tuscany, Italy
+Penfolds Grange 2017, South Australia
+Cloudy Bay Sauvignon Blanc 2022, Marlborough, New Zealand
+Krug Grande Cuvée, Champagne, France
+Ridge Monte Bello 2018, Santa Cruz Mountains, USA
+Chateau d'Yquem 2015, Sauternes, France
+Tignanello 2019, Tuscany, Italy
+Silver Oak Cabernet Sauvignon, Alexander Valley`;
+
+    // DOM elements
+    const wineListTextarea = document.getElementById('wine-list-text');
+    const processBtn = document.getElementById('process-btn');
+    const sampleBtn = document.getElementById('sample-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const statusMessage = document.getElementById('status-message');
+    const processedCount = document.getElementById('processed-count');
+    const errorCount = document.getElementById('error-count');
+    const totalCount = document.getElementById('total-count');
+    const wineResults = document.getElementById('wine-results');
+
+    // Load sample wine list
+    sampleBtn.addEventListener('click', () => {
+      wineListTextarea.value = sampleWineList;
+    });
+
+    // Process wine list
+    processBtn.addEventListener('click', async () => {
+      const wineListText = wineListTextarea.value.trim();
+      
+      if (!wineListText) {
+        statusMessage.textContent = 'Please enter a wine list';
+        return;
+      }
+      
+      // Reset UI
+      progressBar.style.width = '0%';
+      statusMessage.textContent = 'Processing wine list...';
+      processedCount.textContent = '0';
+      errorCount.textContent = '0';
+      totalCount.textContent = '0';
+      wineResults.innerHTML = '';
+      
+      processBtn.disabled = true;
+      
+      try {
+        // Send to backend for processing
+        const response = await fetch('/api/sommelier/process-wine-list', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ wineListText })
+        });
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Server error: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        console.log('Processing result:', result);
+        
+        if (result.progressId) {
+          // Start polling for progress updates
+          pollProgress(result.progressId);
+        } else {
+          // Immediate results
+          updateResults(result);
+        }
+      } catch (error) {
+        console.error('Error processing wine list:', error);
+        statusMessage.textContent = `Error: ${error.message}`;
+        progressBar.style.width = '0%';
+      } finally {
+        processBtn.disabled = false;
+      }
+    });
+    
+    // Poll for progress updates
+    async function pollProgress(progressId) {
+      try {
+        const response = await fetch(`/api/sommelier/progress/${progressId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Error fetching progress: ${response.status}`);
+        }
+        
+        const progress = await response.json();
+        console.log('Progress update:', progress);
+        
+        if (progress) {
+          // Update UI with progress
+          const percent = progress.percent || 0;
+          progressBar.style.width = `${percent}%`;
+          statusMessage.textContent = progress.message || 'Processing...';
+          
+          processedCount.textContent = progress.processed || 0;
+          errorCount.textContent = progress.errors || 0;
+          
+          // Continue polling if not complete
+          if (progress.status === 'processing' || progress.status === 'pending') {
+            setTimeout(() => pollProgress(progressId), 1000);
+          } else {
+            // Fetch final results if complete
+            if (progress.status === 'complete') {
+              fetchResults(progressId);
+            } else {
+              processBtn.disabled = false;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error polling progress:', error);
+        statusMessage.textContent = `Error: ${error.message}`;
+        processBtn.disabled = false;
+      }
+    }
+    
+    // Fetch final results
+    async function fetchResults(progressId) {
+      try {
+        const response = await fetch(`/api/sommelier/results/${progressId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Error fetching results: ${response.status}`);
+        }
+        
+        const results = await response.json();
+        updateResults(results);
+      } catch (error) {
+        console.error('Error fetching results:', error);
+        statusMessage.textContent = `Error: ${error.message}`;
+      } finally {
+        processBtn.disabled = false;
+      }
+    }
+    
+    // Update UI with results
+    function updateResults(results) {
+      processedCount.textContent = results.processedCount || 0;
+      errorCount.textContent = results.errorCount || 0;
+      totalCount.textContent = results.totalInDatabase || 0;
+      
+      statusMessage.textContent = results.message || 'Processing complete';
+      progressBar.style.width = '100%';
+      
+      // Display sample wines
+      if (results.sampleWines && results.sampleWines.length > 0) {
+        wineResults.innerHTML = results.sampleWines.map(wine => `
+          <div class="wine-card">
+            <div class="wine-name">${wine.wine_name}</div>
+            <div class="wine-details">
+              ${wine.vintage ? `Vintage: ${wine.vintage}<br>` : ''}
+              ${wine.producer ? `Producer: ${wine.producer}<br>` : ''}
+              ${wine.region ? `Region: ${wine.region}<br>` : ''}
+              ${wine.country ? `Country: ${wine.country}<br>` : ''}
+              ${wine.varietals ? `Varietals: ${wine.varietals}` : ''}
+            </div>
+          </div>
+        `).join('');
+      } else {
+        wineResults.innerHTML = '<p>No sample wines available.</p>';
+      }
+    }
+  </script>
+</body>
+</html>

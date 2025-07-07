@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Convive - Restaurant Social Dining Platform</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --background: 0 0% 100%;
+      --foreground: 20 14.3% 4.1%;
+      --primary: 258 90% 66%;
+      --primary-foreground: 248 100% 99%;
+      --border: 20 5.9% 90%;
+    }
+    body { font-family: Inter, system-ui, sans-serif; }
+    .hero-gradient { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="min-h-screen bg-gray-50">
+      <!-- Hero Section -->
+      <div class="hero-gradient text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 class="text-5xl font-bold mb-6">🍷 Convive</h1>
+          <p class="text-xl mb-8">Restaurant Social Dining Platform</p>
+          <p class="text-lg opacity-90">Connect with fellow food enthusiasts for curated dining experiences</p>
+          <div class="mt-8">
+            <button class="bg-white text-purple-600 px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors">
+              Join Dining Groups
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Features Section -->
+      <div class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 class="text-3xl font-bold text-center mb-12">Platform Features</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="text-center p-6 border rounded-lg">
+              <div class="text-4xl mb-4">👥</div>
+              <h3 class="text-xl font-semibold mb-2">Social Dining</h3>
+              <p class="text-gray-600">Connect with compatible dining companions for memorable restaurant experiences</p>
+            </div>
+            <div class="text-center p-6 border rounded-lg">
+              <div class="text-4xl mb-4">🍷</div>
+              <h3 class="text-xl font-semibold mb-2">Wine Expertise</h3>
+              <p class="text-gray-600">AI sommelier with 286+ wines for perfect pairings</p>
+            </div>
+            <div class="text-center p-6 border rounded-lg">
+              <div class="text-4xl mb-4">🏆</div>
+              <h3 class="text-xl font-semibold mb-2">Premium Restaurants</h3>
+              <p class="text-gray-600">Curated selection of award-winning dining venues</p>
+            </div>
+            <div class="text-center p-6 border rounded-lg">
+              <div class="text-4xl mb-4">⚡</div>
+              <h3 class="text-xl font-semibold mb-2">Smart Matching</h3>
+              <p class="text-gray-600">Algorithm-powered group formation for optimal dining experiences</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Restaurant Section -->
+      <div class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 class="text-3xl font-bold text-center mb-12">Featured Restaurants</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+              <div class="h-48 bg-gradient-to-r from-orange-400 to-pink-400"></div>
+              <div class="p-6">
+                <h3 class="text-xl font-semibold mb-2">Sakura Japanese Bistro</h3>
+                <p class="text-gray-600 mb-4">Authentic Japanese cuisine with premium sake selection</p>
+                <div class="flex justify-between items-center">
+                  <span class="text-sm text-gray-500">Japanese • $$$</span>
+                  <button class="text-purple-600 font-medium">View Details</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <div class="bg-gray-900 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p>&copy; 2025 Convive. Sophisticated restaurant social dining platform.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

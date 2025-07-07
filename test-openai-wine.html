@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wine List Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4a67d8;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #3a57c8;
+        }
+        #response {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wine List Analysis Test</h1>
+    
+    <div class="form-group">
+        <label for="wineText">Enter Wine List Text:</label>
+        <textarea id="wineText">Tenuta dell'Ornellaia Ornellaia 2019, Bolgheri, Tuscany, Italy - $225
+Château Margaux 2015, Margaux, Bordeaux, France - $995
+Screaming Eagle Cabernet Sauvignon 2018, Napa Valley, California - $3,500</textarea>
+    </div>
+    
+    <button id="analyzeBtn">Analyze Wine</button>
+    
+    <h2>Response:</h2>
+    <div id="response">(Response will appear here)</div>
+    
+    <script>
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const wineText = document.getElementById('wineText').value;
+            const responseDiv = document.getElementById('response');
+            
+            responseDiv.innerText = 'Analyzing wine...';
+            
+            try {
+                const response = await fetch('/api/sommelier/status', {
+                    method: 'GET'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Server responded with status ${response.status}`);
+                }
+                
+                const statusData = await response.json();
+                
+                // If OpenAI is available, we'll analyze a single wine line directly
+                if (statusData.status === 'available') {
+                    // Just analyze the first wine in the list
+                    const firstWineLine = wineText.split('\n')[0];
+                    
+                    // Create a simpler API request for this test
+                    const wineAnalysisResponse = await fetch('/api/sommelier/analyze-wine', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ text: firstWineLine })
+                    });
+                    
+                    if (!wineAnalysisResponse.ok) {
+                        responseDiv.innerText = `Error: Server responded with status ${wineAnalysisResponse.status}`;
+                        return;
+                    }
+                    
+                    const analysisData = await wineAnalysisResponse.json();
+                    responseDiv.innerText = JSON.stringify(analysisData, null, 2);
+                } else {
+                    responseDiv.innerText = 'OpenAI API key not available. Cannot analyze wine without API key.';
+                }
+            } catch (error) {
+                responseDiv.innerText = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
