@@ -7,7 +7,7 @@ nixPkgs = ["nodejs-18_x"]
 cmds = ["npm install --force"]
 
 [phases.build]
-cmds = ["npm rebuild && npm run build:client"]
+cmds = ["npm install @rollup/rollup-linux-x64-gnu --force && npm run build:client"]
 
 [start]
 cmd = "npm start"
