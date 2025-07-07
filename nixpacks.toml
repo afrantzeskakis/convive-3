@@ -7,7 +7,7 @@ nixPkgs = ["nodejs-18_x"]
 cmds = ["npm install --force"]
 
 [phases.build]
-cmds = ["npm run build:client"]
+cmds = ["npm rebuild && npm run build:client"]
 
 [start]
 cmd = "npm start"
