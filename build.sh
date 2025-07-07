@@ -8,9 +8,10 @@ npm ci || npm install
 echo "Checking for Rollup module..."
 npm list @rollup/rollup-linux-x64-gnu || npm install @rollup/rollup-linux-x64-gnu
 
-# Rebuild Sharp for Linux platform
-echo "Rebuilding Sharp for Linux..."
-npm rebuild sharp
+# Reinstall Sharp for Linux platform
+echo "Reinstalling Sharp for Linux..."
+npm uninstall sharp
+npm install sharp --platform=linux --arch=x64
 
 # Build the client
 echo "Building client..."
