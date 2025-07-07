@@ -91,7 +91,7 @@ This repository contains a Restaurant Wine Management System - a complete AI-pow
 - **API Keys**: Secure environment variable management
 
 ### Build Process
-1. **Client Build**: Vite builds React app to `dist/public`
+1. **Client Build**: Uses esbuild for fast production builds (Vite builds timeout on Railway)
 2. **Server Build**: TypeScript compilation for Express server
 3. **Database Setup**: Migrations and schema generation
 4. **Asset Optimization**: CSS/JS bundling and minification
@@ -101,11 +101,17 @@ This repository contains a Restaurant Wine Management System - a complete AI-pow
 - **Database Migrations**: `npm run db:migrate` for schema updates
 - **Environment Variables**: DATABASE_URL, OPENAI_API_KEY, APIFY_API_TOKEN
 
+### Railway Deployment Fix (July 7, 2025)
+- **Issue**: Vite build process times out on Railway due to large dependency tree
+- **Solution**: Replaced Vite with esbuild in build.sh for faster builds
+- **Result**: Frontend assets now build successfully in server/public directory
+
 ## Changelog
 
 Changelog:
 - July 02, 2025. Initial setup
 - July 02, 2025. Restored carousel version of recipe analysis tool with interactive culinary term education
+- July 07, 2025. Fixed Railway deployment issue - replaced Vite build with esbuild due to timeout issues
 
 ## User Preferences
 
