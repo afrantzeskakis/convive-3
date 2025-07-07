@@ -1,8 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { createWorker } from 'tesseract.js';
-import sharp from 'sharp';
 import { fileURLToPath } from 'url';
+
+// Dynamic import for Sharp to avoid startup issues
+let sharp: any = null;
 
 // Get the directory path for the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +30,15 @@ export async function preprocessImage(imagePath: string): Promise<string> {
   );
 
   try {
+    // Dynamically import Sharp when needed
+    if (!sharp) {
+      try {
+        sharp = (await import('sharp')).default;
+      } catch (error) {
+        console.error('Failed to load Sharp module:', error);
+        throw new Error('Image processing unavailable - Sharp module not loaded');
+      }
+    }
     // Preprocessing pipeline to improve OCR accuracy:
     // 1. Convert to grayscale
     // 2. Apply contrast enhancement
