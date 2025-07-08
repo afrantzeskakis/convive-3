@@ -283,6 +283,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
+  // Environment check endpoint - accessible to super admins
+  app.get('/api/environment-check', isAuthenticated, async (req, res) => {
+    try {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+
+      const envCheck = {
+        environment: {
+          nodeEnv: process.env.NODE_ENV || 'development',
+          isProduction: process.env.NODE_ENV === 'production',
+          deploymentUrl: req.protocol + '://' + req.get('host'),
+          port: process.env.PORT || '5000',
+          version: '1.0.6'
+        },
+        database: {
+          connected: !!process.env.DATABASE_URL,
+          host: process.env.DATABASE_URL?.split('@')[1]?.split('/')[0] || 'unknown',
+          database: process.env.DATABASE_URL?.split('/').pop()?.split('?')[0] || 'unknown'
+        },
+        services: {
+          openai: !!process.env.OPENAI_API_KEY,
+          stripe: !!process.env.STRIPE_SECRET_KEY,
+          apify: !!process.env.APIFY_API_TOKEN,
+          sessionSecret: !!process.env.SESSION_SECRET
+        },
+        features: {
+          authEnabled: true,
+          wineEnrichment: !!process.env.OPENAI_API_KEY,
+          recipeAnalysis: !!process.env.OPENAI_API_KEY,
+          paymentProcessing: !!process.env.STRIPE_SECRET_KEY
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      res.json(envCheck);
+    } catch (error) {
+      console.error('Error checking environment:', error);
+      res.status(500).json({ message: 'Failed to check environment' });
+    }
+  });
+
   // Super Admin Dashboard endpoints
   app.get('/api/admin/users/analytics', isAuthenticated, async (req, res) => {
     try {
