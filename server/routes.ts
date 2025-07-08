@@ -20,7 +20,7 @@ import {
 } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq, and, desc, sql } from "drizzle-orm";
-import { setupAuth } from "./auth.js";
+import { setupAuth, hashPassword } from "./auth.js";
 import { 
   upload, 
   handleRecipeUpload, 
@@ -278,11 +278,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ 
       status: 'healthy', 
       timestamp: new Date().toISOString(), 
-      version: '1.0.3',
-      deployedAt: '2025-01-08-db-fix'
+      version: '1.0.4',
+      deployedAt: '2025-01-08-super-admin'
     });
   });
   
+  // Create super admin endpoint (one-time use)
+  app.post("/api/create-super-admin", async (req, res) => {
+    try {
+      const { createKey } = req.body;
+      
+      // Simple security check
+      if (createKey !== "convive-setup-2025") {
+        return res.status(403).json({ error: "Invalid creation key" });
+      }
+      
+      // Check if super admin already exists
+      const existing = await db.execute(sql`
+        SELECT id FROM users WHERE username = 'superadmin'
+      `);
+      
+      if (existing.rows.length > 0) {
+        return res.json({ message: "Super admin already exists" });
+      }
+      
+      // Create super admin
+      const hashedPassword = await hashPassword("convive2023");
+      await db.execute(sql`
+        INSERT INTO users (
+          username, password, full_name, email, city, gender, age,
+          occupation, bio, profile_picture, looking_for, onboarding_complete, role
+        ) VALUES (
+          'superadmin', ${hashedPassword}, 'Super Admin', 'admin@convive.com',
+          'San Francisco', 'Other', 30, 'System Administrator',
+          'System administrator account', '', 'friends', true, 'super_admin'
+        )
+      `);
+      
+      res.json({ 
+        message: "Super admin created successfully",
+        credentials: {
+          username: "superadmin",
+          password: "convive2023"
+        }
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Database test endpoint
   app.get("/api/test-db", async (req, res) => {
     try {
@@ -362,6 +406,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
               )
             `);
             schemaInfo.tableCreated = "users table created successfully";
+            
+            // Also create session table
+            await db.execute(sql`
+              CREATE TABLE IF NOT EXISTS session (
+                sid VARCHAR NOT NULL PRIMARY KEY,
+                sess JSON NOT NULL,
+                expire TIMESTAMP(6) NOT NULL
+              )
+            `);
+            await db.execute(sql`
+              CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON session(expire)
+            `);
+            schemaInfo.sessionTableCreated = "session table created successfully";
             
             // Check again
             const recheckResult = await db.execute(sql`
