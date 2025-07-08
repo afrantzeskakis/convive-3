@@ -68,12 +68,24 @@ npx tailwindcss -i client/src/index.css -o server/public/assets/index.css --mini
 # Copy static assets
 cp -r client/public/* server/public/ 2>/dev/null || true
 
+# Build server TypeScript files
+echo "Building server TypeScript files..."
+npx tsc
+
 # Verify build
 if [ -f "server/public/index.html" ] && [ -f "server/public/assets/index.js" ]; then
-  echo "✅ Build completed successfully!"
+  echo "✅ Frontend build completed successfully!"
   ls -la server/public/
 else
-  echo "❌ Build failed"
+  echo "❌ Frontend build failed"
+  exit 1
+fi
+
+# Verify server build
+if [ -f "server/index.js" ] && [ -f "server/routes.js" ]; then
+  echo "✅ Server build completed successfully!"
+else
+  echo "❌ Server build failed"
   exit 1
 fi
 
