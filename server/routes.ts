@@ -275,7 +275,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Health check endpoint for deployment platforms
   app.get('/api/health', (req, res) => {
-    res.json({ status: 'healthy', timestamp: new Date().toISOString(), version: '1.0.0' });
+    res.json({ 
+      status: 'healthy', 
+      timestamp: new Date().toISOString(), 
+      version: '1.0.1',
+      deployedAt: '2025-01-08-enhanced-debug'
+    });
   });
   
   // Database test endpoint
