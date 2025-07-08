@@ -367,11 +367,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/restaurants', isAuthenticated, async (req, res) => {
     try {
-      // For now, return empty array to allow dashboard to load
-      res.json([]);
+      const restaurants = await storage.getAllRestaurants();
+      res.json(restaurants);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
-      res.status(500).json({ message: 'Failed to fetch restaurants' });
+      // Return empty array instead of 500 error to allow dashboard to load
+      res.json([]);
     }
   });
 

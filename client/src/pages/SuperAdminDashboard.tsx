@@ -185,7 +185,7 @@ const SuperAdminDashboard = () => {
       const response = await fetch('/api/sommelier/stats');
       if (response.ok) {
         const stats = await response.json();
-        setTotalWines(stats.totalWines || 0);
+        setWineCount(stats.totalWines || 0);
       }
     } catch (error) {
       console.error("Error fetching wine stats:", error);
@@ -4965,7 +4965,7 @@ Convive: Curated Dining & Extraordinary Connections
                                           if (data.wines && data.wines.length > 0) {
                                             setSearchResults(data.wines);
                                             setTotalPages(data.pagination?.totalPages || 1);
-                                            setTotalWines(data.pagination?.totalItems || data.wines.length);
+                                            setWineCount(data.pagination?.totalItems || data.wines.length);
                                             toast({
                                               title: `Found ${data.pagination?.totalItems || data.wines.length} wines`,
                                               description: `Showing page 1 of ${data.pagination?.totalPages || 1}`,
@@ -4973,7 +4973,7 @@ Convive: Curated Dining & Extraordinary Connections
                                           } else {
                                             setSearchResults([]);
                                             setTotalPages(1);
-                                            setTotalWines(0);
+                                            setWineCount(0);
                                             toast({
                                               title: "No Wines Found",
                                               description: `No wines match "${searchQuery}"`,
@@ -5017,7 +5017,7 @@ Convive: Curated Dining & Extraordinary Connections
                                           if (data.wines) {
                                             setSearchResults(data.wines);
                                             setTotalPages(data.pagination?.totalPages || 1);
-                                            setTotalWines(data.pagination?.totalItems || data.wines.length);
+                                            setWineCount(data.pagination?.totalItems || data.wines.length);
                                             
                                             toast({
                                               title: `Found ${data.pagination?.totalItems || data.wines.length} wines`,
@@ -5026,7 +5026,7 @@ Convive: Curated Dining & Extraordinary Connections
                                           } else {
                                             setSearchResults([]);
                                             setTotalPages(1);
-                                            setTotalWines(0);
+                                            setWineCount(0);
                                             
                                             toast({
                                               title: "No Wines Found",
@@ -5205,7 +5205,7 @@ Convive: Curated Dining & Extraordinary Connections
                                               if (data.wines) {
                                                 setSearchResults(data.wines);
                                                 setTotalPages(data.pagination?.totalPages || 1);
-                                                setTotalWines(data.pagination?.totalItems || data.wines.length);
+                                                setWineCount(data.pagination?.totalItems || data.wines.length);
                                               }
                                               setIsDatabaseLoading(false);
                                             })
