@@ -1529,10 +1529,24 @@ Convive: Curated Dining & Extraordinary Connections
   }
 
   if (usersError || premiumError || checksError || restaurantsError || meetupsError) {
+    console.error('Dashboard errors:', {
+      usersError,
+      premiumError,
+      checksError,
+      restaurantsError,
+      meetupsError
+    });
     return (
       <div className="p-8 text-center">
         <h2 className="text-2xl font-bold text-destructive mb-4">Error Loading Data</h2>
         <p className="text-muted-foreground">There was a problem fetching the data. Please try again.</p>
+        <div className="mt-4 text-sm text-left max-w-md mx-auto">
+          {usersError && <p className="text-red-500">Users Error: {usersError.message}</p>}
+          {premiumError && <p className="text-red-500">Premium Error: {premiumError.message}</p>}
+          {checksError && <p className="text-red-500">Checks Error: {checksError.message}</p>}
+          {restaurantsError && <p className="text-red-500">Restaurants Error: {restaurantsError.message}</p>}
+          {meetupsError && <p className="text-red-500">Meetups Error: {meetupsError.message}</p>}
+        </div>
       </div>
     );
   }
