@@ -61,9 +61,9 @@ npx esbuild client/src/main.tsx \
   --define:process.env.NODE_ENV=\"production\" \
   --minify
 
-# Copy CSS
-echo "Copying CSS..."
-cp client/src/index.css server/public/assets/index.css
+# Build CSS with Tailwind
+echo "Building CSS with Tailwind..."
+npx tailwindcss -i client/src/index.css -o server/public/assets/index.css --minify
 
 # Copy static assets
 cp -r client/public/* server/public/ 2>/dev/null || true
