@@ -292,16 +292,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // First try to list all tables to see what's in the database
       let tables = [];
+      let schemas = [];
       try {
-        const tablesResult = await db.execute(sql`
-          SELECT table_name 
-          FROM information_schema.tables 
-          WHERE table_schema = 'public'
-          ORDER BY table_name
+        // Get all schemas
+        const schemaResult = await db.execute(sql`
+          SELECT schema_name 
+          FROM information_schema.schemata 
+          WHERE schema_name NOT IN ('pg_catalog', 'information_schema')
         `);
-        tables = tablesResult.rows.map(r => r.table_name);
+        schemas = schemaResult.rows.map(r => r.schema_name);
+        
+        // Get current schema
+        const currentSchemaResult = await db.execute(sql`SELECT current_schema()`);
+        const currentSchema = currentSchemaResult.rows[0]?.current_schema;
+        
+        // Get tables from all schemas
+        const tablesResult = await db.execute(sql`
+          SELECT table_schema, table_name 
+          FROM information_schema.tables 
+          WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+          ORDER BY table_schema, table_name
+        `);
+        tables = tablesResult.rows.map(r => `${r.table_schema}.${r.table_name}`);
+        
+        // Add current schema info to response
+        schemas = {
+          available: schemas,
+          current: currentSchema,
+          tables: tables
+        };
       } catch (tableError: any) {
         console.error("Error listing tables:", tableError);
+        schemas = { error: tableError.message };
       }
 
       // Test direct SQL query
@@ -318,7 +340,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         status: "ok", 
         databaseUrl: "configured",
-        tables: tables,
+        schemas: schemas,
         usersCount: result.rows[0]?.count || 0,
         superAdminExists: userResult.rows.length > 0,
         superAdmin: userResult.rows[0] || null,
