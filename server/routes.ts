@@ -278,11 +278,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ 
       status: 'healthy', 
       timestamp: new Date().toISOString(), 
-      version: '1.0.4',
-      deployedAt: '2025-01-08-super-admin'
+      version: '1.0.5',
+      deployedAt: '2025-01-08-fix-columns'
     });
   });
   
+  // Fix users table columns
+  app.post("/api/fix-users-table", async (req, res) => {
+    try {
+      const { fixKey } = req.body;
+      
+      if (fixKey !== "convive-fix-2025") {
+        return res.status(403).json({ error: "Invalid fix key" });
+      }
+      
+      // Add missing columns to users table
+      const columnsToAdd = [
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_premium_user BOOLEAN DEFAULT false",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS average_spend_per_dinner INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS lifetime_dining_value INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS authorized_restaurants INTEGER[]",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS dinner_count INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS high_check_dinner_count INTEGER DEFAULT 0",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_customer_id VARCHAR(255)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS stripe_subscription_id VARCHAR(255)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS has_seen_message_expiration_notice BOOLEAN DEFAULT false"
+      ];
+      
+      const results = [];
+      for (const query of columnsToAdd) {
+        try {
+          await db.execute(sql.raw(query));
+          results.push({ query, status: "success" });
+        } catch (error: any) {
+          results.push({ query, status: "error", message: error.message });
+        }
+      }
+      
+      res.json({ 
+        message: "Users table fixed",
+        results: results
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Create super admin endpoint (one-time use)
   app.post("/api/create-super-admin", async (req, res) => {
     try {
@@ -402,7 +443,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 looking_for VARCHAR(50),
                 onboarding_complete BOOLEAN DEFAULT false,
                 role VARCHAR(50) DEFAULT 'user',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                is_premium_user BOOLEAN DEFAULT false,
+                average_spend_per_dinner INTEGER DEFAULT 0,
+                lifetime_dining_value INTEGER DEFAULT 0,
+                authorized_restaurants INTEGER[],
+                dinner_count INTEGER DEFAULT 0,
+                high_check_dinner_count INTEGER DEFAULT 0,
+                stripe_customer_id VARCHAR(255),
+                stripe_subscription_id VARCHAR(255),
+                has_seen_message_expiration_notice BOOLEAN DEFAULT false
               )
             `);
             schemaInfo.tableCreated = "users table created successfully";
