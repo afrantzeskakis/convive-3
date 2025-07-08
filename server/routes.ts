@@ -278,9 +278,108 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ 
       status: 'healthy', 
       timestamp: new Date().toISOString(), 
-      version: '1.0.5',
-      deployedAt: '2025-01-08-fix-columns'
+      version: '1.0.6',
+      deployedAt: '2025-01-08-dashboard-endpoints'
     });
+  });
+
+  // Super Admin Dashboard endpoints
+  app.get('/api/admin/users/analytics', isAuthenticated, async (req, res) => {
+    try {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching users analytics:', error);
+      res.status(500).json({ message: 'Failed to fetch users analytics' });
+    }
+  });
+
+  app.get('/api/admin/users/premium', isAuthenticated, async (req, res) => {
+    try {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching premium users:', error);
+      res.status(500).json({ message: 'Failed to fetch premium users' });
+    }
+  });
+
+  app.get('/api/admin/dinner-checks', isAuthenticated, async (req, res) => {
+    try {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching dinner checks:', error);
+      res.status(500).json({ message: 'Failed to fetch dinner checks' });
+    }
+  });
+
+  app.get('/api/restaurants', isAuthenticated, async (req, res) => {
+    try {
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching restaurants:', error);
+      res.status(500).json({ message: 'Failed to fetch restaurants' });
+    }
+  });
+
+  app.get('/api/meetups', isAuthenticated, async (req, res) => {
+    try {
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching meetups:', error);
+      res.status(500).json({ message: 'Failed to fetch meetups' });
+    }
+  });
+
+  app.get('/api/call-management/scripts', isAuthenticated, async (req, res) => {
+    try {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching call scripts:', error);
+      res.status(500).json({ message: 'Failed to fetch call scripts' });
+    }
+  });
+
+  app.get('/api/call-management/recordings', isAuthenticated, async (req, res) => {
+    try {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching call recordings:', error);
+      res.status(500).json({ message: 'Failed to fetch call recordings' });
+    }
+  });
+
+  app.get('/api/admin/restaurant-notifications', isAuthenticated, async (req, res) => {
+    try {
+      if (req.user.role !== 'super_admin') {
+        return res.status(403).json({ message: 'Forbidden' });
+      }
+      // For now, return empty array to allow dashboard to load
+      res.json([]);
+    } catch (error) {
+      console.error('Error fetching restaurant notifications:', error);
+      res.status(500).json({ message: 'Failed to fetch restaurant notifications' });
+    }
   });
   
   // Fix users table columns
