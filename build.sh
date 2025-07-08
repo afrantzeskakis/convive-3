@@ -70,7 +70,7 @@ cp -r client/public/* server/public/ 2>/dev/null || true
 
 # Build server TypeScript files
 echo "Building server TypeScript files..."
-npx tsc
+npx tsc --project tsconfig.build.json
 
 # Verify build
 if [ -f "server/public/index.html" ] && [ -f "server/public/assets/index.js" ]; then

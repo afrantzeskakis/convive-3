@@ -133,9 +133,11 @@ sql`${restaurantWinesIsolated.what_makes_special} IS NOT NULL`
       
       return wines.map(wine => ({
         ...wine,
+        restaurantId: wine.restaurant_id,
+        enrichment_status: (wine.enrichment_status || 'pending') as 'pending' | 'processing' | 'completed' | 'failed',
         created_at: wine.created_at?.toISOString() || new Date().toISOString(),
         updated_at: wine.updated_at?.toISOString() || new Date().toISOString(),
-      }));
+      })) as RestaurantWine[];
     } catch (error) {
       console.error('Error getting wines by restaurant:', error);
       return [];
@@ -164,9 +166,10 @@ sql`${restaurantWinesIsolated.what_makes_special} IS NOT NULL`
       return wines.map(wine => ({
         ...wine,
         restaurantId: wine.restaurant_id,
+        enrichment_status: (wine.enrichment_status || 'pending') as 'pending' | 'processing' | 'completed' | 'failed',
         created_at: wine.created_at?.toISOString() || new Date().toISOString(),
         updated_at: wine.updated_at?.toISOString() || new Date().toISOString(),
-      }));
+      })) as RestaurantWine[];
     } catch (error) {
       console.error('Error getting wines by status:', error);
       return [];
@@ -186,9 +189,11 @@ sql`${restaurantWinesIsolated.what_makes_special} IS NOT NULL`
       const wine = wines[0];
       return {
         ...wine,
+        restaurantId: wine.restaurant_id,
+        enrichment_status: (wine.enrichment_status || 'pending') as 'pending' | 'processing' | 'completed' | 'failed',
         created_at: wine.created_at?.toISOString() || new Date().toISOString(),
         updated_at: wine.updated_at?.toISOString() || new Date().toISOString(),
-      };
+      } as RestaurantWine;
     } catch (error) {
       console.error('Error getting wine by ID:', error);
       return null;
@@ -214,9 +219,11 @@ sql`${restaurantWinesIsolated.what_makes_special} IS NOT NULL`
       
       return {
         ...wine,
+        restaurantId: wine.restaurant_id,
+        enrichment_status: (wine.enrichment_status || 'pending') as 'pending' | 'processing' | 'completed' | 'failed',
         created_at: wine.created_at?.toISOString() || new Date().toISOString(),
         updated_at: wine.updated_at?.toISOString() || new Date().toISOString(),
-      };
+      } as RestaurantWine;
     } catch (error) {
       console.error('Error creating wine:', error);
       throw error;
@@ -250,9 +257,10 @@ sql`${restaurantWinesIsolated.what_makes_special} IS NOT NULL`
       return wines.map(wine => ({
         ...wine,
         restaurantId: wine.restaurant_id,
+        enrichment_status: (wine.enrichment_status || 'pending') as 'pending' | 'processing' | 'completed' | 'failed',
         created_at: wine.created_at?.toISOString() || new Date().toISOString(),
         updated_at: wine.updated_at?.toISOString() || new Date().toISOString(),
-      }));
+      })) as RestaurantWine[];
     } catch (error) {
       console.error('Error getting pending wines:', error);
       return [];
