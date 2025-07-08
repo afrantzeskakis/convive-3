@@ -228,6 +228,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Set up authentication routes and middleware
   setupAuth(app);
   
+  // Diagnostic endpoint for debugging authentication issues (no auth required)
+  app.get("/api/debug/auth", async (req, res) => {
+    try {
+      const allUsers = await db.select({
+        id: users.id,
+        username: users.username,
+        email: users.email,
+        role: users.role
+      }).from(users);
+      
+      res.json({
+        status: "ok",
+        environment: process.env.NODE_ENV || "unknown",
+        databaseConnected: true,
+        databaseUrl: process.env.DATABASE_URL ? "configured" : "not configured",
+        totalUsers: allUsers.length,
+        users: allUsers.map(u => ({
+          id: u.id,
+          username: u.username,
+          role: u.role
+        })),
+        authConfigured: !!req.session,
+        sessionSecret: process.env.SESSION_SECRET ? "configured" : "not configured",
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        error: error.message,
+        databaseConnected: false
+      });
+    }
+  });
+  
   // Mount routers
   app.use('/api/restaurants', isAuthenticated, restaurantRoutes);
   app.use('/api/restaurant-users', isAuthenticated, restaurantUsersRouter);
