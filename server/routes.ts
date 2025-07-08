@@ -278,8 +278,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ 
       status: 'healthy', 
       timestamp: new Date().toISOString(), 
-      version: '1.0.1',
-      deployedAt: '2025-01-08-enhanced-debug'
+      version: '1.0.2',
+      deployedAt: '2025-01-08-schema-debug'
     });
   });
   
@@ -295,60 +295,61 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
 
-      // First try to list all tables to see what's in the database
-      let tables = [];
-      let schemas = [];
+      // First, check basic connection and schema info
+      let schemaInfo = {};
       try {
-        // Get all schemas
-        const schemaResult = await db.execute(sql`
+        // Get current search path and schema
+        const searchPathResult = await db.execute(sql`SHOW search_path`);
+        const currentSchemaResult = await db.execute(sql`SELECT current_schema()`);
+        const currentUserResult = await db.execute(sql`SELECT current_user`);
+        
+        schemaInfo = {
+          searchPath: searchPathResult.rows[0]?.search_path,
+          currentSchema: currentSchemaResult.rows[0]?.current_schema,
+          currentUser: currentUserResult.rows[0]?.current_user
+        };
+        
+        // List all available schemas
+        const schemasResult = await db.execute(sql`
           SELECT schema_name 
           FROM information_schema.schemata 
           WHERE schema_name NOT IN ('pg_catalog', 'information_schema')
+          ORDER BY schema_name
         `);
-        schemas = schemaResult.rows.map(r => r.schema_name);
+        schemaInfo.availableSchemas = schemasResult.rows.map(r => r.schema_name);
         
-        // Get current schema
-        const currentSchemaResult = await db.execute(sql`SELECT current_schema()`);
-        const currentSchema = currentSchemaResult.rows[0]?.current_schema;
-        
-        // Get tables from all schemas
-        const tablesResult = await db.execute(sql`
+        // Check if users table exists in any schema
+        const usersTableResult = await db.execute(sql`
           SELECT table_schema, table_name 
           FROM information_schema.tables 
-          WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-          ORDER BY table_schema, table_name
+          WHERE table_name = 'users'
+          AND table_schema NOT IN ('pg_catalog', 'information_schema')
         `);
-        tables = tablesResult.rows.map(r => `${r.table_schema}.${r.table_name}`);
+        schemaInfo.usersTableLocations = usersTableResult.rows;
         
-        // Add current schema info to response
-        schemas = {
-          available: schemas,
-          current: currentSchema,
-          tables: tables
+        // Try to query users with explicit schema
+        if (usersTableResult.rows.length > 0) {
+          const schema = usersTableResult.rows[0].table_schema;
+          const countResult = await db.execute(sql`SELECT COUNT(*) as count FROM ${sql.identifier(schema)}.users`);
+          schemaInfo.userCountWithSchema = countResult.rows[0]?.count;
+          
+          // Try to set search path and query again
+          await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
+          const countResult2 = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+          schemaInfo.userCountAfterSetPath = countResult2.rows[0]?.count;
+        }
+        
+      } catch (schemaError: any) {
+        schemaInfo.error = {
+          message: schemaError.message,
+          code: schemaError.code
         };
-      } catch (tableError: any) {
-        console.error("Error listing tables:", tableError);
-        schemas = { error: tableError.message };
       }
-
-      // Test direct SQL query
-      const result = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
-      
-      // Also try to get a user to verify the table structure
-      const userResult = await db.execute(sql`
-        SELECT id, username, role 
-        FROM users 
-        WHERE username = 'superadmin' 
-        LIMIT 1
-      `);
       
       res.json({ 
-        status: "ok", 
+        status: "schema-debug", 
         databaseUrl: "configured",
-        schemas: schemas,
-        usersCount: result.rows[0]?.count || 0,
-        superAdminExists: userResult.rows.length > 0,
-        superAdmin: userResult.rows[0] || null,
+        schemaInfo: schemaInfo,
         timestamp: new Date().toISOString()
       });
     } catch (error: any) {
