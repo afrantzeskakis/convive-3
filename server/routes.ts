@@ -523,6 +523,43 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Test restaurants table specifically
+  app.get("/api/test-restaurants-table", async (req, res) => {
+    try {
+      const result = await db.execute(sql`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'restaurants'
+        )
+      `);
+      
+      let restaurantCount = 0;
+      let sampleData = null;
+      
+      if (result.rows[0]?.exists) {
+        const countResult = await db.execute(sql`SELECT COUNT(*) FROM restaurants`);
+        restaurantCount = parseInt(countResult.rows[0]?.count || '0');
+        
+        // Get a sample restaurant
+        const sampleResult = await db.execute(sql`SELECT id, name FROM restaurants LIMIT 1`);
+        sampleData = sampleResult.rows[0] || null;
+      }
+      
+      res.json({
+        tableExists: result.rows[0]?.exists || false,
+        restaurantCount,
+        sampleData,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      res.json({
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Database test endpoint
   app.get("/api/test-db", async (req, res) => {
     try {
