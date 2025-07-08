@@ -281,17 +281,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Database test endpoint
   app.get("/api/test-db", async (req, res) => {
     try {
+      // Check if DATABASE_URL exists
+      if (!process.env.DATABASE_URL) {
+        return res.status(500).json({
+          status: "error",
+          error: "DATABASE_URL not configured",
+          databaseUrl: "missing"
+        });
+      }
+
+      // First try to list all tables to see what's in the database
+      let tables = [];
+      try {
+        const tablesResult = await db.execute(sql`
+          SELECT table_name 
+          FROM information_schema.tables 
+          WHERE table_schema = 'public'
+          ORDER BY table_name
+        `);
+        tables = tablesResult.rows.map(r => r.table_name);
+      } catch (tableError: any) {
+        console.error("Error listing tables:", tableError);
+      }
+
       // Test direct SQL query
       const result = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+      
+      // Also try to get a user to verify the table structure
+      const userResult = await db.execute(sql`
+        SELECT id, username, role 
+        FROM users 
+        WHERE username = 'superadmin' 
+        LIMIT 1
+      `);
+      
       res.json({ 
         status: "ok", 
+        databaseUrl: "configured",
+        tables: tables,
         usersCount: result.rows[0]?.count || 0,
-        databaseUrl: process.env.DATABASE_URL ? "configured" : "missing"
+        superAdminExists: userResult.rows.length > 0,
+        superAdmin: userResult.rows[0] || null,
+        timestamp: new Date().toISOString()
       });
     } catch (error: any) {
+      console.error("Database test error:", error);
       res.status(500).json({ 
         status: "error", 
         message: error.message,
+        code: error.code,
+        detail: error.detail,
+        hint: error.hint,
         databaseUrl: process.env.DATABASE_URL ? "configured" : "missing"
       });
     }
