@@ -84,21 +84,31 @@ export function setupAuth(app: Express) {
   passport.use(
     new LocalStrategy(async (username, password, done) => {
       try {
-        console.log(`Login attempt for: ${username}`);
+        console.log(`[PASSPORT] Login attempt for: "${username}"`);
+        console.log(`[PASSPORT] Username length: ${username.length}`);
+        console.log(`[PASSPORT] Username chars:`, username.split('').map(c => `${c}(${c.charCodeAt(0)})`).join(''));
+        
         const user = await storage.getUserByUsername(username);
+        
         if (!user) {
-          console.log(`User not found: ${username}`);
-          return done(null, false, { message: "Incorrect username." });
+          console.log(`[PASSPORT] User not found: "${username}"`);
+          return done(null, false, { message: "User does not exist" });
         }
+        
+        console.log(`[PASSPORT] User found: ID=${user.id}, Role=${user.role}`);
+        console.log(`[PASSPORT] Comparing passwords...`);
+        
         const isValid = await comparePasswords(password, user.password);
+        
         if (!isValid) {
-          console.log(`Invalid password for user: ${username}`);
+          console.log(`[PASSPORT] Invalid password for user: ${username}`);
           return done(null, false, { message: "Incorrect password." });
         }
-        console.log(`Login successful for user: ${username}`);
+        
+        console.log(`[PASSPORT] Login successful for user: ${username}`);
         return done(null, user);
       } catch (error) {
-        console.log(`Login error: ${error}`);
+        console.log(`[PASSPORT] Login error:`, error);
         return done(error);
       }
     })

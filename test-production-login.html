@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Production Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Production Login</h1>
+        
+        <div class="form-group">
+            <label for="baseUrl">Base URL (your Railway URL):</label>
+            <input type="text" id="baseUrl" placeholder="https://your-app.up.railway.app" value="">
+        </div>
+        
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="superadmin">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" value="convive2023">
+        </div>
+        
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="checkAuth()">Check Current Auth Status</button>
+        <button onclick="testDirectLogin()">Test Direct API Call</button>
+        
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result ' + type;
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = message;
+        }
+
+        async function testLogin() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!baseUrl) {
+                showResult('Please enter your Railway URL', 'error');
+                return;
+            }
+            
+            showResult('Testing login...', 'info');
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ Login successful!<br><br>User data:<pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`❌ Login failed<br><br>Status: ${response.status}<br>Error: ${data.message || 'Unknown error'}<br><br>Full response:<pre>${JSON.stringify(data, null, 2)}</pre>`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Network error<br><br>${error.message}<br><br>Make sure:<br>1. The URL is correct<br>2. You're testing from a browser (not a tool)<br>3. CORS is properly configured`, 'error');
+            }
+        }
+        
+        async function checkAuth() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            
+            if (!baseUrl) {
+                showResult('Please enter your Railway URL', 'error');
+                return;
+            }
+            
+            showResult('Checking authentication status...', 'info');
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/user`, {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(`✅ Authenticated!<br><br>Current user:<pre>${JSON.stringify(data, null, 2)}</pre>`, 'success');
+                } else {
+                    showResult(`Not authenticated<br><br>Status: ${response.status}<br>Message: ${data.message}`, 'info');
+                }
+            } catch (error) {
+                showResult(`❌ Network error<br><br>${error.message}`, 'error');
+            }
+        }
+        
+        async function testDirectLogin() {
+            const baseUrl = document.getElementById('baseUrl').value.trim();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!baseUrl) {
+                showResult('Please enter your Railway URL', 'error');
+                return;
+            }
+            
+            showResult('Testing direct API call...', 'info');
+            
+            // Test with raw fetch to see exact response
+            try {
+                const response = await fetch(`${baseUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ 
+                        username: username,
+                        password: password 
+                    }),
+                    mode: 'cors',
+                    credentials: 'include'
+                });
+                
+                const responseText = await response.text();
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    data = responseText;
+                }
+                
+                showResult(`Response Status: ${response.status}<br>
+                           Response Headers:<pre>${JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)}</pre>
+                           Response Body:<pre>${typeof data === 'string' ? data : JSON.stringify(data, null, 2)}</pre>`, 
+                           response.ok ? 'success' : 'error');
+            } catch (error) {
+                showResult(`❌ Network error<br><br>${error.message}<br>${error.stack}`, 'error');
+            }
+        }
+    </script>
+</body>
+</html>
