@@ -7,5 +7,8 @@ Deployment History:
 - July 8, 2025 9:30 PM: Fix super admin dashboard - removed duplicate restaurants endpoint
 - Fixed setTotalWines undefined error
 - Added admin analytics methods to storage interface
+- July 8, 2025 9:37 PM: Force deployment - duplicate endpoint still present in production
 
-Last deployment trigger: Tue Jul 08 2025 21:30:00 GMT+0000
+CRITICAL FIX: Removed duplicate /api/restaurants endpoint at line 1128
+
+Last deployment trigger: Tue Jul 08 2025 21:37:00 GMT+0000

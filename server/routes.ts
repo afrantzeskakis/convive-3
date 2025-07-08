@@ -367,10 +367,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/restaurants', isAuthenticated, async (req, res) => {
     try {
+      console.log('[PRODUCTION FIX] Fetching restaurants for user:', req.user?.id);
       const restaurants = await storage.getAllRestaurants();
+      console.log('[PRODUCTION FIX] Found restaurants:', restaurants.length);
       res.json(restaurants);
     } catch (error) {
-      console.error('Error fetching restaurants:', error);
+      console.error('[PRODUCTION FIX] Error fetching restaurants:', error);
       // Return empty array instead of 500 error to allow dashboard to load
       res.json([]);
     }
