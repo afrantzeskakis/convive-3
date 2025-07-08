@@ -278,8 +278,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ 
       status: 'healthy', 
       timestamp: new Date().toISOString(), 
-      version: '1.0.2',
-      deployedAt: '2025-01-08-schema-debug'
+      version: '1.0.3',
+      deployedAt: '2025-01-08-db-fix'
     });
   });
   
@@ -337,6 +337,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
           await db.execute(sql`SET search_path TO ${sql.identifier(schema)}, public`);
           const countResult2 = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
           schemaInfo.userCountAfterSetPath = countResult2.rows[0]?.count;
+        }
+        
+        // Try to create the users table if it doesn't exist
+        if (usersTableResult.rows.length === 0) {
+          try {
+            await db.execute(sql`
+              CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                full_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                city VARCHAR(255),
+                gender VARCHAR(50),
+                age INTEGER,
+                occupation VARCHAR(255),
+                bio TEXT,
+                profile_picture TEXT,
+                looking_for VARCHAR(50),
+                onboarding_complete BOOLEAN DEFAULT false,
+                role VARCHAR(50) DEFAULT 'user',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+              )
+            `);
+            schemaInfo.tableCreated = "users table created successfully";
+            
+            // Check again
+            const recheckResult = await db.execute(sql`
+              SELECT table_schema, table_name 
+              FROM information_schema.tables 
+              WHERE table_name = 'users'
+              AND table_schema NOT IN ('pg_catalog', 'information_schema')
+            `);
+            schemaInfo.usersTableAfterCreate = recheckResult.rows;
+          } catch (createError: any) {
+            schemaInfo.createError = {
+              message: createError.message,
+              code: createError.code
+            };
+          }
+        }
+        
+        // Get database connection info (redacted)
+        const dbUrl = process.env.DATABASE_URL || '';
+        const urlParts = dbUrl.match(/postgresql:\/\/([^:]+):([^@]+)@([^\/]+)\/(.+)/);
+        if (urlParts) {
+          schemaInfo.connectionInfo = {
+            user: urlParts[1],
+            host: urlParts[3],
+            database: urlParts[4]
+          };
         }
         
       } catch (schemaError: any) {
