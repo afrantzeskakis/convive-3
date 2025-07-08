@@ -163,16 +163,18 @@ export function setupAuth(app: Express) {
 
   // Login route
   app.post("/api/login", (req, res, next) => {
-    console.log("Login attempt for:", req.body.username);
+    console.log("[AUTH] Login POST request received");
+    console.log("[AUTH] Request body:", JSON.stringify(req.body));
+    console.log("[AUTH] Username from request:", req.body.username);
     
     passport.authenticate("local", (err, user, info) => {
       if (err) {
-        console.error("Login error:", err);
+        console.error("[AUTH] Login error:", err);
         return next(err);
       }
       
       if (!user) {
-        console.log("Authentication failed:", info?.message);
+        console.log("[AUTH] Authentication failed:", info?.message);
         return res.status(401).json({ message: info?.message || "Authentication failed" });
       }
       
