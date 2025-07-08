@@ -182,6 +182,15 @@ export interface IStorage {
   getWinePromotions(userId?: number): Promise<any[]>;
   createWinePromotion(promotion: any): Promise<any>;
   getWineAnalytics(userId?: number): Promise<any>;
+  
+  // Admin analytics methods
+  getAllUserAnalytics(): Promise<Array<User & { 
+    firstMeetupCount: number;
+    latestActivity: Date | null;
+    status: 'Active' | 'Inactive';
+  }>>;
+  getPremiumUsers(): Promise<User[]>;
+  getHighCheckAverages(limit?: number): Promise<DinnerCheckAverage[]>;
 }
 
 export class MemStorage implements IStorage {

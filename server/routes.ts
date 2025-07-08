@@ -1124,16 +1124,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // RESTAURANT ROUTES
   
-  // Get specific restaurants (only restaurants specifically chosen)
-  app.get("/api/restaurants", async (req: Request, res: Response) => {
-    try {
-      // In the future, this could be modified to get only restaurants specifically chosen
-      const restaurants = await storage.getAllRestaurants();
-      res.json(restaurants);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch restaurants" });
-    }
-  });
+  // Note: /api/restaurants endpoint is already defined above with authentication
   
   // Replaced: Featured restaurants endpoint
   // Now returns a curated list of restaurants for the user
