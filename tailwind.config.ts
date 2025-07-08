@@ -3,6 +3,30 @@ import type { Config } from "tailwindcss";
 export default {
   darkMode: ["class"],
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
+  safelist: [
+    // Color variations that might be dynamically generated
+    'bg-primary', 'text-primary', 'border-primary',
+    'bg-secondary', 'text-secondary', 'border-secondary',
+    'bg-destructive', 'text-destructive', 'border-destructive',
+    'bg-muted', 'text-muted', 'border-muted',
+    'bg-accent', 'text-accent', 'border-accent',
+    'bg-card', 'text-card-foreground',
+    'bg-popover', 'text-popover-foreground',
+    // Common hover states
+    'hover:bg-primary/90', 'hover:bg-secondary/80', 'hover:bg-accent/80',
+    // Common opacity variations
+    'opacity-50', 'opacity-60', 'opacity-70', 'opacity-80', 'opacity-90',
+    // Common spacing
+    'p-4', 'p-6', 'p-8', 'px-4', 'py-2', 'px-6', 'py-3',
+    // Common widths
+    'w-full', 'w-auto', 'w-fit', 'max-w-lg', 'max-w-xl', 'max-w-2xl',
+    // Recipe difficulty colors
+    'bg-green-100', 'bg-blue-100', 'bg-purple-100', 'bg-orange-100',
+    'text-green-800', 'text-blue-800', 'text-purple-800', 'text-orange-800',
+    // Wine status colors
+    'bg-green-500', 'bg-yellow-500', 'bg-red-500', 'bg-gray-400',
+    'text-green-500', 'text-yellow-500', 'text-red-500', 'text-gray-400',
+  ],
   theme: {
     extend: {
       borderRadius: {
