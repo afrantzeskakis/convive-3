@@ -367,12 +367,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get('/api/restaurants', isAuthenticated, async (req, res) => {
     try {
-      console.log('[PRODUCTION FIX] Fetching restaurants for user:', req.user?.id);
-      const restaurants = await storage.getAllRestaurants();
-      console.log('[PRODUCTION FIX] Found restaurants:', restaurants.length);
-      res.json(restaurants);
+      console.log('[PRODUCTION DEBUG] Fetching restaurants for user:', req.user?.id);
+      
+      // Test if restaurants table exists
+      try {
+        const testQuery = await db.select().from(restaurants).limit(1);
+        console.log('[PRODUCTION DEBUG] Restaurants table exists');
+      } catch (dbError) {
+        console.error('[PRODUCTION DEBUG] Restaurants table error:', dbError);
+        // If table doesn't exist, return empty array
+        return res.json([]);
+      }
+      
+      const allRestaurants = await storage.getAllRestaurants();
+      console.log('[PRODUCTION DEBUG] Found restaurants:', allRestaurants.length);
+      res.json(allRestaurants);
     } catch (error) {
-      console.error('[PRODUCTION FIX] Error fetching restaurants:', error);
+      console.error('[PRODUCTION DEBUG] General error:', error);
       // Return empty array instead of 500 error to allow dashboard to load
       res.json([]);
     }
