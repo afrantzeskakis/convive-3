@@ -75,6 +75,18 @@ export class DatabaseStorage implements IStorage {
 
   async getUserByUsername(username: string): Promise<User | undefined> {
     try {
+      console.log(`[DatabaseStorage] Looking for user with username: "${username}"`);
+      
+      // First, let's debug by listing all users to see what's in the database
+      const allUsers = await db.select({
+        id: users.id,
+        username: users.username,
+        role: users.role
+      }).from(users);
+      
+      console.log(`[DatabaseStorage] Total users in database: ${allUsers.length}`);
+      console.log(`[DatabaseStorage] All usernames:`, allUsers.map(u => u.username));
+      
       // Now that we've run the migration, we should be able to use the drizzle ORM directly
       const [user] = await db.select({
         id: users.id,
@@ -103,6 +115,8 @@ export class DatabaseStorage implements IStorage {
       })
       .from(users)
       .where(eq(users.username, username));
+      
+      console.log(`[DatabaseStorage] Found user:`, user ? `Yes (id: ${user.id}, role: ${user.role})` : 'No');
       
       return user || undefined;
     } catch (error) {
