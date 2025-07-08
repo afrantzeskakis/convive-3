@@ -278,6 +278,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ status: 'healthy', timestamp: new Date().toISOString(), version: '1.0.0' });
   });
   
+  // Database test endpoint
+  app.get("/api/test-db", async (req, res) => {
+    try {
+      // Test direct SQL query
+      const result = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+      res.json({ 
+        status: "ok", 
+        usersCount: result.rows[0]?.count || 0,
+        databaseUrl: process.env.DATABASE_URL ? "configured" : "missing"
+      });
+    } catch (error: any) {
+      res.status(500).json({ 
+        status: "error", 
+        message: error.message,
+        databaseUrl: process.env.DATABASE_URL ? "configured" : "missing"
+      });
+    }
+  });
+  
   app.use('/api/wine-recommendations', wineRecommendationRoutes);
   app.use('/api/messaging', messagingRouter);
   app.use('/api/ai', aiAnalysisRouter);
