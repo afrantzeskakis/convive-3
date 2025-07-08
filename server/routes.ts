@@ -523,6 +523,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create restaurants table in production (temporary endpoint)
+  app.post("/api/create-restaurants-table-emergency", isSuperAdmin, async (req, res) => {
+    try {
+      // First check if table exists
+      const checkResult = await db.execute(sql`
+        SELECT EXISTS (
+          SELECT FROM information_schema.tables 
+          WHERE table_schema = 'public' 
+          AND table_name = 'restaurants'
+        )
+      `);
+      
+      if (checkResult.rows[0]?.exists) {
+        return res.json({ message: "Table already exists", success: false });
+      }
+      
+      // Create the table
+      await db.execute(sql`
+        CREATE TABLE restaurants (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          description TEXT,
+          cuisine_type VARCHAR(255),
+          cuisine_description TEXT,
+          address TEXT NOT NULL,
+          distance VARCHAR(50),
+          image_url TEXT,
+          rating VARCHAR(10),
+          ambiance VARCHAR(50),
+          noise_level VARCHAR(50),
+          price_range VARCHAR(10),
+          features JSONB,
+          awards JSONB,
+          menu_url VARCHAR(255),
+          is_featured BOOLEAN DEFAULT false,
+          manager_id INTEGER REFERENCES users(id) ON DELETE SET NULL
+        )
+      `);
+      
+      // Insert sample data
+      await db.execute(sql`
+        INSERT INTO restaurants (name, description, cuisine_type, address, is_featured, price_range, features)
+        VALUES 
+          ('Bella Italia Restaurant', 'Authentic Italian cuisine in a cozy atmosphere.', 'Italian', '123 Main St, New York, NY', true, '$$$', '["Wine List", "Outdoor Seating"]'::jsonb),
+          ('Sakura Japanese Bistro', 'Modern Japanese cuisine with fresh ingredients.', 'Japanese', '789 East St, Manhattan, NY', true, '$$', '["Sushi Bar", "Private Dining"]'::jsonb),
+          ('Page Turner Café', 'Cozy café with great brunch options.', 'Café', '456 Park Ave, Brooklyn, NY', false, '$$', '["Vegan Options", "Book Exchange"]'::jsonb)
+      `);
+      
+      res.json({ 
+        message: "Restaurants table created and populated successfully", 
+        success: true 
+      });
+    } catch (error) {
+      console.error("Error creating restaurants table:", error);
+      res.status(500).json({ 
+        error: error instanceof Error ? error.message : 'Unknown error',
+        success: false 
+      });
+    }
+  });
+
   // Test restaurants table specifically
   app.get("/api/test-restaurants-table", async (req, res) => {
     try {
