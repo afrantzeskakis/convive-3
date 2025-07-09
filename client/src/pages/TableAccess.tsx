@@ -304,13 +304,13 @@ export default function TableAccess() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {conviveBlackPlan.features.map((feature, index) => (
-              <li key={index} className="flex items-center text-sm list-none">
+              <li key={index} className="flex items-center text-base list-none">
                 <span className="text-primary font-bold mr-2">✓</span> {feature}
               </li>
             ))}
           </div>
           
-          <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm">
+          <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-base">
             <p className="font-medium mb-1 text-center">What Makes Convive Black Different</p>
             <p className="text-center">Convive Black experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
           </div>
