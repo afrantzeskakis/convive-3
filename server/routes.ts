@@ -2204,8 +2204,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } = req.body;
       
       // Validate required fields
-      if (!username || !password || !fullName || !email) {
-        return res.status(400).json({ message: "Username, password, full name, and email are required" });
+      if (!username || !password || !fullName) {
+        return res.status(400).json({ message: "Username, password, and full name are required" });
       }
       
       // Validate role
@@ -2219,10 +2219,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Username already exists" });
       }
       
-      // Check if email already exists
-      const existingUserByEmail = await storage.getUserByEmail(email);
-      if (existingUserByEmail) {
-        return res.status(400).json({ message: "Email already exists" });
+      // Check if email already exists (only if email is provided)
+      if (email) {
+        const existingUserByEmail = await storage.getUserByEmail(email);
+        if (existingUserByEmail) {
+          return res.status(400).json({ message: "Email already exists" });
+        }
       }
       
       // Hash the password
@@ -2233,7 +2235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username,
         password: hashedPassword,
         fullName,
-        email,
+        email: email || null,
         city: city || null,
         gender: gender || null,
         age: age || null,

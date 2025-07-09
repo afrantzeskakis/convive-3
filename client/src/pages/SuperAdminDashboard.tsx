@@ -3423,13 +3423,12 @@ Convive: Curated Dining & Extraordinary Connections
                       </div>
                       
                       <div>
-                        <Label htmlFor="email">Email*</Label>
+                        <Label htmlFor="email">Email (Optional)</Label>
                         <Input
                           id="email"
                           type="email"
                           value={newUserForm.email}
                           onChange={(e) => setNewUserForm(prev => ({ ...prev, email: e.target.value }))}
-                          required
                           placeholder="john.doe@example.com"
                         />
                       </div>
