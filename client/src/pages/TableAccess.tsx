@@ -125,7 +125,7 @@ export default function TableAccess() {
     name: "Convive Black",
     price: 375,
     dinners: 5,
-    description: "Some earn their seat. Some claim it. But everyone leaves elevated.",
+    description: "Access the city's most exclusive dinner tables. No pitch decks, no panels, just real people and real chemistry. Some earn their seat. Some claim it. But everyone leaves elevated.",
     features: [
       "Up to 25 connections per month",
       "Access to high check average establishments",
@@ -293,7 +293,7 @@ export default function TableAccess() {
           </Badge>
           <CardTitle className="text-2xl text-center">{conviveBlackPlan.name}</CardTitle>
           <div className="text-center mt-2">
-            <CardDescription className="text-base font-medium text-[#898e96] leading-relaxed">
+            <CardDescription className="text-base font-medium text-[#898e96] leading-relaxed text-justify">
               {conviveBlackPlan.description}
             </CardDescription>
           </div>
