@@ -299,9 +299,6 @@ export default function TableAccess() {
             <p className="text-base font-medium text-[#898e96]">
               No pitch decks, no panels, just real people and real chemistry.
             </p>
-            <p className="text-base font-medium text-[#898e96] italic">
-              Some earn their seat. Some claim it. But everyone leaves elevated.
-            </p>
           </div>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
@@ -320,6 +317,10 @@ export default function TableAccess() {
             <p className="font-medium mb-1">High Roller Access Information:</p>
             <p className="text-center">Convive Black experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
           </div>
+          
+          <p className="text-center text-base font-medium text-[#898e96] italic mt-6">
+            Some earn their seat. Some claim it. But everyone leaves elevated.
+          </p>
         </CardContent>
         <CardFooter className="pt-4">
           <Button 
