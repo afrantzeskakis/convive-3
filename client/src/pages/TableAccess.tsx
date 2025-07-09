@@ -318,7 +318,7 @@ export default function TableAccess() {
             <p className="text-center">Convive Black experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
           </div>
           
-          <p className="text-center text-base font-medium text-[#898e96] italic mt-6">
+          <p className="text-center text-base font-medium text-[#898e96] italic mt-3 mb-1">
             Some earn their seat. Some claim it. But everyone leaves elevated.
           </p>
         </CardContent>
