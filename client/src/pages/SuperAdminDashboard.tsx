@@ -27,7 +27,7 @@ import {
   UtensilsCrossed, GlassWater, CheckCircle, UserRound, CalendarDays, MapPin,
   Award, Key, Star, Sparkles, UserCheck, Wine, MessageSquare, Wrench, Utensils,
   FileSearch, PhoneCall, X, UserIcon, PlayCircle, Crown, ServerCrash, Check,
-  Activity, BarChart3 as BarChartIcon, TrendingUp, Database
+  Activity, BarChart3 as BarChartIcon, TrendingUp, Database, LogOut
 } from "lucide-react";
 import { AllergenChecker } from "@/components/AllergenChecker";
 import { useToast } from "@/hooks/use-toast";
@@ -1615,6 +1615,18 @@ Convive: Curated Dining & Extraordinary Connections
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (confirm('Are you sure you want to log out?')) {
+                  window.location.href = '/api/logout';
+                }
+              }}
+              className="gap-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">Log Out</span>
+            </Button>
           </div>
         </div>
 
