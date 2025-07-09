@@ -119,7 +119,7 @@ export default function TableAccess() {
     },
     {
       id: "tier4",
-      name: "Elite Tier",
+      name: "Convive Black",
       price: 375,
       dinners: 5,
       description: "The ultimate fine dining social experience",
