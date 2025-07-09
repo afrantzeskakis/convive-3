@@ -291,7 +291,7 @@ export default function TableAccess() {
           <Badge variant="secondary" className="w-fit mb-2 bg-primary/20 text-primary border-primary/30">
             High Roller Experience
           </Badge>
-          <CardTitle className="text-2xl text-center">{conviveBlackPlan.name}</CardTitle>
+          <CardTitle className="font-semibold tracking-tight text-center text-[28px]">{conviveBlackPlan.name}</CardTitle>
           <div className="text-center mt-2 space-y-2">
             <p className="text-base font-medium text-[#898e96]">
               Access the city's most exclusive dinner tables.
