@@ -288,9 +288,6 @@ export default function TableAccess() {
     <div className="mt-6">
       <Card className="flex flex-col border-primary/80 shadow-lg bg-primary/5 max-w-4xl mx-auto">
         <CardHeader className="pb-2">
-          <Badge variant="secondary" className="w-fit mb-2 bg-primary/20 text-primary border-primary/30">
-            High Roller Experience
-          </Badge>
           <CardTitle className="font-semibold tracking-tight text-center text-[28px]">{conviveBlackPlan.name}</CardTitle>
           <div className="text-center mt-2 space-y-2">
             <p className="text-base font-medium text-[#898e96]">
@@ -314,7 +311,7 @@ export default function TableAccess() {
           </div>
           
           <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm">
-            <p className="font-medium mb-1">High Roller Access Information:</p>
+            <p className="font-medium mb-1 text-center">What Makes Convive Black Different</p>
             <p className="text-center">Convive Black experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
           </div>
           
