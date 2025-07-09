@@ -2329,18 +2329,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Diagnostic endpoint to check database connection (super admin only)
-  app.get('/api/diagnostic/database', isSuperAdmin, async (req: Request, res: Response) => {
+  // Diagnostic endpoint to check database connection (public for debugging)
+  app.get('/api/diagnostic/database-info', async (req: Request, res: Response) => {
     try {
       const dbUrl = process.env.DATABASE_URL || 'NOT SET';
       const maskedUrl = dbUrl.replace(/:\/\/[^@]*@/, '://***@');
       
-      // Get restaurant count and list
-      const restaurants = await storage.getRestaurants();
+      // Get restaurant count and list using direct queries
+      const restaurantsResult = await db.execute(sql`SELECT id, name FROM restaurants ORDER BY id`);
+      const restaurants = restaurantsResult.rows;
       
       // Get user count
-      const allUsers = await storage.getAllUsers();
-      const userCount = allUsers.length;
+      const userCountResult = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
+      const userCount = userCountResult.rows[0].count;
       
       res.json({
         environment: process.env.RAILWAY_ENVIRONMENT ? 'Railway' : 'Local/Replit',
