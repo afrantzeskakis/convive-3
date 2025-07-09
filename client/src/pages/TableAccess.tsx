@@ -127,8 +127,8 @@ export default function TableAccess() {
     dinners: 5,
     description: "Access the city's most exclusive dinner tables. No pitch decks, no panels, just real people and real chemistry. Some earn their seat. Some claim it. But everyone leaves elevated.",
     features: [
-      "Up to 25 connections per month",
       "$15 per connection",
+      "Up to 25 connections per month",
       "Super premium restaurant service experience",
       "VIP treatment from restaurant staff",
       "Ultra specialized host",
