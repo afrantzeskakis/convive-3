@@ -10,8 +10,9 @@ Deployment History:
 - July 8, 2025 9:37 PM: Force deployment - duplicate endpoint still present in production
 - July 9, 2025 8:20 AM: Force deployment - ensure user creation with optional email is working
 - July 9, 2025 8:35 AM: Added detailed logging to debug user creation errors in production
+- July 9, 2025 9:12 AM: Added comprehensive logging to routes and middleware to debug production user creation
 
 CRITICAL FIX: Removed duplicate /api/restaurants endpoint at line 1128
-LATEST FIX: Added error logging to identify user creation failures in production
+LATEST FIX: Added route and middleware logging to identify where user creation is failing
 
-Last deployment trigger: Thu Jul 09 2025 08:35:00 GMT+0000
+Last deployment trigger: Thu Jul 09 2025 09:12:00 GMT+0000

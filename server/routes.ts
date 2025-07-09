@@ -75,14 +75,20 @@ function isAuthenticated(req: Request, res: Response, next: NextFunction) {
 
 // Middleware to check if a user is a super admin
 function isSuperAdmin(req: Request, res: Response, next: NextFunction) {
+  console.log('[Middleware] isSuperAdmin check - authenticated:', req.isAuthenticated());
+  console.log('[Middleware] isSuperAdmin check - user role:', req.user?.role);
+  
   if (!req.isAuthenticated()) {
+    console.log('[Middleware] isSuperAdmin - returning 401 Unauthorized');
     return res.status(401).json({ message: "Unauthorized - Login required" });
   }
   
   if (req.user?.role !== "super_admin") {
+    console.log('[Middleware] isSuperAdmin - returning 403 Forbidden');
     return res.status(403).json({ message: "Forbidden: Super Admin access required" });
   }
   
+  console.log('[Middleware] isSuperAdmin - user authorized, proceeding');
   next();
 }
 
@@ -2184,6 +2190,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Create new user (super admin only)
   app.post("/api/admin/create-user", isSuperAdmin, async (req: Request, res: Response) => {
+    console.log('[Routes] /api/admin/create-user endpoint hit');
+    console.log('[Routes] Request body:', JSON.stringify(req.body, null, 2));
     try {
       const { 
         username, 
