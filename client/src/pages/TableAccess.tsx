@@ -56,7 +56,7 @@ type UserSubscriptionResponse = {
   };
 };
 
-type PurchaseType = 'subscription' | 'convive-black' | 'ticket';
+type PurchaseType = 'subscription' | 'convive-select' | 'ticket';
 
 export default function TableAccess() {
   const { user } = useAuth();
@@ -119,10 +119,10 @@ export default function TableAccess() {
     }
   ];
 
-  // Convive Black plan (separate from regular subscriptions)
-  const conviveBlackPlan: SubscriptionPlan = {
+  // Convive Select plan (separate from regular subscriptions)
+  const conviveSelectPlan: SubscriptionPlan = {
     id: "tier4",
-    name: "Convive Black",
+    name: "Convive Select",
     price: 375,
     dinners: 5,
     description: "Access the city's most exclusive dinner tables. No pitch decks, no panels, just real people and real chemistry. Some earn their seat. Some claim it. But everyone leaves elevated.",
@@ -283,12 +283,12 @@ export default function TableAccess() {
     </div>
   );
 
-  // Convive Black section
-  const renderConviveBlack = () => (
+  // Convive Select section
+  const renderConviveSelect = () => (
     <div className="mt-6">
       <Card className="flex flex-col border-primary/80 shadow-lg bg-primary/5 max-w-4xl mx-auto">
         <CardHeader className="pb-2">
-          <CardTitle className="font-semibold tracking-tight text-center text-[28px]">{conviveBlackPlan.name}</CardTitle>
+          <CardTitle className="font-semibold tracking-tight text-center text-[28px]">{conviveSelectPlan.name}</CardTitle>
           <div className="text-center mt-2 space-y-2">
             <p className="text-base font-medium text-[#898e96]">
               Access the city's most exclusive dinner tables.
@@ -299,11 +299,11 @@ export default function TableAccess() {
           </div>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
-          <div className="text-3xl font-bold mb-2">${conviveBlackPlan.price}<span className="text-sm font-normal">/month</span></div>
-          <p className="text-lg font-medium mb-4 text-primary">{conviveBlackPlan.dinners} dinners per month</p>
+          <div className="text-3xl font-bold mb-2">${conviveSelectPlan.price}<span className="text-sm font-normal">/month</span></div>
+          <p className="text-lg font-medium mb-4 text-primary">{conviveSelectPlan.dinners} dinners per month</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {conviveBlackPlan.features.map((feature, index) => (
+            {conviveSelectPlan.features.map((feature, index) => (
               <li key={index} className="flex items-center text-base list-none">
                 <span className="text-primary font-bold mr-2">✓</span> {feature}
               </li>
@@ -311,8 +311,8 @@ export default function TableAccess() {
           </div>
           
           <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-base">
-            <p className="font-medium mb-1 text-center">What Makes Convive Black Different</p>
-            <p className="text-center">Convive Black experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
+            <p className="font-medium mb-1 text-center">What Makes Convive Select Different</p>
+            <p className="text-center">Convive Select experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
           </div>
           
           <p className="text-center text-base font-medium text-[#898e96] italic mt-3 mb-1">
@@ -323,7 +323,7 @@ export default function TableAccess() {
           <Button 
             className="w-full bg-primary hover:bg-primary/90"
             disabled={isProcessing}
-            onClick={() => handlePaymentProcess(conviveBlackPlan.id, 'subscription')}
+            onClick={() => handlePaymentProcess(conviveSelectPlan.id, 'subscription')}
           >
             {isProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Claim Your Seat</Button>
         </CardFooter>
@@ -530,10 +530,10 @@ export default function TableAccess() {
             Monthly Subscriptions
           </Button>
           <Button
-            variant={selectedType === 'convive-black' ? 'default' : 'outline'}
-            onClick={() => setSelectedType('convive-black')}
+            variant={selectedType === 'convive-select' ? 'default' : 'outline'}
+            onClick={() => setSelectedType('convive-select')}
           >
-            Convive Black
+            Convive Select
           </Button>
           <Button
             variant={selectedType === 'ticket' ? 'default' : 'outline'}
@@ -570,7 +570,7 @@ export default function TableAccess() {
 
         {/* Display relevant options based on selection */}
         {selectedType === 'subscription' && renderSubscriptionPlans()}
-        {selectedType === 'convive-black' && renderConviveBlack()}
+        {selectedType === 'convive-select' && renderConviveSelect()}
         {selectedType === 'ticket' && renderTicketOption()}
       </div>
     </div>
