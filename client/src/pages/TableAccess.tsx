@@ -125,9 +125,9 @@ export default function TableAccess() {
     name: "Convive Black",
     price: 375,
     dinners: 5,
-    description: "The ultimate fine dining social experience",
+    description: "Some earn their seat. Some claim it. But everyone leaves elevated.",
     features: [
-      "Priority match algorithm",
+      "Up to 25 connections per month",
       "Access to high check average establishments",
       "Super premium restaurant service experience",
       "VIP treatment from restaurant staff",
@@ -292,7 +292,7 @@ export default function TableAccess() {
             High Roller Experience
           </Badge>
           <CardTitle className="text-2xl">{conviveBlackPlan.name}</CardTitle>
-          <CardDescription className="text-base text-center font-medium text-[#898e96]">Some earn their seat. Some claim it. But everyone leaves elevated.</CardDescription>
+          <CardDescription className="text-base text-center font-medium text-[#898e96]">{conviveBlackPlan.description}</CardDescription>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
           <div className="text-3xl font-bold mb-2">${conviveBlackPlan.price}<span className="text-sm font-normal">/month</span></div>
