@@ -127,7 +127,7 @@ export default function TableAccess() {
     dinners: 5,
     description: "Access the city's most exclusive dinner tables. No pitch decks, no panels, just real people and real chemistry. Some earn their seat. Some claim it. But everyone leaves elevated.",
     features: [
-      "$15 per connection",
+      "Less than $15 per connection",
       "Up to 30 high-value connections per month",
       "Elevated dining experience and premier venues",
       "VIP level service and premium Convive host-led flow",
