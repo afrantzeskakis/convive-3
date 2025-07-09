@@ -180,6 +180,33 @@ export class DatabaseStorage implements IStorage {
     return updatedUser || undefined;
   }
 
+  async deleteUser(id: number): Promise<void> {
+    try {
+      // First delete related data
+      await db.delete(userPreferences).where(eq(userPreferences.userId, id));
+      await db.delete(userLanguages).where(eq(userLanguages.userId, id));
+      await db.delete(meetupParticipants).where(eq(meetupParticipants.userId, id));
+      await db.delete(messages).where(eq(messages.senderId, id));
+      await db.delete(messageConnectionExtensions).where(eq(messageConnectionExtensions.requestedById, id));
+      await db.delete(messageConnectionExtensions).where(eq(messageConnectionExtensions.requestedForId, id));
+      await db.delete(groupMeetupParticipants).where(eq(groupMeetupParticipants.userId, id));
+      await db.delete(userDinnerChecks).where(eq(userDinnerChecks.userId, id));
+      await db.delete(userTicketHistory).where(eq(userTicketHistory.userId, id));
+      await db.delete(userSubscriptions).where(eq(userSubscriptions.userId, id));
+      await db.delete(userActivityLogs).where(eq(userActivityLogs.userId, id));
+      await db.delete(announcementRecipients).where(eq(announcementRecipients.userId, id));
+      
+      // Delete meetups created by user
+      await db.delete(meetups).where(eq(meetups.createdBy, id));
+      
+      // Finally delete the user
+      await db.delete(users).where(eq(users.id, id));
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      throw error;
+    }
+  }
+
   async getAllUsers(): Promise<User[]> {
     try {
       return await db.select().from(users);
@@ -261,6 +288,37 @@ export class DatabaseStorage implements IStorage {
       .where(eq(restaurants.id, id))
       .returning();
     return updatedRestaurant || undefined;
+  }
+
+  async deleteRestaurant(id: number): Promise<void> {
+    try {
+      // First delete related data
+      await db.delete(meetups).where(eq(meetups.restaurantId, id));
+      await db.delete(restaurantContacts).where(eq(restaurantContacts.restaurantId, id));
+      await db.delete(aiVoiceCallLogs).where(eq(aiVoiceCallLogs.restaurantId, id));
+      await db.delete(callRecordings).where(eq(callRecordings.restaurantId, id));
+      await db.delete(restaurantAnnouncements).where(eq(restaurantAnnouncements.restaurantId, id));
+      
+      // Remove restaurant from users' authorized restaurants array
+      const usersWithRestaurant = await db
+        .select()
+        .from(users)
+        .where(sql`${id} = ANY(${users.authorizedRestaurants})`);
+      
+      for (const user of usersWithRestaurant) {
+        const updatedRestaurants = user.authorizedRestaurants?.filter(r => r !== id) || [];
+        await db
+          .update(users)
+          .set({ authorizedRestaurants: updatedRestaurants })
+          .where(eq(users.id, user.id));
+      }
+      
+      // Finally delete the restaurant
+      await db.delete(restaurants).where(eq(restaurants.id, id));
+    } catch (error) {
+      console.error("Error deleting restaurant:", error);
+      throw error;
+    }
   }
 
   // Meetup methods

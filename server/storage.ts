@@ -31,6 +31,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: number, user: Partial<User>): Promise<User | undefined>;
+  deleteUser(id: number): Promise<void>;
   
   // User Preferences methods
   getUserPreferences(userId: number): Promise<UserPreferences | undefined>;
@@ -44,6 +45,7 @@ export interface IStorage {
   getRestaurantsByManagerId(managerId: number): Promise<Restaurant[]>;
   createRestaurant(restaurant: InsertRestaurant): Promise<Restaurant>;
   updateRestaurantFeaturedStatus(id: number, isFeatured: boolean): Promise<Restaurant | undefined>;
+  deleteRestaurant(id: number): Promise<void>;
   
   // Restaurant User management methods
   getUsersByRestaurantId(restaurantId: number): Promise<User[]>;

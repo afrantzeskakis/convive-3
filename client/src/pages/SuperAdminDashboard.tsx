@@ -1699,6 +1699,8 @@ Convive: Curated Dining & Extraordinary Connections
                   <SelectItem value="ux-consistency">UX Consistency</SelectItem>
                   <SelectItem value="recipe-analysis">Recipe Analysis</SelectItem>
                   <SelectItem value="premium">Premium Data</SelectItem>
+                  <SelectItem value="user-management">User Management</SelectItem>
+                  <SelectItem value="data-management">Data Management</SelectItem>
                   <SelectItem value="user-view">User View</SelectItem>
                   <SelectItem value="restaurant-admin">Restaurant Admin</SelectItem>
                   <SelectItem value="public-view">Public View</SelectItem>
@@ -1721,6 +1723,8 @@ Convive: Curated Dining & Extraordinary Connections
                   activeTab === "ux-consistency" ? "UX Consistency" :
                   activeTab === "recipe-analysis" ? "Recipe Analysis" :
                   activeTab === "premium" ? "Premium Data" :
+                  activeTab === "user-management" ? "User Management" :
+                  activeTab === "data-management" ? "Data Management" :
                   activeTab === "user-view" ? "User View" :
                   activeTab === "restaurant-admin" ? "Restaurant Admin" :
                   activeTab === "public-view" ? "Public View" :
@@ -1750,6 +1754,7 @@ Convive: Curated Dining & Extraordinary Connections
                 <TabsTrigger value="wine" className="bg-primary/10 text-primary">Wine Upload</TabsTrigger>
                 <TabsTrigger value="premium">Premium Data</TabsTrigger>
                 <TabsTrigger value="user-management">User Management</TabsTrigger>
+                <TabsTrigger value="data-management">Data Management</TabsTrigger>
                 <TabsTrigger value="user-view">User View</TabsTrigger>
                 <TabsTrigger value="restaurant-admin">Rest. Admin</TabsTrigger>
                 <TabsTrigger value="public-view">Public View</TabsTrigger>
@@ -3925,6 +3930,198 @@ Convive: Curated Dining & Extraordinary Connections
                     </div>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* Data Management Tab */}
+          <TabsContent value="data-management" className="space-y-4">
+            <h2 className="text-2xl font-bold mb-4">Data Management</h2>
+            
+            {/* Users Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>User Management</span>
+                  <Badge variant="outline">{allUserData.length} users</Badge>
+                </CardTitle>
+                <CardDescription>View and manage all users in the system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2">Username</th>
+                          <th className="text-left py-2">Email</th>
+                          <th className="text-left py-2">Role</th>
+                          <th className="text-left py-2">Status</th>
+                          <th className="text-right py-2">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {allUserData.map((user) => (
+                          <tr key={user.id} className="border-b hover:bg-muted/50">
+                            <td className="py-3">
+                              <div className="flex items-center gap-2">
+                                <Avatar className="h-8 w-8">
+                                  <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                                <span className="font-medium">{user.username}</span>
+                              </div>
+                            </td>
+                            <td className="py-3">{user.email || 'No email'}</td>
+                            <td className="py-3">
+                              <Badge variant={
+                                user.role === 'super_admin' ? 'destructive' : 
+                                user.role === 'admin' ? 'default' :
+                                user.role === 'restaurant_admin' ? 'secondary' :
+                                'outline'
+                              }>
+                                {user.role === 'super_admin' ? 'Super Admin' :
+                                 user.role === 'admin' ? 'Admin' :
+                                 user.role === 'restaurant_admin' ? 'Restaurant Admin' :
+                                 'User'}
+                              </Badge>
+                            </td>
+                            <td className="py-3">
+                              {user.isPremiumUser ? (
+                                <Badge className="bg-yellow-500/10 text-yellow-600">
+                                  <Crown className="h-3 w-3 mr-1" />
+                                  Convive Select
+                                </Badge>
+                              ) : (
+                                <Badge variant="outline">Regular</Badge>
+                              )}
+                            </td>
+                            <td className="py-3 text-right">
+                              {user.id !== 3 && ( // Prevent deleting super admin (ID 3)
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={async () => {
+                                    if (confirm(`Are you sure you want to delete user "${user.username}"? This action cannot be undone.`)) {
+                                      try {
+                                        const response = await fetch(`/api/admin/users/${user.id}`, {
+                                          method: 'DELETE',
+                                          credentials: 'include'
+                                        });
+                                        
+                                        if (!response.ok) {
+                                          throw new Error('Failed to delete user');
+                                        }
+                                        
+                                        queryClient.invalidateQueries({ queryKey: ['/api/admin/users/analytics'] });
+                                        toast({
+                                          title: "User deleted",
+                                          description: `${user.username} has been removed from the system`,
+                                        });
+                                      } catch (error) {
+                                        toast({
+                                          title: "Failed to delete user",
+                                          description: "An error occurred while deleting the user",
+                                          variant: "destructive"
+                                        });
+                                      }
+                                    }
+                                  }}
+                                  className="text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            {/* Restaurants Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Restaurant Management</span>
+                  <Badge variant="outline">{restaurants?.length || 0} restaurants</Badge>
+                </CardTitle>
+                <CardDescription>View and manage all restaurants in the system</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-2">Restaurant Name</th>
+                          <th className="text-left py-2">Cuisine Type</th>
+                          <th className="text-left py-2">Address</th>
+                          <th className="text-left py-2">Type</th>
+                          <th className="text-right py-2">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {restaurants?.map((restaurant) => (
+                          <tr key={restaurant.id} className="border-b hover:bg-muted/50">
+                            <td className="py-3">
+                              <div className="flex items-center gap-2">
+                                <Utensils className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">{restaurant.name}</span>
+                              </div>
+                            </td>
+                            <td className="py-3">{restaurant.cuisineType}</td>
+                            <td className="py-3 max-w-xs truncate" title={restaurant.address}>
+                              {restaurant.address}
+                            </td>
+                            <td className="py-3">
+                              <Badge variant={restaurant.restaurantType === 'Premium' ? 'default' : 'outline'}>
+                                {restaurant.restaurantType || 'Standard'}
+                              </Badge>
+                            </td>
+                            <td className="py-3 text-right">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={async () => {
+                                  if (confirm(`Are you sure you want to delete "${restaurant.name}"? This action cannot be undone.`)) {
+                                    try {
+                                      const response = await fetch(`/api/admin/restaurants/${restaurant.id}`, {
+                                        method: 'DELETE',
+                                        credentials: 'include'
+                                      });
+                                      
+                                      if (!response.ok) {
+                                        throw new Error('Failed to delete restaurant');
+                                      }
+                                      
+                                      queryClient.invalidateQueries({ queryKey: ['/api/restaurants'] });
+                                      toast({
+                                        title: "Restaurant deleted",
+                                        description: `${restaurant.name} has been removed from the system`,
+                                      });
+                                    } catch (error) {
+                                      toast({
+                                        title: "Failed to delete restaurant",
+                                        description: "An error occurred while deleting the restaurant",
+                                        variant: "destructive"
+                                      });
+                                    }
+                                  }
+                                }}
+                                className="text-destructive hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

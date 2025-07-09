@@ -2265,6 +2265,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete user (super admin only)
+  app.delete("/api/admin/users/:id", isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Prevent deleting the super admin account
+      if (userId === 3) {
+        return res.status(403).json({ message: "Cannot delete the super admin account" });
+      }
+      
+      await storage.deleteUser(userId);
+      
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
+    }
+  });
+  
+  // Delete restaurant (super admin only)
+  app.delete("/api/admin/restaurants/:id", isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const restaurantId = parseInt(req.params.id);
+      
+      await storage.deleteRestaurant(restaurantId);
+      
+      res.json({ message: "Restaurant deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting restaurant:", error);
+      res.status(500).json({ message: "Failed to delete restaurant" });
+    }
+  });
+
   // Update user premium status (super admin only)
   app.patch("/api/admin/users/:id/premium-status", isSuperAdmin, async (req: Request, res: Response) => {
     try {
