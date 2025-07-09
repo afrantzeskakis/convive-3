@@ -365,6 +365,20 @@ const SuperAdminDashboard = () => {
   const [isCreatingUser, setIsCreatingUser] = useState(false);
   const [createdUsers, setCreatedUsers] = useState<any[]>([]);
   
+  // Restaurant creation state
+  const [showCreateRestaurant, setShowCreateRestaurant] = useState(false);
+  const [newRestaurantForm, setNewRestaurantForm] = useState({
+    name: '',
+    description: '',
+    cuisineType: '',
+    address: '',
+    ambiance: '',
+    priceRange: '',
+    dressCode: '',
+    restaurantType: 'Standard'
+  });
+  const [isCreatingRestaurant, setIsCreatingRestaurant] = useState(false);
+  
   // UX audit states
   const [newUxIssue, setNewUxIssue] = useState({
     component: '',
@@ -3502,41 +3516,275 @@ Convive: Curated Dining & Extraordinary Connections
                     <div>
                       <h3 className="text-lg font-medium mb-4">Restaurant Access</h3>
                       <div>
-                        <Label>Authorized Restaurants</Label>
-                        <p className="text-sm text-muted-foreground mb-2">
-                          Select restaurants this user can manage
-                        </p>
-                        <div className="border rounded-md p-4 max-h-40 overflow-y-auto">
-                          {restaurants?.map((restaurant) => (
-                            <div key={restaurant.id} className="flex items-center gap-2 mb-2">
-                              <input
-                                type="checkbox"
-                                id={`restaurant-${restaurant.id}`}
-                                checked={newUserForm.authorizedRestaurants.includes(restaurant.id)}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setNewUserForm(prev => ({
-                                      ...prev,
-                                      authorizedRestaurants: [...prev.authorizedRestaurants, restaurant.id]
-                                    }));
-                                  } else {
-                                    setNewUserForm(prev => ({
-                                      ...prev,
-                                      authorizedRestaurants: prev.authorizedRestaurants.filter(id => id !== restaurant.id)
-                                    }));
-                                  }
-                                }}
-                                className="h-4 w-4"
-                              />
-                              <Label 
-                                htmlFor={`restaurant-${restaurant.id}`} 
-                                className="text-sm font-normal cursor-pointer flex-1"
-                              >
-                                {restaurant.name}
-                              </Label>
-                            </div>
-                          ))}
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <Label>Authorized Restaurants</Label>
+                            <p className="text-sm text-muted-foreground">
+                              Select restaurants this user can manage
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowCreateRestaurant(!showCreateRestaurant)}
+                          >
+                            <Plus className="h-4 w-4 mr-1" />
+                            Add Restaurant
+                          </Button>
                         </div>
+                        
+                        {/* Restaurant selection list */}
+                        <div className="border rounded-md p-4 max-h-40 overflow-y-auto">
+                          {restaurants?.length === 0 ? (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                              No restaurants available. Click "Add Restaurant" to create one.
+                            </p>
+                          ) : (
+                            restaurants?.map((restaurant) => (
+                              <div key={restaurant.id} className="flex items-center gap-2 mb-2">
+                                <input
+                                  type="checkbox"
+                                  id={`restaurant-${restaurant.id}`}
+                                  checked={newUserForm.authorizedRestaurants.includes(restaurant.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setNewUserForm(prev => ({
+                                        ...prev,
+                                        authorizedRestaurants: [...prev.authorizedRestaurants, restaurant.id]
+                                      }));
+                                    } else {
+                                      setNewUserForm(prev => ({
+                                        ...prev,
+                                        authorizedRestaurants: prev.authorizedRestaurants.filter(id => id !== restaurant.id)
+                                      }));
+                                    }
+                                  }}
+                                  className="h-4 w-4"
+                                />
+                                <Label 
+                                  htmlFor={`restaurant-${restaurant.id}`} 
+                                  className="text-sm font-normal cursor-pointer flex-1"
+                                >
+                                  {restaurant.name}
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    ({restaurant.cuisineType})
+                                  </span>
+                                </Label>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                        
+                        {/* Create Restaurant Form */}
+                        {showCreateRestaurant && (
+                          <Card className="mt-4">
+                            <CardHeader className="pb-4">
+                              <CardTitle className="text-base">Create New Restaurant</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div>
+                                    <Label htmlFor="restaurantName">Restaurant Name*</Label>
+                                    <Input
+                                      id="restaurantName"
+                                      value={newRestaurantForm.name}
+                                      onChange={(e) => setNewRestaurantForm(prev => ({ 
+                                        ...prev, 
+                                        name: e.target.value 
+                                      }))}
+                                      placeholder="The French Laundry"
+                                    />
+                                  </div>
+                                  
+                                  <div>
+                                    <Label htmlFor="cuisineType">Cuisine Type*</Label>
+                                    <Input
+                                      id="cuisineType"
+                                      value={newRestaurantForm.cuisineType}
+                                      onChange={(e) => setNewRestaurantForm(prev => ({ 
+                                        ...prev, 
+                                        cuisineType: e.target.value 
+                                      }))}
+                                      placeholder="French Fine Dining"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <Label htmlFor="restaurantDescription">Description*</Label>
+                                  <Textarea
+                                    id="restaurantDescription"
+                                    value={newRestaurantForm.description}
+                                    onChange={(e) => setNewRestaurantForm(prev => ({ 
+                                      ...prev, 
+                                      description: e.target.value 
+                                    }))}
+                                    placeholder="A world-renowned restaurant known for exceptional cuisine..."
+                                    rows={2}
+                                  />
+                                </div>
+                                
+                                <div>
+                                  <Label htmlFor="restaurantAddress">Address*</Label>
+                                  <Input
+                                    id="restaurantAddress"
+                                    value={newRestaurantForm.address}
+                                    onChange={(e) => setNewRestaurantForm(prev => ({ 
+                                      ...prev, 
+                                      address: e.target.value 
+                                    }))}
+                                    placeholder="6640 Washington St, Yountville, CA 94599"
+                                  />
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                  <div>
+                                    <Label htmlFor="priceRange">Price Range</Label>
+                                    <Select
+                                      value={newRestaurantForm.priceRange}
+                                      onValueChange={(value) => setNewRestaurantForm(prev => ({ 
+                                        ...prev, 
+                                        priceRange: value 
+                                      }))}
+                                    >
+                                      <SelectTrigger id="priceRange">
+                                        <SelectValue placeholder="Select range" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="$">$ (Under $20)</SelectItem>
+                                        <SelectItem value="$$">$$ ($20-40)</SelectItem>
+                                        <SelectItem value="$$$">$$$ ($40-60)</SelectItem>
+                                        <SelectItem value="$$$$">$$$$ ($60+)</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  
+                                  <div>
+                                    <Label htmlFor="ambiance">Ambiance</Label>
+                                    <Input
+                                      id="ambiance"
+                                      value={newRestaurantForm.ambiance}
+                                      onChange={(e) => setNewRestaurantForm(prev => ({ 
+                                        ...prev, 
+                                        ambiance: e.target.value 
+                                      }))}
+                                      placeholder="Elegant"
+                                    />
+                                  </div>
+                                  
+                                  <div>
+                                    <Label htmlFor="dressCode">Dress Code</Label>
+                                    <Input
+                                      id="dressCode"
+                                      value={newRestaurantForm.dressCode}
+                                      onChange={(e) => setNewRestaurantForm(prev => ({ 
+                                        ...prev, 
+                                        dressCode: e.target.value 
+                                      }))}
+                                      placeholder="Business Casual"
+                                    />
+                                  </div>
+                                </div>
+                                
+                                <div className="flex justify-end gap-2">
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      setShowCreateRestaurant(false);
+                                      setNewRestaurantForm({
+                                        name: '',
+                                        description: '',
+                                        cuisineType: '',
+                                        address: '',
+                                        ambiance: '',
+                                        priceRange: '',
+                                        dressCode: '',
+                                        restaurantType: 'Standard'
+                                      });
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    size="sm"
+                                    disabled={isCreatingRestaurant || !newRestaurantForm.name || !newRestaurantForm.description || !newRestaurantForm.cuisineType || !newRestaurantForm.address}
+                                    onClick={async () => {
+                                      setIsCreatingRestaurant(true);
+                                      try {
+                                        const response = await fetch('/api/admin/create-restaurant', {
+                                          method: 'POST',
+                                          headers: { 'Content-Type': 'application/json' },
+                                          credentials: 'include',
+                                          body: JSON.stringify(newRestaurantForm)
+                                        });
+                                        
+                                        if (!response.ok) {
+                                          const error = await response.json();
+                                          throw new Error(error.message || 'Failed to create restaurant');
+                                        }
+                                        
+                                        const newRestaurant = await response.json();
+                                        
+                                        // Refresh restaurants list
+                                        queryClient.invalidateQueries({ queryKey: ['/api/restaurants'] });
+                                        
+                                        // Auto-select the new restaurant for this user
+                                        setNewUserForm(prev => ({
+                                          ...prev,
+                                          authorizedRestaurants: [...prev.authorizedRestaurants, newRestaurant.id]
+                                        }));
+                                        
+                                        toast({
+                                          title: "Restaurant created",
+                                          description: `${newRestaurant.name} has been created and selected for this user`,
+                                        });
+                                        
+                                        // Reset and close form
+                                        setShowCreateRestaurant(false);
+                                        setNewRestaurantForm({
+                                          name: '',
+                                          description: '',
+                                          cuisineType: '',
+                                          address: '',
+                                          ambiance: '',
+                                          priceRange: '',
+                                          dressCode: '',
+                                          restaurantType: 'Standard'
+                                        });
+                                        
+                                      } catch (error: any) {
+                                        toast({
+                                          title: "Failed to create restaurant",
+                                          description: error.message,
+                                          variant: "destructive"
+                                        });
+                                      } finally {
+                                        setIsCreatingRestaurant(false);
+                                      }
+                                    }}
+                                  >
+                                    {isCreatingRestaurant ? (
+                                      <>
+                                        <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                                        Creating...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Check className="h-4 w-4 mr-1" />
+                                        Create Restaurant
+                                      </>
+                                    )}
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )}
                       </div>
                     </div>
                   )}

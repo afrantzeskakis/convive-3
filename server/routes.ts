@@ -2133,6 +2133,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create new restaurant (super admin only)
+  app.post("/api/admin/create-restaurant", isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const { 
+        name, 
+        description, 
+        cuisineType, 
+        address, 
+        ambiance, 
+        priceRange, 
+        dressCode,
+        restaurantType
+      } = req.body;
+      
+      // Validate required fields
+      if (!name || !description || !cuisineType || !address) {
+        return res.status(400).json({ message: "Name, description, cuisine type, and address are required" });
+      }
+      
+      // Create the restaurant
+      const newRestaurant = await storage.createRestaurant({
+        name,
+        description,
+        cuisineType,
+        address,
+        distance: null,
+        imageUrl: null,
+        rating: null,
+        ambiance: ambiance || null,
+        priceRange: priceRange || null,
+        dressCode: dressCode || null,
+        averageSpendPerPerson: null,
+        restaurantType: restaurantType || "Standard",
+        cuisineDescription: null
+      });
+      
+      res.json({
+        id: newRestaurant.id,
+        name: newRestaurant.name,
+        cuisineType: newRestaurant.cuisineType,
+        message: "Restaurant created successfully"
+      });
+      
+    } catch (error) {
+      console.error("Error creating restaurant:", error);
+      res.status(500).json({ message: "Failed to create restaurant", error: (error as Error).message });
+    }
+  });
+
   // Create new user (super admin only)
   app.post("/api/admin/create-user", isSuperAdmin, async (req: Request, res: Response) => {
     try {

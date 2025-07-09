@@ -50,6 +50,7 @@ This repository contains a Restaurant Wine Management System - a complete AI-pow
 - **Wine entities** with comprehensive attributes (name, producer, vintage, region, etc.)
 - **Enrichment metadata** (tasting notes, food pairings, prestige content)
 - **Verification status** tracking and confidence scores
+- **Restaurant creation** integrated with user management for streamlined admin assignment
 
 ### 5. Recipe Analysis with Interactive Carousel
 - **Enhanced Recipe Display** with highlighted culinary terms
