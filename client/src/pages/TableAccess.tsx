@@ -292,10 +292,16 @@ export default function TableAccess() {
             High Roller Experience
           </Badge>
           <CardTitle className="text-2xl text-center">{conviveBlackPlan.name}</CardTitle>
-          <div className="text-center mt-2">
-            <CardDescription className="text-base font-medium text-[#898e96] leading-relaxed text-justify">
-              {conviveBlackPlan.description}
-            </CardDescription>
+          <div className="text-center mt-2 space-y-2">
+            <p className="text-base font-medium text-[#898e96]">
+              Access the city's most exclusive dinner tables.
+            </p>
+            <p className="text-base font-medium text-[#898e96]">
+              No pitch decks, no panels, just real people and real chemistry.
+            </p>
+            <p className="text-base font-medium text-[#898e96] italic">
+              Some earn their seat. Some claim it. But everyone leaves elevated.
+            </p>
           </div>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
@@ -312,7 +318,7 @@ export default function TableAccess() {
           
           <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm">
             <p className="font-medium mb-1">High Roller Access Information:</p>
-            <p>Convive's High Roller experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. Then we build the table around them. Some earn their seat. Some claim it. But everyone leaves elevated.</p>
+            <p>Convive's High Roller experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen – no pitch decks, no panels, just authentic chemistry and elevated conversations.</p>
           </div>
         </CardContent>
         <CardFooter className="pt-4">
