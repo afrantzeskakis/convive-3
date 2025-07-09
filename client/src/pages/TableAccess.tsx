@@ -296,7 +296,7 @@ export default function TableAccess() {
               {isHighRoller && (
                 <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm">
                   <p className="font-medium mb-1">High Roller Access Information:</p>
-                  <p>While anyone can purchase this tier, eligibility for high-roller dinner matching is determined by our criteria (high-roller ticket, subscription, or $175+ average dinner spend).</p>
+                  <p>Convive's High Roller experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. Then we build the table around them. Some earn their seat. Some claim it. But everyone leaves elevated.</p>
                 </div>
               )}
             </CardContent>
