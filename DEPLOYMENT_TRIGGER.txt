@@ -11,8 +11,9 @@ Deployment History:
 - July 9, 2025 8:20 AM: Force deployment - ensure user creation with optional email is working
 - July 9, 2025 8:35 AM: Added detailed logging to debug user creation errors in production
 - July 9, 2025 9:12 AM: Added comprehensive logging to routes and middleware to debug production user creation
+- July 9, 2025 9:17 PM: Force deployment after fixing email constraint in database - user creation still failing
 
-CRITICAL FIX: Removed duplicate /api/restaurants endpoint at line 1128
-LATEST FIX: Added route and middleware logging to identify where user creation is failing
+CRITICAL FIX: Database email constraint fixed but production server still showing constraint error
+LATEST FIX: Force deployment to ensure latest code is running in production
 
-Last deployment trigger: Thu Jul 09 2025 09:12:00 GMT+0000
+Last deployment trigger: Thu Jul 09 2025 21:17:00 GMT+0000
