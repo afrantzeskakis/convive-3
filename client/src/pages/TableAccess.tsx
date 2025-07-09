@@ -56,7 +56,7 @@ type UserSubscriptionResponse = {
   };
 };
 
-type PurchaseType = 'subscription' | 'ticket';
+type PurchaseType = 'subscription' | 'convive-black' | 'ticket';
 
 export default function TableAccess() {
   const { user } = useAuth();
@@ -81,7 +81,7 @@ export default function TableAccess() {
     enabled: !!user // Only run query if user is logged in
   });
 
-  // Subscription plans data
+  // Subscription plans data (without Convive Black)
   const subscriptionPlans: SubscriptionPlan[] = [
     {
       id: "tier1",
@@ -116,23 +116,25 @@ export default function TableAccess() {
         "VIP match algorithm",
         "Complimentary welcome drink at each dinner"
       ]
-    },
-    {
-      id: "tier4",
-      name: "Convive Black",
-      price: 375,
-      dinners: 5,
-      description: "The ultimate fine dining social experience",
-      features: [
-        "Priority match algorithm",
-        "Access to high check average establishments",
-        "Super premium restaurant service experience",
-        "VIP treatment from restaurant staff",
-        "Reserved seating at prime tables",
-        "Complimentary welcome drink at each dinner"
-      ]
     }
   ];
+
+  // Convive Black plan (separate from regular subscriptions)
+  const conviveBlackPlan: SubscriptionPlan = {
+    id: "tier4",
+    name: "Convive Black",
+    price: 375,
+    dinners: 5,
+    description: "The ultimate fine dining social experience",
+    features: [
+      "Priority match algorithm",
+      "Access to high check average establishments",
+      "Super premium restaurant service experience",
+      "VIP treatment from restaurant staff",
+      "Reserved seating at prime tables",
+      "Complimentary welcome drink at each dinner"
+    ]
+  };
 
   // One-time ticket option
   const ticketOption = {
@@ -226,95 +228,100 @@ export default function TableAccess() {
     }
   };
 
-  // Subscription plans section
+  // Subscription plans section (without Convive Black)
   const renderSubscriptionPlans = () => (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 mt-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
       {subscriptionPlans.map((plan) => {
-        // Check if this is the Elite/High Roller tier or popular tier
-        const isHighRoller = plan.id === "tier4";
         const isPopular = plan.isPopular;
         
-        // Calculate column span - Elite tier gets more space
-        const colSpan = isHighRoller ? "md:col-span-12" : "md:col-span-4";
-        
-        // Calculate styling based on plan type
         let cardStyle = "flex flex-col";
-        if (isHighRoller) {
-          cardStyle += " border-primary/80 shadow-lg bg-primary/5";
-        } else if (isPopular) {
+        if (isPopular) {
           cardStyle += " border-primary shadow-md";
         }
         
         return (
-          <Card key={plan.id} className={`${cardStyle} ${colSpan}`}>
+          <Card key={plan.id} className={cardStyle}>
             <CardHeader className="pb-2">
               {isPopular && <Badge className="w-fit mb-2">Most Popular</Badge>}
-              {isHighRoller && (
-                <Badge variant="secondary" className="w-fit mb-2 bg-primary/20 text-primary border-primary/30">
-                  High Roller Experience
-                </Badge>
-              )}
-
               <CardTitle>{plan.name}</CardTitle>
               <CardDescription>{plan.description}</CardDescription>
             </CardHeader>
             <CardContent className="py-0 flex-grow">
-              {!isHighRoller ? (
-                <div className="mb-2">
-                  <div className="text-3xl font-bold relative inline-block">
-                    <span className="text-gray-400 relative">
-                      ${plan.price}
-                      <span className="absolute left-0 right-0 top-1/2 border-t-2 border-red-500 transform -rotate-6"></span>
-                    </span>
-                    <span className="text-green-600 ml-2">$0</span>
-                    <span className="text-sm font-normal text-gray-500">/month for 2 months</span>
-                  </div>
+              <div className="mb-2">
+                <div className="text-3xl font-bold relative inline-block">
+                  <span className="text-gray-400 relative">
+                    ${plan.price}
+                    <span className="absolute left-0 right-0 top-1/2 border-t-2 border-red-500 transform -rotate-6"></span>
+                  </span>
+                  <span className="text-green-600 ml-2">$0</span>
+                  <span className="text-sm font-normal text-gray-500">/month for 2 months</span>
                 </div>
-              ) : (
-                <div className="text-3xl font-bold mb-2">${plan.price}<span className="text-sm font-normal">/month</span></div>
-              )}
+              </div>
               <p className="text-lg font-medium mb-4 text-primary">{plan.dinners} dinners per month</p>
               
-              {isHighRoller ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-sm list-none">
-                      <span className="text-primary font-bold mr-2">✓</span> {feature}
-                    </li>
-                  ))}
-                </div>
-              ) : (
-                <ul className="space-y-2">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center text-sm">
-                      <span className="text-green-500 mr-2">✓</span> {feature}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              
-              {isHighRoller && (
-                <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm">
-                  <p className="font-medium mb-1">High Roller Access Information:</p>
-                  <p>Convive's High Roller experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. Then we build the table around them. Some earn their seat. Some claim it. But everyone leaves elevated.</p>
-                </div>
-              )}
+              <ul className="space-y-2">
+                {plan.features.map((feature, index) => (
+                  <li key={index} className="flex items-center text-sm">
+                    <span className="text-green-500 mr-2">✓</span> {feature}
+                  </li>
+                ))}
+              </ul>
             </CardContent>
             <CardFooter className="pt-4">
               <Button 
-                className={`w-full ${isHighRoller ? 'bg-primary hover:bg-primary/90' : 'bg-green-600 hover:bg-green-700'}`}
+                className="w-full bg-green-600 hover:bg-green-700"
                 disabled={isProcessing}
                 onClick={() => handlePaymentProcess(plan.id, 'subscription')}
               >
                 {isProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {isHighRoller 
-                  ? "Subscribe to High Roller Tier" 
-                  : "Get 2 Months Free"}
+                Get 2 Months Free
               </Button>
             </CardFooter>
           </Card>
         );
       })}
+    </div>
+  );
+
+  // Convive Black section
+  const renderConviveBlack = () => (
+    <div className="mt-6">
+      <Card className="flex flex-col border-primary/80 shadow-lg bg-primary/5 max-w-4xl mx-auto">
+        <CardHeader className="pb-2">
+          <Badge variant="secondary" className="w-fit mb-2 bg-primary/20 text-primary border-primary/30">
+            High Roller Experience
+          </Badge>
+          <CardTitle className="text-2xl">{conviveBlackPlan.name}</CardTitle>
+          <CardDescription className="text-base">{conviveBlackPlan.description}</CardDescription>
+        </CardHeader>
+        <CardContent className="py-0 flex-grow">
+          <div className="text-3xl font-bold mb-2">${conviveBlackPlan.price}<span className="text-sm font-normal">/month</span></div>
+          <p className="text-lg font-medium mb-4 text-primary">{conviveBlackPlan.dinners} dinners per month</p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {conviveBlackPlan.features.map((feature, index) => (
+              <li key={index} className="flex items-center text-sm list-none">
+                <span className="text-primary font-bold mr-2">✓</span> {feature}
+              </li>
+            ))}
+          </div>
+          
+          <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm">
+            <p className="font-medium mb-1">High Roller Access Information:</p>
+            <p>Convive's High Roller experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. Then we build the table around them. Some earn their seat. Some claim it. But everyone leaves elevated.</p>
+          </div>
+        </CardContent>
+        <CardFooter className="pt-4">
+          <Button 
+            className="w-full bg-primary hover:bg-primary/90"
+            disabled={isProcessing}
+            onClick={() => handlePaymentProcess(conviveBlackPlan.id, 'subscription')}
+          >
+            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Subscribe to Convive Black
+          </Button>
+        </CardFooter>
+      </Card>
     </div>
   );
 
@@ -508,13 +515,19 @@ export default function TableAccess() {
           </Alert>
         ) : null}
 
-        {/* Toggle between subscription plans and one-time tickets */}
+        {/* Toggle between subscription plans, convive black, and one-time tickets */}
         <div className="flex gap-4 mb-6">
           <Button
             variant={selectedType === 'subscription' ? 'default' : 'outline'}
             onClick={() => setSelectedType('subscription')}
           >
             Monthly Subscriptions
+          </Button>
+          <Button
+            variant={selectedType === 'convive-black' ? 'default' : 'outline'}
+            onClick={() => setSelectedType('convive-black')}
+          >
+            Convive Black
           </Button>
           <Button
             variant={selectedType === 'ticket' ? 'default' : 'outline'}
@@ -550,7 +563,9 @@ export default function TableAccess() {
         )}
 
         {/* Display relevant options based on selection */}
-        {selectedType === 'subscription' ? renderSubscriptionPlans() : renderTicketOption()}
+        {selectedType === 'subscription' && renderSubscriptionPlans()}
+        {selectedType === 'convive-black' && renderConviveBlack()}
+        {selectedType === 'ticket' && renderTicketOption()}
       </div>
     </div>
   );
