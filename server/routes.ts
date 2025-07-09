@@ -2329,6 +2329,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Diagnostic endpoint to check database connection (super admin only)
+  app.get('/api/diagnostic/database', isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const dbUrl = process.env.DATABASE_URL || 'NOT SET';
+      const maskedUrl = dbUrl.replace(/:\/\/[^@]*@/, '://***@');
+      
+      // Get restaurant count and list
+      const restaurants = await storage.getRestaurants();
+      
+      // Get user count
+      const allUsers = await storage.getAllUsers();
+      const userCount = allUsers.length;
+      
+      res.json({
+        environment: process.env.RAILWAY_ENVIRONMENT ? 'Railway' : 'Local/Replit',
+        database: {
+          url: maskedUrl.substring(0, 80) + '...',
+          host: maskedUrl.split('@')[1]?.split('/')[0],
+          name: maskedUrl.split('/').pop()?.split('?')[0]
+        },
+        counts: {
+          users: userCount,
+          restaurants: restaurants.length
+        },
+        restaurants: restaurants,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      res.status(500).json({ 
+        error: 'Failed to get diagnostic info',
+        message: error.message 
+      });
+    }
+  });
+
   // Register group meetups routes
   app.use("/api/group-meetups", groupMeetupsRoutes);
   
