@@ -291,7 +291,7 @@ export default function TableAccess() {
           <Badge variant="secondary" className="w-fit mb-2 bg-primary/20 text-primary border-primary/30">
             High Roller Experience
           </Badge>
-          <CardTitle className="text-2xl">{conviveBlackPlan.name}</CardTitle>
+          <CardTitle className="text-2xl text-center">{conviveBlackPlan.name}</CardTitle>
           <CardDescription className="text-base text-center font-medium text-[#898e96]">{conviveBlackPlan.description}</CardDescription>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
