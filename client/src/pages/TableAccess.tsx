@@ -318,7 +318,7 @@ export default function TableAccess() {
           
           <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm">
             <p className="font-medium mb-1">High Roller Access Information:</p>
-            <p className="text-center">Convive's High Roller experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
+            <p className="text-center">Convive Black experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
           </div>
         </CardContent>
         <CardFooter className="pt-4">
