@@ -1,0 +1,19 @@
+CRITICAL DEPLOYMENT FORCE FILE
+==============================
+
+Created: July 9, 2025 9:36 PM UTC
+
+ISSUE: Production server is running outdated code
+- Database is correctly configured (email is nullable)
+- Test scripts confirm user creation with null email works
+- But web interface still shows constraint error
+- This indicates cached/old code is running
+
+PURPOSE: Force Railway to rebuild and redeploy the application
+
+VERIFIED:
+- Database allows null emails (tested via script)
+- Local code has proper null email handling
+- Production server needs fresh deployment
+
+This file forces a new deployment to sync code with database state.
