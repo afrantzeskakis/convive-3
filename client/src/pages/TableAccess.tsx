@@ -81,7 +81,7 @@ export default function TableAccess() {
     enabled: !!user // Only run query if user is logged in
   });
 
-  // Subscription plans data (without Convive Black)
+  // Subscription plans data (without Convive Select)
   const subscriptionPlans: SubscriptionPlan[] = [
     {
       id: "tier1",
@@ -131,7 +131,7 @@ export default function TableAccess() {
       "$15 per connection",
       "Super premium restaurant service experience",
       "VIP treatment from restaurant staff",
-      "Reserved seating at prime tables",
+      "Ultra specialized host",
       "Complimentary welcome drink at each dinner"
     ]
   };
@@ -521,7 +521,7 @@ export default function TableAccess() {
           </Alert>
         ) : null}
 
-        {/* Toggle between subscription plans, convive black, and one-time tickets */}
+        {/* Toggle between subscription plans, convive select, and one-time tickets */}
         <div className="flex gap-4 mb-6">
           <Button
             variant={selectedType === 'subscription' ? 'default' : 'outline'}
