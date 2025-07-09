@@ -9,8 +9,9 @@ Deployment History:
 - Added admin analytics methods to storage interface
 - July 8, 2025 9:37 PM: Force deployment - duplicate endpoint still present in production
 - July 9, 2025 8:20 AM: Force deployment - ensure user creation with optional email is working
+- July 9, 2025 8:35 AM: Added detailed logging to debug user creation errors in production
 
 CRITICAL FIX: Removed duplicate /api/restaurants endpoint at line 1128
-LATEST FIX: Ensure email-optional user creation is deployed to production
+LATEST FIX: Added error logging to identify user creation failures in production
 
-Last deployment trigger: Thu Jul 09 2025 08:20:00 GMT+0000
+Last deployment trigger: Thu Jul 09 2025 08:35:00 GMT+0000

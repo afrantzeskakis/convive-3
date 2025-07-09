@@ -164,11 +164,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db
-      .insert(users)
-      .values(insertUser)
-      .returning();
-    return user;
+    try {
+      console.log('[DatabaseStorage] Creating user with data:', JSON.stringify(insertUser, null, 2));
+      const [user] = await db
+        .insert(users)
+        .values(insertUser)
+        .returning();
+      console.log('[DatabaseStorage] User created successfully:', user.id);
+      return user;
+    } catch (error) {
+      console.error('[DatabaseStorage] Error creating user:', error);
+      console.error('[DatabaseStorage] Insert data was:', JSON.stringify(insertUser, null, 2));
+      throw error;
+    }
   }
 
   async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
