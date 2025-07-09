@@ -292,7 +292,7 @@ export default function TableAccess() {
             High Roller Experience
           </Badge>
           <CardTitle className="text-2xl">{conviveBlackPlan.name}</CardTitle>
-          <CardDescription className="text-base">{conviveBlackPlan.description}</CardDescription>
+          <CardDescription className="text-base text-center font-medium text-[#898e96]">Some earn their seat. Some claim it. But everyone leaves elevated.</CardDescription>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
           <div className="text-3xl font-bold mb-2">${conviveBlackPlan.price}<span className="text-sm font-normal">/month</span></div>
