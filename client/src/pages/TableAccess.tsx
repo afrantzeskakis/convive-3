@@ -128,11 +128,11 @@ export default function TableAccess() {
     description: "Access the city's most exclusive dinner tables. No pitch decks, no panels, just real people and real chemistry. Some earn their seat. Some claim it. But everyone leaves elevated.",
     features: [
       "$15 per connection",
-      "Up to 30 connections per month",
-      "Super premium restaurant service experience",
-      "VIP treatment from restaurant staff",
-      "Ultra specialized host",
-      "Complimentary welcome drink at each dinner"
+      "Up to 30 high-value connections per month",
+      "Elevated dining experience and premier venues",
+      "VIP level service and premium Convive host-led flow",
+      "Complimentary welcome drink at each dinner",
+      "Guaranteed seating at the city's most desirable tables"
     ]
   };
 
@@ -300,7 +300,7 @@ export default function TableAccess() {
         </CardHeader>
         <CardContent className="py-0 flex-grow">
           <div className="text-3xl font-bold mb-2">${conviveSelectPlan.price}<span className="text-sm font-normal">/month</span></div>
-          <p className="text-lg font-medium mb-4 text-primary">{conviveSelectPlan.dinners} dinners per month</p>
+          <p className="text-lg font-medium mb-4 text-primary">{conviveSelectPlan.dinners} curated dinners per month</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {conviveSelectPlan.features.map((feature, index) => (
