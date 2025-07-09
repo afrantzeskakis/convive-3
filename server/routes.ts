@@ -2133,6 +2133,89 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create new user (super admin only)
+  app.post("/api/admin/create-user", isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const { 
+        username, 
+        password, 
+        fullName, 
+        email, 
+        role, 
+        city, 
+        gender, 
+        age, 
+        occupation, 
+        bio, 
+        lookingFor, 
+        authorizedRestaurants,
+        isPremiumUser,
+        stripeCustomerId,
+        stripeSubscriptionId
+      } = req.body;
+      
+      // Validate required fields
+      if (!username || !password || !fullName || !email) {
+        return res.status(400).json({ message: "Username, password, full name, and email are required" });
+      }
+      
+      // Validate role
+      if (!["user", "restaurant_admin", "admin", "super_admin"].includes(role)) {
+        return res.status(400).json({ message: "Invalid role value" });
+      }
+      
+      // Check if username already exists
+      const existingUserByUsername = await storage.getUserByUsername(username);
+      if (existingUserByUsername) {
+        return res.status(400).json({ message: "Username already exists" });
+      }
+      
+      // Check if email already exists
+      const existingUserByEmail = await storage.getUserByEmail(email);
+      if (existingUserByEmail) {
+        return res.status(400).json({ message: "Email already exists" });
+      }
+      
+      // Hash the password
+      const hashedPassword = await hashPassword(password);
+      
+      // Create the user
+      const newUser = await storage.createUser({
+        username,
+        password: hashedPassword,
+        fullName,
+        email,
+        city: city || null,
+        gender: gender || null,
+        age: age || null,
+        occupation: occupation || null,
+        bio: bio || null,
+        profilePicture: null,
+        lookingFor: lookingFor || "friends",
+        onboardingComplete: true, // Set to true for admin-created users
+        role: role || "user",
+        isPremiumUser: isPremiumUser || false,
+        stripeCustomerId: stripeCustomerId || null,
+        stripeSubscriptionId: stripeSubscriptionId || null,
+        authorizedRestaurants: authorizedRestaurants || null
+      });
+      
+      res.json({
+        id: newUser.id,
+        username: newUser.username,
+        fullName: newUser.fullName,
+        email: newUser.email,
+        role: newUser.role,
+        isPremiumUser: newUser.isPremiumUser,
+        message: "User created successfully"
+      });
+      
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ message: "Failed to create user", error: (error as Error).message });
+    }
+  });
+
   // Update user premium status (super admin only)
   app.patch("/api/admin/users/:id/premium-status", isSuperAdmin, async (req: Request, res: Response) => {
     try {

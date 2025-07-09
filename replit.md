@@ -116,6 +116,7 @@ Changelog:
 - July 08, 2025. Successfully deployed complete Restaurant Wine Management System to Railway with full functionality
 - July 09, 2025. Refined Convive Select (formerly Convive Black) premium tier with updated pricing model and features
 - July 09, 2025. Successfully resolved GoDaddy DNS configuration for Railway custom domain - fixed "record data is invalid" error by using www subdomain with CNAME record
+- July 09, 2025. Added comprehensive User Management tab to SuperAdmin dashboard - allows creation of all user types including Convive Select members, administrators, and restaurant staff
 
 ## User Preferences
 

@@ -343,6 +343,28 @@ const SuperAdminDashboard = () => {
   // Public preview state
   const [publicPreviewPage, setPublicPreviewPage] = useState<'home' | 'about' | 'how-it-works' | 'restaurant-partners'>('home');
   
+  // User Management state
+  const [newUserForm, setNewUserForm] = useState({
+    username: '',
+    password: '',
+    fullName: '',
+    email: '',
+    role: 'user',
+    city: '',
+    gender: '',
+    age: '',
+    occupation: '',
+    bio: '',
+    lookingFor: 'friends',
+    authorizedRestaurants: [] as number[],
+    // Premium features for Convive Select members
+    isPremiumUser: false,
+    stripeCustomerId: '',
+    stripeSubscriptionId: ''
+  });
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [createdUsers, setCreatedUsers] = useState<any[]>([]);
+  
   // UX audit states
   const [newUxIssue, setNewUxIssue] = useState({
     component: '',
@@ -1713,6 +1735,7 @@ Convive: Curated Dining & Extraordinary Connections
                 <TabsTrigger value="recipe-analysis">Recipe Analysis</TabsTrigger>
                 <TabsTrigger value="wine" className="bg-primary/10 text-primary">Wine Upload</TabsTrigger>
                 <TabsTrigger value="premium">Premium Data</TabsTrigger>
+                <TabsTrigger value="user-management">User Management</TabsTrigger>
                 <TabsTrigger value="user-view">User View</TabsTrigger>
                 <TabsTrigger value="restaurant-admin">Rest. Admin</TabsTrigger>
                 <TabsTrigger value="public-view">Public View</TabsTrigger>
@@ -3262,6 +3285,398 @@ Convive: Curated Dining & Extraordinary Connections
                     </ScrollArea>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          {/* User Management Tab */}
+          <TabsContent value="user-management" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <UserCheck className="h-5 w-5" />
+                  User Account Creation
+                </CardTitle>
+                <CardDescription>
+                  Create new user accounts of all types including Convive Select members, administrators, and restaurant staff
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  setIsCreatingUser(true);
+                  
+                  try {
+                    const userData = {
+                      ...newUserForm,
+                      age: newUserForm.age ? parseInt(newUserForm.age) : undefined,
+                      authorizedRestaurants: newUserForm.authorizedRestaurants.length > 0 
+                        ? newUserForm.authorizedRestaurants 
+                        : undefined
+                    };
+                    
+                    const response = await fetch('/api/admin/create-user', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      credentials: 'include',
+                      body: JSON.stringify(userData)
+                    });
+                    
+                    if (!response.ok) {
+                      const error = await response.json();
+                      throw new Error(error.message || 'Failed to create user');
+                    }
+                    
+                    const createdUser = await response.json();
+                    setCreatedUsers(prev => [...prev, createdUser]);
+                    
+                    toast({
+                      title: "User created successfully",
+                      description: `Created ${createdUser.fullName} (${createdUser.username}) as ${createdUser.role}`,
+                    });
+                    
+                    // Reset form
+                    setNewUserForm({
+                      username: '',
+                      password: '',
+                      fullName: '',
+                      email: '',
+                      role: 'user',
+                      city: '',
+                      gender: '',
+                      age: '',
+                      occupation: '',
+                      bio: '',
+                      lookingFor: 'friends',
+                      authorizedRestaurants: [],
+                      isPremiumUser: false,
+                      stripeCustomerId: '',
+                      stripeSubscriptionId: ''
+                    });
+                    
+                  } catch (error: any) {
+                    toast({
+                      title: "Failed to create user",
+                      description: error.message,
+                      variant: "destructive"
+                    });
+                  } finally {
+                    setIsCreatingUser(false);
+                  }
+                }} className="space-y-6">
+                  
+                  {/* Basic Information */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Basic Information</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="username">Username*</Label>
+                        <Input
+                          id="username"
+                          value={newUserForm.username}
+                          onChange={(e) => setNewUserForm(prev => ({ ...prev, username: e.target.value }))}
+                          required
+                          placeholder="johndoe"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="password">Password*</Label>
+                        <Input
+                          id="password"
+                          type="password"
+                          value={newUserForm.password}
+                          onChange={(e) => setNewUserForm(prev => ({ ...prev, password: e.target.value }))}
+                          required
+                          placeholder="••••••••"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="fullName">Full Name*</Label>
+                        <Input
+                          id="fullName"
+                          value={newUserForm.fullName}
+                          onChange={(e) => setNewUserForm(prev => ({ ...prev, fullName: e.target.value }))}
+                          required
+                          placeholder="John Doe"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="email">Email*</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={newUserForm.email}
+                          onChange={(e) => setNewUserForm(prev => ({ ...prev, email: e.target.value }))}
+                          required
+                          placeholder="john.doe@example.com"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* User Type & Role */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">User Type & Access Level</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="role">User Role*</Label>
+                        <Select
+                          value={newUserForm.role}
+                          onValueChange={(value) => setNewUserForm(prev => ({ ...prev, role: value }))}
+                        >
+                          <SelectTrigger id="role">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="user">Regular User</SelectItem>
+                            <SelectItem value="restaurant_admin">Restaurant Admin</SelectItem>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="super_admin">Super Admin</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {newUserForm.role === 'user' && 'Can join dinners and use basic features'}
+                          {newUserForm.role === 'restaurant_admin' && 'Can manage restaurant profiles and view analytics'}
+                          {newUserForm.role === 'admin' && 'Can manage users and moderate content'}
+                          {newUserForm.role === 'super_admin' && 'Full system access including all admin features'}
+                        </p>
+                      </div>
+                      
+                      <div>
+                        <Label className="flex items-center gap-2">
+                          <Crown className="h-4 w-4 text-yellow-500" />
+                          Convive Select Member
+                        </Label>
+                        <div className="flex items-center gap-2 mt-2">
+                          <input
+                            type="checkbox"
+                            id="isPremium"
+                            checked={newUserForm.isPremiumUser}
+                            onChange={(e) => setNewUserForm(prev => ({ 
+                              ...prev, 
+                              isPremiumUser: e.target.checked 
+                            }))}
+                            className="h-4 w-4"
+                          />
+                          <Label htmlFor="isPremium" className="text-sm font-normal cursor-pointer">
+                            Grant Convive Select membership ($375/month tier)
+                          </Label>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Access to 5 curated dinners and up to 30 high-value connections per month
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* Show Stripe fields only if premium user is selected */}
+                    {newUserForm.isPremiumUser && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                          <Label htmlFor="stripeCustomerId">Stripe Customer ID (Optional)</Label>
+                          <Input
+                            id="stripeCustomerId"
+                            value={newUserForm.stripeCustomerId}
+                            onChange={(e) => setNewUserForm(prev => ({ ...prev, stripeCustomerId: e.target.value }))}
+                            placeholder="cus_..."
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label htmlFor="stripeSubscriptionId">Stripe Subscription ID (Optional)</Label>
+                          <Input
+                            id="stripeSubscriptionId"
+                            value={newUserForm.stripeSubscriptionId}
+                            onChange={(e) => setNewUserForm(prev => ({ ...prev, stripeSubscriptionId: e.target.value }))}
+                            placeholder="sub_..."
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Restaurant Access (for restaurant roles) */}
+                  {(newUserForm.role === 'restaurant_admin' || newUserForm.role === 'admin') && (
+                    <div>
+                      <h3 className="text-lg font-medium mb-4">Restaurant Access</h3>
+                      <div>
+                        <Label>Authorized Restaurants</Label>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          Select restaurants this user can manage
+                        </p>
+                        <div className="border rounded-md p-4 max-h-40 overflow-y-auto">
+                          {restaurants?.map((restaurant) => (
+                            <div key={restaurant.id} className="flex items-center gap-2 mb-2">
+                              <input
+                                type="checkbox"
+                                id={`restaurant-${restaurant.id}`}
+                                checked={newUserForm.authorizedRestaurants.includes(restaurant.id)}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setNewUserForm(prev => ({
+                                      ...prev,
+                                      authorizedRestaurants: [...prev.authorizedRestaurants, restaurant.id]
+                                    }));
+                                  } else {
+                                    setNewUserForm(prev => ({
+                                      ...prev,
+                                      authorizedRestaurants: prev.authorizedRestaurants.filter(id => id !== restaurant.id)
+                                    }));
+                                  }
+                                }}
+                                className="h-4 w-4"
+                              />
+                              <Label 
+                                htmlFor={`restaurant-${restaurant.id}`} 
+                                className="text-sm font-normal cursor-pointer flex-1"
+                              >
+                                {restaurant.name}
+                              </Label>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Profile Information */}
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Profile Information (Optional)</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="city">City</Label>
+                        <Input
+                          id="city"
+                          value={newUserForm.city}
+                          onChange={(e) => setNewUserForm(prev => ({ ...prev, city: e.target.value }))}
+                          placeholder="San Francisco"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="gender">Gender</Label>
+                        <Select
+                          value={newUserForm.gender}
+                          onValueChange={(value) => setNewUserForm(prev => ({ ...prev, gender: value }))}
+                        >
+                          <SelectTrigger id="gender">
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                            <SelectItem value="Prefer not to say">Prefer not to say</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="age">Age</Label>
+                        <Input
+                          id="age"
+                          type="number"
+                          value={newUserForm.age}
+                          onChange={(e) => setNewUserForm(prev => ({ ...prev, age: e.target.value }))}
+                          placeholder="25"
+                          min="18"
+                          max="100"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="occupation">Occupation</Label>
+                        <Input
+                          id="occupation"
+                          value={newUserForm.occupation}
+                          onChange={(e) => setNewUserForm(prev => ({ ...prev, occupation: e.target.value }))}
+                          placeholder="Software Engineer"
+                        />
+                      </div>
+                      
+                      <div>
+                        <Label htmlFor="lookingFor">Looking For</Label>
+                        <Select
+                          value={newUserForm.lookingFor}
+                          onValueChange={(value) => setNewUserForm(prev => ({ ...prev, lookingFor: value }))}
+                        >
+                          <SelectTrigger id="lookingFor">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="friends">Friends</SelectItem>
+                            <SelectItem value="dating">Dating</SelectItem>
+                            <SelectItem value="networking">Networking</SelectItem>
+                            <SelectItem value="all">All of the above</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <Label htmlFor="bio">Bio</Label>
+                      <Textarea
+                        id="bio"
+                        value={newUserForm.bio}
+                        onChange={(e) => setNewUserForm(prev => ({ ...prev, bio: e.target.value }))}
+                        placeholder="Tell us about yourself..."
+                        rows={3}
+                      />
+                    </div>
+                  </div>
+                  
+                  {/* Submit Button */}
+                  <div className="flex justify-end">
+                    <Button type="submit" disabled={isCreatingUser}>
+                      {isCreatingUser ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating User...
+                        </>
+                      ) : (
+                        <>
+                          <Plus className="mr-2 h-4 w-4" />
+                          Create User Account
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+                
+                {/* Recently Created Users */}
+                {createdUsers.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-lg font-medium mb-4">Recently Created Users</h3>
+                    <div className="border rounded-lg">
+                      <ScrollArea className="h-[200px]">
+                        <div className="p-4 space-y-3">
+                          {createdUsers.map((user, index) => (
+                            <div key={index} className="flex items-center justify-between border-b pb-3 last:border-0">
+                              <div>
+                                <p className="font-medium">{user.fullName}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  @{user.username} • {user.email}
+                                </p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Badge variant={user.role === 'super_admin' ? 'destructive' : 'outline'}>
+                                  {user.role.replace('_', ' ')}
+                                </Badge>
+                                {user.isPremiumUser && (
+                                  <Badge className="bg-gradient-to-r from-yellow-400 to-yellow-600">
+                                    Convive Select
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
