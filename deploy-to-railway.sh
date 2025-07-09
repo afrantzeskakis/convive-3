@@ -6,7 +6,7 @@ echo "Deploying to Railway..."
 git add -A
 
 # Commit with a message
-git commit -m "Fix database connection and add enhanced debugging" || echo "No changes to commit"
+git commit -m "Add optional email and logout button to SuperAdmin dashboard" || echo "No changes to commit"
 
 # Push to trigger Railway deployment
 git push
