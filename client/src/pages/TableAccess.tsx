@@ -327,9 +327,7 @@ export default function TableAccess() {
             disabled={isProcessing}
             onClick={() => handlePaymentProcess(conviveBlackPlan.id, 'subscription')}
           >
-            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Subscribe to Convive Black
-          </Button>
+            {isProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}Claim Your Seat</Button>
         </CardFooter>
       </Card>
     </div>
