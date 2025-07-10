@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Production CSS</title>
+</head>
+<body>
+    <h1>Production CSS Checker</h1>
+    <p>This tool checks if your production CSS has been updated.</p>
+    
+    <h2>Enter your production URL:</h2>
+    <input type="text" id="prodUrl" placeholder="https://your-app.railway.app" style="width: 400px; padding: 5px;">
+    <button onclick="checkCSS()">Check CSS</button>
+    
+    <div id="results" style="margin-top: 20px; padding: 20px; background: #f0f0f0; display: none;">
+        <h3>Results:</h3>
+        <div id="cssInfo"></div>
+    </div>
+    
+    <script>
+    async function checkCSS() {
+        const url = document.getElementById('prodUrl').value;
+        if (!url) {
+            alert('Please enter your production URL');
+            return;
+        }
+        
+        const resultsDiv = document.getElementById('results');
+        const infoDiv = document.getElementById('cssInfo');
+        resultsDiv.style.display = 'block';
+        infoDiv.innerHTML = 'Checking...';
+        
+        try {
+            // Fetch the main page
+            const response = await fetch(url);
+            const html = await response.text();
+            
+            // Extract CSS link
+            const cssMatch = html.match(/<link[^>]*href="([^"]*\.css[^"]*)"[^>]*>/);
+            if (cssMatch) {
+                const cssUrl = new URL(cssMatch[1], url).href;
+                
+                // Fetch CSS
+                const cssResponse = await fetch(cssUrl);
+                const css = await cssResponse.text();
+                
+                // Check for indicators
+                const hasVariables = css.includes('hsl(var(--primary');
+                const hasHardcodedPurple = css.includes('hsl(262') || css.includes('#8B5CF6');
+                const cssSize = new Blob([css]).size;
+                
+                infoDiv.innerHTML = `
+                    <p><strong>CSS URL:</strong> ${cssUrl}</p>
+                    <p><strong>CSS Size:</strong> ${(cssSize / 1024).toFixed(1)} KB</p>
+                    <p><strong>Uses CSS Variables:</strong> ${hasVariables ? '✅ YES' : '❌ NO'}</p>
+                    <p><strong>Has Hardcoded Purple:</strong> ${hasHardcodedPurple ? '❌ YES (needs update)' : '✅ NO (good!)'}</p>
+                    <p><strong>Last Modified:</strong> ${cssResponse.headers.get('last-modified') || 'Unknown'}</p>
+                    <hr>
+                    <p><strong>Diagnosis:</strong> ${
+                        hasVariables && !hasHardcodedPurple 
+                            ? '✅ CSS has been updated successfully!' 
+                            : '❌ CSS still needs to be deployed'
+                    }</p>
+                `;
+            } else {
+                infoDiv.innerHTML = '<p>Could not find CSS link in the page</p>';
+            }
+        } catch (error) {
+            infoDiv.innerHTML = `<p>Error: ${error.message}</p><p>Note: This might be due to CORS. Try opening the CSS URL directly in your browser.</p>`;
+        }
+    }
+    </script>
+</body>
+</html>

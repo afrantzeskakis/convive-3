@@ -1,42 +1,28 @@
 #!/bin/bash
 
-echo "Manual deployment to Railway"
-echo "============================"
-
-# Remove any git locks if they exist
-rm -f .git/index.lock 2>/dev/null
-
-# Configure git
-git config --global user.email "deploy@convive.com"
-git config --global user.name "Convive Deploy"
-
-# Stage all changes
-echo "Staging changes..."
-git add -A
-
-# Show status
+echo "=== Manual Deployment Script ==="
 echo ""
-echo "Files to be committed:"
-git status --short
-
-# Commit changes
+echo "Since Railway CLI is not authenticated, follow these steps:"
 echo ""
-echo "Committing changes..."
-COMMIT_MSG="Emergency fix for dropdown visibility - hardcoded CSS values"
-git commit -m "$COMMIT_MSG" || echo "No changes to commit"
-
-# Push to Railway
+echo "1. COMMIT & PUSH (if connected to Git):"
+echo "   git add server/public/assets/index.css"
+echo "   git commit -m 'Fix CSS variables - remove hardcoded purple colors'"
+echo "   git push"
 echo ""
-echo "Pushing to Railway..."
-git push origin main || git push
-
+echo "2. OR use Railway Dashboard:"
+echo "   - Go to https://railway.app/dashboard"
+echo "   - Find your project"
+echo "   - Click 'Deploy' or 'Redeploy'"
 echo ""
-echo "✅ Deployment initiated!"
+echo "3. OR authenticate Railway CLI first:"
+echo "   railway login"
+echo "   railway up"
 echo ""
-echo "Railway will now build and deploy your changes."
-echo "This typically takes 2-3 minutes."
+echo "Current CSS file info:"
+ls -lh server/public/assets/index.css
 echo ""
-echo "Monitor your deployment at: https://railway.app/dashboard"
+echo "CSS was built at: $(date -r server/public/assets/index.css)"
 echo ""
-echo "Once deployed, access your app at:"
-echo "https://convive-3-production.up.railway.app"
+echo "To verify the fix worked locally, check if CSS contains variables:"
+grep -c "hsl(var(--primary" server/public/assets/index.css | xargs echo "CSS variable references found:"
+grep -c "hsl(262" server/public/assets/index.css | xargs echo "Hardcoded purple HSL values found:"
