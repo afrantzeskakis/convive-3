@@ -230,7 +230,7 @@ export default function TableAccess() {
 
   // Subscription plans section (without Convive Black)
   const renderSubscriptionPlans = () => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mt-4 sm:mt-6">
       {subscriptionPlans.map((plan) => {
         const isPopular = plan.isPopular;
         
@@ -248,16 +248,16 @@ export default function TableAccess() {
             </CardHeader>
             <CardContent className="py-0 flex-grow">
               <div className="mb-2">
-                <div className="text-3xl font-bold relative inline-block">
+                <div className="text-2xl sm:text-3xl font-bold relative inline-block">
                   <span className="text-gray-400 relative">
                     ${plan.price}
                     <span className="absolute left-0 right-0 top-1/2 border-t-2 border-red-500 transform -rotate-6"></span>
                   </span>
                   <span className="text-green-600 ml-2">$0</span>
-                  <span className="text-sm font-normal text-gray-500">/month for 2 months</span>
+                  <span className="text-xs sm:text-sm font-normal text-gray-500">/month for 2 months</span>
                 </div>
               </div>
-              <p className="text-lg font-medium mb-4 text-primary">{plan.dinners} dinners per month</p>
+              <p className="text-base sm:text-lg font-medium mb-4 text-primary">{plan.dinners} dinners per month</p>
               
               <ul className="space-y-2">
                 {plan.features.map((feature, index) => (
@@ -285,37 +285,37 @@ export default function TableAccess() {
 
   // Convive Select section
   const renderConviveSelect = () => (
-    <div className="mt-6">
-      <Card className="flex flex-col border-primary/80 shadow-lg bg-primary/5 max-w-4xl mx-auto">
-        <CardHeader className="pb-2">
-          <CardTitle className="font-semibold tracking-tight text-center text-[28px]">{conviveSelectPlan.name}</CardTitle>
-          <div className="text-center mt-2 space-y-2">
-            <p className="text-base font-medium text-[#898e96]">
+    <div className="mt-4 sm:mt-6">
+      <Card className="flex flex-col border-primary/80 shadow-lg bg-primary/5 max-w-full sm:max-w-4xl mx-auto">
+        <CardHeader className="pb-2 px-4 sm:px-6">
+          <CardTitle className="font-semibold tracking-tight text-center text-xl sm:text-2xl md:text-[28px]">{conviveSelectPlan.name}</CardTitle>
+          <div className="text-center mt-2 space-y-1 sm:space-y-2">
+            <p className="text-sm sm:text-base font-medium text-[#898e96]">
               Access the city's most exclusive dinner tables.
             </p>
-            <p className="text-base font-medium text-[#898e96]">
+            <p className="text-sm sm:text-base font-medium text-[#898e96]">
               No pitch decks, no panels, just real people and real chemistry.
             </p>
           </div>
         </CardHeader>
-        <CardContent className="py-0 flex-grow">
-          <div className="text-3xl font-bold mb-2">${conviveSelectPlan.price}<span className="text-sm font-normal">/month</span></div>
-          <p className="text-lg font-medium mb-4 text-primary">{conviveSelectPlan.dinners} curated dinners per month</p>
+        <CardContent className="py-0 flex-grow px-4 sm:px-6">
+          <div className="text-2xl sm:text-3xl font-bold mb-2">${conviveSelectPlan.price}<span className="text-xs sm:text-sm font-normal">/month</span></div>
+          <p className="text-base sm:text-lg font-medium mb-4 text-primary">{conviveSelectPlan.dinners} curated dinners per month</p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
             {conviveSelectPlan.features.map((feature, index) => (
-              <li key={index} className="flex items-center text-base list-none">
-                <span className="text-primary font-bold mr-2">✓</span> {feature}
+              <li key={index} className="flex items-start text-sm sm:text-base list-none">
+                <span className="text-primary font-bold mr-2 mt-0.5">✓</span> {feature}
               </li>
             ))}
           </div>
           
-          <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-base">
+          <div className="mt-4 p-3 bg-gray-100 text-gray-700 rounded-md text-sm sm:text-base">
             <p className="font-medium mb-1 text-center">What Makes Convive Select Different</p>
             <p className="text-center">Convive Select experiences aren't about money, they're about energy. Our algorithm finds the guests who naturally raise the stakes: big spenders, power connectors, and unforgettable dinner companions. We curate tables at the city's most exclusive restaurants where real connections happen.</p>
           </div>
           
-          <p className="text-center text-base font-medium text-[#898e96] italic mt-3 mb-1">
+          <p className="text-center text-sm sm:text-base font-medium text-[#898e96] italic mt-3 mb-1">
             Some earn their seat. Some claim it. But everyone leaves elevated.
           </p>
         </CardContent>
@@ -379,14 +379,14 @@ export default function TableAccess() {
 
   // One-time ticket section
   const renderTicketOption = () => (
-    <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="mt-4 sm:mt-6 grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
       <Card className="flex flex-col">
         <CardHeader>
-          <CardTitle>{ticketOption.name}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">{ticketOption.name}</CardTitle>
           <CardDescription>{ticketOption.description}</CardDescription>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
-          <div className="text-3xl font-bold mb-2">${ticketOption.price}</div>
+          <div className="text-2xl sm:text-3xl font-bold mb-2">${ticketOption.price}</div>
           <ul className="space-y-2">
             {ticketOption.features.map((feature, index) => (
               <li key={index} className="flex items-center text-sm">
@@ -410,11 +410,11 @@ export default function TableAccess() {
       <Card className="flex flex-col border-primary/50 shadow-md">
         <CardHeader>
           <Badge variant="secondary" className="w-fit mb-2">Premium Experience</Badge>
-          <CardTitle>{highRollerTicket.name}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">{highRollerTicket.name}</CardTitle>
           <CardDescription>{highRollerTicket.description}</CardDescription>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
-          <div className="text-3xl font-bold mb-2">${highRollerTicket.price}</div>
+          <div className="text-2xl sm:text-3xl font-bold mb-2">${highRollerTicket.price}</div>
           <ul className="space-y-2">
             {highRollerTicket.features.map((feature, index) => (
               <li key={index} className="flex items-center text-sm">
@@ -457,11 +457,11 @@ export default function TableAccess() {
       <Card className="flex flex-col border-primary/40 shadow-md">
         <CardHeader>
           <Badge variant="outline" className="w-fit mb-2 border-primary/30 text-primary bg-primary/5">Group Experience</Badge>
-          <CardTitle>{privateGroupTicket.name}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">{privateGroupTicket.name}</CardTitle>
           <CardDescription>{privateGroupTicket.description}</CardDescription>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
-          <div className="text-3xl font-bold mb-2">${privateGroupTicket.price}</div>
+          <div className="text-2xl sm:text-3xl font-bold mb-2">${privateGroupTicket.price}</div>
           <ul className="space-y-2">
             {privateGroupTicket.features.map((feature, index) => (
               <li key={index} className="flex items-center text-sm">
@@ -485,10 +485,10 @@ export default function TableAccess() {
   );
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto mb-8">
-        <h1 className="text-3xl font-bold mb-2">Table Access</h1>
-        <p className="text-lg text-muted-foreground mb-6">
+    <div className="container mx-auto px-4 py-6 sm:py-8">
+      <div className="max-w-6xl mx-auto mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Table Access</h1>
+        <p className="text-base sm:text-lg text-muted-foreground mb-4 sm:mb-6">
           Choose your dining plan and start meeting new people over amazing food.
         </p>
 
@@ -522,22 +522,25 @@ export default function TableAccess() {
         ) : null}
 
         {/* Toggle between subscription plans, convive select, and one-time tickets */}
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4 sm:mb-6">
           <Button
             variant={selectedType === 'subscription' ? 'default' : 'outline'}
             onClick={() => setSelectedType('subscription')}
+            className="w-full sm:w-auto"
           >
             Monthly Subscriptions
           </Button>
           <Button
             variant={selectedType === 'convive-select' ? 'default' : 'outline'}
             onClick={() => setSelectedType('convive-select')}
+            className="w-full sm:w-auto"
           >
             Convive Select
           </Button>
           <Button
             variant={selectedType === 'ticket' ? 'default' : 'outline'}
             onClick={() => setSelectedType('ticket')}
+            className="w-full sm:w-auto"
           >
             One-time Ticket
           </Button>
@@ -553,15 +556,15 @@ export default function TableAccess() {
 
         {/* Display special promo for subscriptions */}
         {selectedType === 'subscription' && (
-          <div className="mb-8 rounded-lg bg-primary/5 border border-primary/20 p-6 text-center">
-            <h3 className="text-2xl font-semibold text-primary mb-2">Join the Convive Community: First 2 Months, On Us</h3>
-            <p className="text-gray-700 mb-4 max-w-3xl mx-auto">
+          <div className="mb-6 sm:mb-8 rounded-lg bg-primary/5 border border-primary/20 p-4 sm:p-6 text-center">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-primary mb-2">Join the Convive Community: First 2 Months, On Us</h3>
+            <p className="text-sm sm:text-base text-gray-700 mb-3 sm:mb-4 max-w-3xl mx-auto">
               Experience the unparalleled value of our culinary connections with zero financial commitment. 
               We're so confident in the quality of our dining experiences that we're offering your first two months 
               complimentary when you join our Basic, Standard, or Premium membership tiers. No hidden fees, just 
               exceptional dining experiences from day one.
             </p>
-            <div className="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <div className="inline-flex items-center justify-center gap-1 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium">
               <span>Limited time offer</span>
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary ml-1"></span>
             </div>
