@@ -1,0 +1,92 @@
+/* Emergency production CSS fixes for dropdown visibility */
+
+/* Root variables fallback */
+:root {
+  --popover: 0 0% 100% !important;
+  --popover-foreground: 224 71.4% 4.1% !important;
+  --background: 0 0% 100% !important;
+  --foreground: 224 71.4% 4.1% !important;
+  --border: 220 13% 91% !important;
+  --input: 220 13% 91% !important;
+  --accent: 220 14.3% 95.9% !important;
+  --accent-foreground: 220.9 39.3% 11% !important;
+}
+
+/* Critical dropdown fixes with maximum specificity */
+body [data-radix-popper-content-wrapper] > *,
+body [role="menu"],
+body [role="listbox"],
+body [data-state="open"] > div,
+body [data-radix-select-viewport],
+body div[cmdk-list] {
+  background-color: white !important;
+  color: #020817 !important;
+  border: 1px solid #e4e4e7 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1) !important;
+  opacity: 1 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Dropdown items */
+body [role="menuitem"],
+body [role="option"],
+body [cmdk-item],
+body [data-radix-select-item] {
+  background-color: transparent !important;
+  color: #020817 !important;
+  padding: 8px 16px !important;
+  cursor: pointer !important;
+}
+
+body [role="menuitem"]:hover,
+body [role="option"]:hover,
+body [cmdk-item]:hover,
+body [data-radix-select-item]:hover,
+body [data-highlighted] {
+  background-color: #f4f4f5 !important;
+  color: #020817 !important;
+}
+
+/* Select trigger buttons */
+body button[role="combobox"],
+body button[aria-haspopup="listbox"] {
+  background-color: white !important;
+  color: #020817 !important;
+  border: 1px solid #e4e4e7 !important;
+}
+
+/* Dialog/Modal backgrounds */
+body [role="dialog"],
+body [data-radix-dialog-content] {
+  background-color: white !important;
+  color: #020817 !important;
+  border: 1px solid #e4e4e7 !important;
+}
+
+/* Overlay backgrounds */
+body [data-radix-dialog-overlay] {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Z-index fixes */
+body [data-radix-popper-content-wrapper] {
+  z-index: 999999 !important;
+  position: fixed !important;
+}
+
+/* Input fields */
+body input,
+body textarea,
+body select {
+  background-color: white !important;
+  color: #020817 !important;
+  border: 1px solid #e4e4e7 !important;
+}
+
+/* Toast notifications */
+body [data-sonner-toast] {
+  background-color: white !important;
+  color: #020817 !important;
+  border: 1px solid #e4e4e7 !important;
+}
