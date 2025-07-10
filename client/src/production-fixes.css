@@ -1,0 +1,86 @@
+/* Production-specific CSS fixes for UI components */
+
+/* Fix dropdown/popover transparency issues */
+[data-radix-popper-content-wrapper] {
+  --popover: 0 0% 100% !important;
+  --popover-foreground: 224 71.4% 4.1% !important;
+}
+
+/* Dropdown content styling */
+[role="menu"],
+[role="listbox"],
+[data-state="open"] > div,
+.dropdown-content,
+[data-radix-collection-item] {
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Select component fixes */
+[data-radix-select-viewport] {
+  background-color: hsl(var(--popover)) !important;
+}
+
+/* Dialog/Modal backdrop */
+[data-radix-dialog-overlay] {
+  background-color: rgb(0 0 0 / 0.8);
+}
+
+/* Toast notifications */
+[data-sonner-toast] {
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+/* Button hover states */
+button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+/* Card styling consistency */
+.card,
+[data-card] {
+  background-color: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Input field styling */
+input,
+textarea,
+select {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  border-color: hsl(var(--input));
+}
+
+/* Focus states */
+*:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Ensure proper layering */
+[data-radix-popper-content-wrapper],
+[data-radix-dialog-content],
+[data-sonner-toaster] {
+  z-index: 50;
+}
+
+/* Fix for accordion/collapsible animations */
+[data-state="open"][data-radix-collapsible-content] {
+  animation: accordion-down 0.2s ease-out;
+}
+
+[data-state="closed"][data-radix-collapsible-content] {
+  animation: accordion-up 0.2s ease-out;
+}
+
+/* Ensure text is readable in all components */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

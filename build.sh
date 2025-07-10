@@ -61,9 +61,46 @@ npx esbuild client/src/main.tsx \
   --define:process.env.NODE_ENV=\"production\" \
   --minify
 
-# Build CSS with Tailwind - theme vars are now in theme-vars.css
+# Build CSS with Tailwind - ensuring all imports are processed
 echo "Building CSS with Tailwind..."
-NODE_ENV=production npx tailwindcss -i client/src/index.css -o server/public/assets/index.css --minify
+# First, create a combined CSS file that includes all imports
+cat > /tmp/combined.css << 'EOF'
+/* Import theme variables first */
+@import "./client/src/theme-vars.css";
+
+/* Then import the main CSS */
+@import "./client/src/index.css";
+
+/* Additional fixes for production dropdown issues */
+.data-\[state\=open\]\:animate-in {
+  animation: accordion-down 0.2s ease-out;
+}
+
+/* Ensure dropdown backgrounds are not transparent */
+[role="menu"],
+[role="listbox"],
+[data-radix-popper-content-wrapper] > * {
+  background-color: hsl(var(--popover));
+  border: 1px solid hsl(var(--border));
+}
+
+/* Fix for dropdown text visibility */
+[role="menuitem"],
+[role="option"] {
+  color: hsl(var(--popover-foreground));
+}
+
+/* Ensure proper z-index for dropdowns */
+[data-radix-popper-content-wrapper] {
+  z-index: 50;
+}
+EOF
+
+# Build with the combined CSS
+NODE_ENV=production npx tailwindcss -i /tmp/combined.css -o server/public/assets/index.css --minify
+
+# Clean up
+rm /tmp/combined.css
 
 # Copy static assets
 cp -r client/public/* server/public/ 2>/dev/null || true

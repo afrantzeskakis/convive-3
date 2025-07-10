@@ -22,7 +22,7 @@ git status --short
 # Commit changes
 echo ""
 echo "Committing changes..."
-COMMIT_MSG="Fix Data Management tab - show all users correctly"
+COMMIT_MSG="Fix production UI display issues - dropdowns, theme, and component styles"
 git commit -m "$COMMIT_MSG" || echo "No changes to commit"
 
 # Push to Railway
