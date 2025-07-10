@@ -1020,10 +1020,14 @@ export class DatabaseStorage implements IStorage {
     const results = [];
     
     for (const user of allUsers) {
-      const ticketStats = await this.getUserTicketStats(user.id);
+      // For now, return empty ticket stats since the table doesn't exist yet
       results.push({
         ...user,
-        ticketStats
+        ticketStats: {
+          totalTickets: 0,
+          ticketsByType: {},
+          totalSpent: 0
+        }
       });
     }
     
