@@ -337,8 +337,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.user.role !== 'super_admin') {
         return res.status(403).json({ message: 'Forbidden' });
       }
-      // For now, return empty array to allow dashboard to load
-      res.json([]);
+      // Get all users with analytics data
+      const users = await storage.getAllUserAnalytics();
+      res.json(users);
     } catch (error) {
       console.error('Error fetching users analytics:', error);
       res.status(500).json({ message: 'Failed to fetch users analytics' });
@@ -350,8 +351,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.user.role !== 'super_admin') {
         return res.status(403).json({ message: 'Forbidden' });
       }
-      // For now, return empty array to allow dashboard to load
-      res.json([]);
+      // Get premium users
+      const premiumUsers = await storage.getPremiumUsers();
+      res.json(premiumUsers);
     } catch (error) {
       console.error('Error fetching premium users:', error);
       res.status(500).json({ message: 'Failed to fetch premium users' });
@@ -363,8 +365,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (req.user.role !== 'super_admin') {
         return res.status(403).json({ message: 'Forbidden' });
       }
-      // For now, return empty array to allow dashboard to load
-      res.json([]);
+      // Get high value dinner check averages
+      const dinnerChecks = await storage.getHighCheckAverages(100);
+      res.json(dinnerChecks);
     } catch (error) {
       console.error('Error fetching dinner checks:', error);
       res.status(500).json({ message: 'Failed to fetch dinner checks' });
