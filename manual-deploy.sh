@@ -22,7 +22,7 @@ git status --short
 # Commit changes
 echo ""
 echo "Committing changes..."
-COMMIT_MSG="Fix super admin dashboard - setTotalWines error and restaurants API"
+COMMIT_MSG="Fix Data Management tab - show all users correctly"
 git commit -m "$COMMIT_MSG" || echo "No changes to commit"
 
 # Push to Railway
