@@ -1041,8 +1041,30 @@ const SuperAdminDashboard = () => {
     error: usersError
   } = useQuery<UserWithAnalytics[]>({
     queryKey: ["/api/admin/users/analytics"],
-    queryFn: getQueryFn<UserWithAnalytics[]>(),
+    queryFn: async () => {
+      const response = await fetch('/api/admin/users/analytics', {
+        credentials: 'include'
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+      const data = await response.json();
+      console.log('Direct fetch result:', data);
+      return data;
+    },
   });
+  
+  // Debug logging
+  console.log('Data Management - allUserData:', allUserData);
+  console.log('Data Management - isLoadingUsers:', isLoadingUsers);
+  console.log('Data Management - usersError:', usersError);
+  
+  // Force cache invalidation when component mounts
+  useEffect(() => {
+    if (activeTab === 'data-management') {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users/analytics'] });
+    }
+  }, [activeTab]);
 
   // Fetch premium users data
   const {
