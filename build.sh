@@ -45,7 +45,7 @@ cat > server/public/index.html << 'EOF'
 </html>
 EOF
 
-# Build JavaScript with esbuild (without CSS)
+# Build JavaScript with esbuild
 echo "Building JavaScript bundle..."
 npx esbuild client/src/main.tsx \
   --bundle \
@@ -58,22 +58,23 @@ npx esbuild client/src/main.tsx \
   --loader:.svg=text \
   --loader:.png=dataurl \
   --loader:.jpg=dataurl \
+  --loader:.css=empty \
   --jsx=automatic \
   --define:process.env.NODE_ENV=\"production\" \
-  --minify \
-  --external:*.css
+  --minify
 
-# Build CSS with improved build script
+# Build CSS with proper variable resolution
 echo "Building CSS..."
-if [ -f "build-css.sh" ]; then
-  chmod +x build-css.sh
-  ./build-css.sh
-else
-  echo "❌ build-css.sh not found, using fallback CSS build"
-  # Fallback CSS build
-  echo "@tailwind base; @tailwind components; @tailwind utilities;" > /tmp/basic.css
-  NODE_ENV=production npx tailwindcss -i /tmp/basic.css -o server/public/assets/index.css --minify
-fi
+
+# Combine all CSS properly
+cat client/src/theme-vars.css > /tmp/combined.css
+echo "" >> /tmp/combined.css
+cat client/src/production-fixes.css >> /tmp/combined.css
+echo "" >> /tmp/combined.css
+cat client/src/styles.css >> /tmp/combined.css
+
+# Process with Tailwind and PostCSS
+NODE_ENV=production npx tailwindcss -i /tmp/combined.css -o server/public/assets/index.css --minify
 
 # Verify CSS was built
 if [ -f "server/public/assets/index.css" ]; then
