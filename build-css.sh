@@ -137,35 +137,79 @@ NODE_ENV=production npx tailwindcss -i /tmp/combined-input.css -o server/public/
 # Add additional critical fixes directly
 cat >> server/public/assets/index.css << 'EOF'
 
-/* Critical production overrides */
+/* Critical production overrides - preserve theme colors */
 [data-radix-popper-content-wrapper] > * {
-  background-color: white !important;
-  color: #020817 !important;
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
 }
 
 [role="menu"],
 [role="listbox"],
 [cmdk-list] {
-  background-color: white !important;
-  border: 1px solid #e4e4e7 !important;
+  background-color: hsl(var(--popover)) !important;
+  border: 1px solid hsl(var(--border)) !important;
 }
 
 [data-radix-select-content],
 [data-radix-select-viewport] {
-  background-color: white !important;
-  color: #020817 !important;
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
 }
 
 button[role="combobox"],
 button[data-state][aria-haspopup] {
-  background-color: white !important;
-  color: #020817 !important;
-  border: 1px solid #e4e4e7 !important;
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+  border: 1px solid hsl(var(--input)) !important;
 }
 
 [role="dialog"] {
-  background-color: white !important;
-  color: #020817 !important;
+  background-color: hsl(var(--background)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Ensure primary purple colors work */
+.bg-primary {
+  background-color: hsl(262 83% 58%) !important;
+}
+
+.text-primary {
+  color: hsl(262 83% 58%) !important;
+}
+
+.text-primary-foreground {
+  color: hsl(210 20% 98%) !important;
+}
+
+.border-primary {
+  border-color: hsl(262 83% 58%) !important;
+}
+
+.hover\:bg-primary\/90:hover {
+  background-color: hsl(262 83% 58% / 0.9) !important;
+}
+
+.ring-primary {
+  --tw-ring-color: hsl(262 83% 58%) !important;
+}
+
+/* Fix button primary variant */
+[data-variant="default"]:where(button),
+.btn-primary {
+  background-color: hsl(262 83% 58%) !important;
+  color: hsl(210 20% 98%) !important;
+}
+
+[data-variant="default"]:where(button):hover,
+.btn-primary:hover {
+  background-color: hsl(262 83% 58% / 0.9) !important;
+}
+
+/* Badge primary variant */
+[data-variant="default"]:where(.badge),
+.badge-default {
+  background-color: hsl(262 83% 58%) !important;
+  color: hsl(210 20% 98%) !important;
 }
 EOF
 
