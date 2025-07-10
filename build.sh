@@ -34,7 +34,7 @@ cat > server/public/index.html << 'EOF'
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Restaurant Wine Management System</title>
+    <title>Convive | (Come·Vibe) - Curated Social Dining Experience</title>
     <script type="module" crossorigin src="/assets/index.js"></script>
     <link rel="stylesheet" href="/assets/index.css">
     <link rel="stylesheet" href="/dropdown-fix.css">

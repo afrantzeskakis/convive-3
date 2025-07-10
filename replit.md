@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a Restaurant Wine Management System - a complete AI-powered wine enrichment platform built for restaurant administrators. The system features a 5-stage AI enrichment pipeline that transforms basic wine lists into comprehensive, restaurant-grade content with professional tasting notes, food pairings, and prestige analysis.
+This repository contains Convive - a comprehensive dining and networking platform featuring AI-powered culinary intelligence with wine enrichment and recipe analysis capabilities. The system features a 5-stage AI enrichment pipeline that transforms basic wine lists into comprehensive, restaurant-grade content with professional tasting notes, food pairings, and prestige analysis.
 
 ## System Architecture
 
