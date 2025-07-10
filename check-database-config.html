@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Configuration Check</title>
+    <style>
+        body { font-family: Arial; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .box { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { color: red; }
+        .success { color: green; }
+        button { padding: 10px 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <h1>Database Configuration Check</h1>
+    
+    <div class="box">
+        <h3>What's happening:</h3>
+        <ul>
+            <li>Local/Replit has 7 restaurants</li>
+            <li>Production/Railway has 4 restaurants</li>
+            <li>They're using DIFFERENT databases!</li>
+        </ul>
+    </div>
+    
+    <button onclick="checkConfig()">Check Database Configuration</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function checkConfig() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<p>Checking...</p>';
+            
+            try {
+                // Get diagnostic info
+                const response = await fetch('/api/diagnostic/database-info');
+                const data = await response.json();
+                
+                result.innerHTML = `
+                    <div class="box">
+                        <h3>Current Environment: ${data.environment}</h3>
+                        <p><strong>Database Host:</strong> ${data.database.host}</p>
+                        <p><strong>Database Name:</strong> ${data.database.name}</p>
+                        <p><strong>Restaurant Count:</strong> ${data.counts.restaurants}</p>
+                    </div>
+                    
+                    <div class="box">
+                        <h3>Solution:</h3>
+                        <p>Railway needs to use the SAME database as Replit!</p>
+                        <p>In Railway dashboard, set this environment variable:</p>
+                        <code style="background: #333; color: #fff; padding: 10px; display: block; margin: 10px 0;">
+                            DATABASE_URL=&lt;copy the DATABASE_URL from Replit secrets&gt;
+                        </code>
+                        <p>The DATABASE_URL should point to: <strong>ep-ancient-darkness-a6mhcqs4.us-west-2.aws.neon.tech</strong></p>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
