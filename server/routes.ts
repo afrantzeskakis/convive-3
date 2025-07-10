@@ -2386,8 +2386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.log('Restaurant wine routes registration failed:', (error as Error).message);
   }
   
-  // High-roller management routes
-  app.use("/api/high-roller", highRollerRouter);
+
   
   // Simple endpoint to check OpenAI status (accessible without auth for testing)
   app.get("/test-openai-status", (req: Request, res: Response) => {
