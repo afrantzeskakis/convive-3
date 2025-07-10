@@ -627,6 +627,121 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Sync restaurants endpoint (one-time use to fix production)
+  app.post("/api/sync-restaurants-emergency", isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      // Define all restaurants that should exist
+      const allRestaurants = [
+        { 
+          name: 'Bella Italia Restaurant',
+          description: 'Authentic Italian cuisine in a cozy atmosphere.',
+          cuisine_type: 'Italian',
+          address: '123 Main St, New York, NY',
+          is_featured: true,
+          price_range: '$$$',
+          features: ["Wine List", "Outdoor Seating"]
+        },
+        {
+          name: 'Sakura Japanese Bistro',
+          description: 'Modern Japanese cuisine with fresh ingredients.',
+          cuisine_type: 'Japanese', 
+          address: '789 East St, Manhattan, NY',
+          is_featured: true,
+          price_range: '$$',
+          features: ["Sushi Bar", "Private Dining"]
+        },
+        {
+          name: 'Page Turner Café',
+          description: 'Cozy café with great brunch options.',
+          cuisine_type: 'Café',
+          address: '456 Park Ave, Brooklyn, NY',
+          is_featured: false,
+          price_range: '$$',
+          features: ["Vegan Options", "Book Exchange"]
+        },
+        {
+          name: "Olivia's Mediterranean",
+          description: 'Mediterranean cuisine with a modern twist.',
+          cuisine_type: 'Mediterranean',
+          address: '321 West St, New York, NY',
+          is_featured: true,
+          price_range: '$$$',
+          features: ["Outdoor Seating", "Wine Selection"]
+        },
+        {
+          name: 'Italian Bistro',
+          description: 'Classic Italian dishes in an elegant setting.',
+          cuisine_type: 'Italian',
+          address: '555 5th Ave, New York, NY',
+          is_featured: false,
+          price_range: '$$$$',
+          features: ["Private Events", "Wine Cellar"]
+        },
+        {
+          name: 'Sushi Paradise',
+          description: 'Premium sushi and Japanese fusion.',
+          cuisine_type: 'Japanese',
+          address: '888 Madison Ave, New York, NY',
+          is_featured: true,
+          price_range: '$$$$',
+          features: ["Omakase", "Sake Bar"]
+        },
+        {
+          name: 'Test Kitchen & Wine Bar',
+          description: 'Innovative cuisine with extensive wine selection.',
+          cuisine_type: 'Contemporary',
+          address: '999 Park Ave, New York, NY',
+          is_featured: true,
+          price_range: '$$$',
+          features: ["Wine Bar", "Chef's Table"]
+        }
+      ];
+
+      // Get existing restaurants
+      const existingRestaurants = await storage.getAllRestaurants();
+      const existingNames = existingRestaurants.map(r => r.name);
+      
+      // Find missing restaurants
+      const missingRestaurants = allRestaurants.filter(r => !existingNames.includes(r.name));
+      
+      if (missingRestaurants.length === 0) {
+        return res.json({ 
+          message: "All restaurants already exist!",
+          count: existingRestaurants.length 
+        });
+      }
+
+      // Add missing restaurants
+      const added = [];
+      for (const restaurant of missingRestaurants) {
+        try {
+          const newRestaurant = await storage.createRestaurant({
+            ...restaurant,
+            features: restaurant.features as any
+          });
+          added.push(newRestaurant.name);
+        } catch (error) {
+          console.error(`Failed to add ${restaurant.name}:`, error);
+        }
+      }
+
+      // Get final count
+      const finalRestaurants = await storage.getAllRestaurants();
+
+      res.json({
+        message: "Restaurant sync completed",
+        added: added,
+        totalBefore: existingRestaurants.length,
+        totalAfter: finalRestaurants.length,
+        restaurants: finalRestaurants.map(r => ({ id: r.id, name: r.name }))
+      });
+
+    } catch (error: any) {
+      console.error("Error syncing restaurants:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Database test endpoint
   app.get("/api/test-db", async (req, res) => {
     try {

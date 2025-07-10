@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sync Restaurants to Production</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sync Restaurants to Production</h1>
+    <p>This will add the missing restaurants to your production database.</p>
+    <p><strong>Current Status:</strong></p>
+    <ul>
+        <li>Local/Replit: 7 restaurants ✅</li>
+        <li>Production: 4 restaurants ❌</li>
+    </ul>
+    
+    <button onclick="syncRestaurants()">Sync Missing Restaurants to Production</button>
+    
+    <div id="result"></div>
+    
+    <script>
+        async function syncRestaurants() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = 'Syncing restaurants...';
+            
+            try {
+                const response = await fetch('/api/sync-restaurants-emergency', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Sync failed');
+                }
+                
+                const data = await response.json();
+                
+                if (data.added && data.added.length > 0) {
+                    resultDiv.innerHTML = `<span class="success">✅ Success! Added ${data.added.length} restaurants:</span>\n`;
+                    data.added.forEach(name => {
+                        resultDiv.innerHTML += `- ${name}\n`;
+                    });
+                    resultDiv.innerHTML += `\nTotal restaurants now: ${data.totalAfter}`;
+                } else {
+                    resultDiv.innerHTML = `<span class="success">✅ All restaurants already exist!</span>\nTotal: ${data.totalAfter} restaurants`;
+                }
+                
+                if (data.restaurants) {
+                    resultDiv.innerHTML += '\n\nAll restaurants in database:\n';
+                    data.restaurants.forEach(r => {
+                        resultDiv.innerHTML += `${r.id}. ${r.name}\n`;
+                    });
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+                if (error.message.includes('Unauthorized')) {
+                    resultDiv.innerHTML += '\n\nPlease make sure you are logged in as superadmin.';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
