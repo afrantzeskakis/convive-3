@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Diagnostic Endpoint</title>
+</head>
+<body>
+    <h1>Database Diagnostic Test</h1>
+    <button onclick="testLocal()">Test Local Endpoint</button>
+    <button onclick="testProduction()">Test Production Endpoint</button>
+    
+    <h2>Results:</h2>
+    <pre id="results">Click a button to test...</pre>
+    
+    <script>
+        async function testLocal() {
+            try {
+                const response = await fetch('/api/diagnostic/database-info');
+                const data = await response.json();
+                document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('results').textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        async function testProduction() {
+            try {
+                const response = await fetch('https://www.convive.us/api/diagnostic/database-info');
+                const data = await response.json();
+                document.getElementById('results').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('results').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

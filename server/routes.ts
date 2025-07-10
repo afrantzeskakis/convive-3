@@ -2388,6 +2388,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
 
   
+  // Test route to verify diagnostic endpoint
+  app.get("/test-diagnostic", (req: Request, res: Response) => {
+    res.send(`
+      <html>
+        <body>
+          <h1>Database Diagnostic Test</h1>
+          <button onclick="testDiagnostic()">Test Diagnostic Endpoint</button>
+          <pre id="result">Click button to test...</pre>
+          <script>
+            async function testDiagnostic() {
+              try {
+                const response = await fetch('/api/diagnostic/database-info');
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+              } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+              }
+            }
+          </script>
+        </body>
+      </html>
+    `);
+  });
+
   // Simple endpoint to check OpenAI status (accessible without auth for testing)
   app.get("/test-openai-status", (req: Request, res: Response) => {
     try {
