@@ -16,7 +16,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Search, Plus, UserPlus, Trash, UserMinus, Eye, Building, UserCog, Users, Info } from 'lucide-react';
+import { Search, Plus, UserPlus, Trash, UserMinus, Eye, Building, UserCog, Users, Info, Wine, ArrowRight } from 'lucide-react';
+import { RestaurantWineEnrichmentDashboard } from '@/components/restaurant/RestaurantWineEnrichmentDashboard';
+import { Link } from 'wouter';
 
 interface Restaurant {
   id: number;
@@ -260,10 +262,16 @@ export default function RestaurantAdmin() {
             Restaurants
           </TabsTrigger>
           {selectedRestaurant && (
-            <TabsTrigger value="users" className="flex items-center">
-              <Users className="w-4 h-4 mr-2" />
-              Restaurant Staff
-            </TabsTrigger>
+            <>
+              <TabsTrigger value="users" className="flex items-center">
+                <Users className="w-4 h-4 mr-2" />
+                Restaurant Staff
+              </TabsTrigger>
+              <TabsTrigger value="wines" className="flex items-center">
+                <Wine className="w-4 h-4 mr-2" />
+                Wine Management
+              </TabsTrigger>
+            </>
           )}
           {isAdmin && (
             <TabsTrigger value="search" className="flex items-center">
@@ -349,20 +357,39 @@ export default function RestaurantAdmin() {
                       </label>
                     </div>
                   </CardContent>
-                  <CardFooter className="flex justify-between">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => setSelectedRestaurant(restaurant)}
-                    >
-                      <UserCog className="h-4 w-4 mr-2" />
-                      Manage Staff
-                    </Button>
+                  <CardFooter className="flex flex-col gap-2">
+                    <div className="flex gap-2 w-full">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => {
+                          setSelectedRestaurant(restaurant);
+                          setActiveTab('users');
+                        }}
+                      >
+                        <UserCog className="h-4 w-4 mr-2" />
+                        Staff
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1"
+                        onClick={() => {
+                          setSelectedRestaurant(restaurant);
+                          setActiveTab('wines');
+                        }}
+                      >
+                        <Wine className="h-4 w-4 mr-2" />
+                        Wines
+                      </Button>
+                    </div>
                     
                     {isAdmin && (
                       <Button 
                         variant="secondary" 
                         size="sm"
+                        className="w-full"
                         onClick={() => handleViewAsRestaurantEmployee(restaurant)}
                       >
                         <Eye className="h-4 w-4 mr-2" />
@@ -529,6 +556,31 @@ export default function RestaurantAdmin() {
             )}
           </TabsContent>
         )}
+
+        {/* Wine Management Tab */}
+        <TabsContent value="wines">
+          {selectedRestaurant && (
+            <>
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold">{selectedRestaurant.name} - Wine Management</h2>
+                  <p className="text-muted-foreground">
+                    Manage wine inventory, enrichment, and recommendations for this restaurant.
+                  </p>
+                </div>
+                <Link href={`/wine-concierge?restaurantId=${selectedRestaurant.id}`}>
+                  <Button variant="default">
+                    <Wine className="h-4 w-4 mr-2" />
+                    Open Wine Concierge
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+
+              <RestaurantWineEnrichmentDashboard selectedRestaurant={selectedRestaurant} />
+            </>
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Dialog for adding a new user to restaurant */}
