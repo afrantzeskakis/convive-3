@@ -67,6 +67,12 @@ export default function MobileNav() {
           <i className="fas fa-user text-xl"></i>
           <span className="text-xs mt-1">Profile</span>
         </Link>
+        {(user?.role === "restaurant_admin" || user?.role === "admin" || user?.role === "super_admin") && (
+          <Link href="/wine-concierge" className={`flex flex-col items-center ${location === '/wine-concierge' ? 'text-primary' : 'text-gray-600'}`}>
+            <i className="fas fa-wine-glass text-xl"></i>
+            <span className="text-xs mt-1">Concierge</span>
+          </Link>
+        )}
         {user?.role === "super_admin" && (
           <Link href="/super-admin-dashboard" className={`flex flex-col items-center ${location === '/super-admin-dashboard' ? 'text-primary' : 'text-gray-600'}`}>
             <i className="fas fa-cog text-xl"></i>

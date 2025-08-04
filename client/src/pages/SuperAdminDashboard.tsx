@@ -2830,6 +2830,30 @@ Convive: Curated Dining & Extraordinary Connections
           {/* Wine Upload Tab */}
           <TabsContent value="wine" className="space-y-4">
             <div className="grid grid-cols-1 gap-6">
+              {/* Wine Concierge Quick Access Card */}
+              <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Wine Concierge Tool
+                  </CardTitle>
+                  <CardDescription>
+                    Mobile-first AI-powered wine recommendation system for restaurant servers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Help restaurant staff find perfect wine matches using natural language search like "light red under $60" or "bold white with seafood".
+                  </p>
+                  <Link href="/wine-concierge">
+                    <Button className="w-full sm:w-auto">
+                      <Wine className="mr-2 h-4 w-4" />
+                      Open Wine Concierge
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader className="bg-primary/5">
                   <CardTitle className="flex items-center gap-2">
