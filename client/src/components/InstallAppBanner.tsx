@@ -20,13 +20,24 @@ export default function InstallAppBanner() {
     
     // Only show banner if on iOS and not already installed
     // Also check if user has dismissed it before
-    const bannerDismissed = localStorage.getItem('pwa_banner_dismissed');
+    let bannerDismissed = 'false';
+    try {
+      bannerDismissed = localStorage.getItem('pwa_banner_dismissed') || 'false';
+    } catch (error) {
+      // localStorage access denied in some environments (e.g., web preview)
+      console.log('localStorage access denied, defaulting to show banner');
+    }
     setShowBanner(isIOSDevice && !isInStandaloneMode && bannerDismissed !== 'true');
   }, []);
 
   const dismissBanner = () => {
     setShowBanner(false);
-    localStorage.setItem('pwa_banner_dismissed', 'true');
+    try {
+      localStorage.setItem('pwa_banner_dismissed', 'true');
+    } catch (error) {
+      // localStorage access denied in some environments
+      console.log('Could not save banner dismissal preference');
+    }
   };
 
   if (!showBanner) return null;
