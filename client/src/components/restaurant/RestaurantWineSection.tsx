@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Wine, Search, Star, Utensils } from 'lucide-react';
+import { Wine, Search, Star, Utensils, Sparkles } from 'lucide-react';
+import { Link } from 'wouter';
 
 interface Wine {
   id: number;
@@ -72,9 +73,19 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Wine Collection</h2>
-        <p className="text-muted-foreground">Explore our curated selection of wines</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h2 className="text-2xl font-bold">Wine Collection</h2>
+          <p className="text-muted-foreground">Explore our curated selection of wines</p>
+        </div>
+        {!isUserView && (
+          <Link href="/wine-concierge">
+            <Button variant="outline">
+              <Sparkles className="mr-2 h-4 w-4" />
+              Wine Concierge
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Search and filters */}
