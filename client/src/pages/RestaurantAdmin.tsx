@@ -559,7 +559,7 @@ export default function RestaurantAdmin() {
 
         {/* Wine Management Tab */}
         <TabsContent value="wines">
-          {selectedRestaurant && (
+          {selectedRestaurant ? (
             <>
               <div className="flex justify-between items-center mb-6">
                 <div>
@@ -578,6 +578,84 @@ export default function RestaurantAdmin() {
               </div>
 
               <RestaurantWineEnrichmentDashboard selectedRestaurant={selectedRestaurant} />
+            </>
+          ) : (
+            <>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold mb-2">Wine Management</h2>
+                <p className="text-muted-foreground">
+                  Select a restaurant to manage its wine inventory or use the Wine Concierge tool for smart recommendations.
+                </p>
+              </div>
+
+              <div className="mb-6">
+                <Link href="/wine-concierge">
+                  <Button variant="default" size="lg" className="w-full sm:w-auto">
+                    <Wine className="h-5 w-5 mr-2" />
+                    Open Wine Concierge Tool
+                    <ArrowRight className="h-5 w-5 ml-2" />
+                  </Button>
+                </Link>
+                <p className="text-sm text-muted-foreground mt-2">
+                  AI-powered wine recommendations for restaurant servers
+                </p>
+              </div>
+
+              {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, i) => (
+                    <Card key={i} className="overflow-hidden">
+                      <div className="h-48 bg-gray-200 animate-pulse" />
+                      <CardHeader>
+                        <Skeleton className="h-6 w-3/4 mb-2" />
+                        <Skeleton className="h-4 w-1/2" />
+                      </CardHeader>
+                      <CardContent>
+                        <Skeleton className="h-4 w-full mb-2" />
+                        <Skeleton className="h-4 w-3/4" />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredRestaurants.map((restaurant) => (
+                    <Card key={restaurant.id} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                      {restaurant.imageUrl && (
+                        <div 
+                          className="h-48 bg-cover bg-center" 
+                          style={{ backgroundImage: `url(${restaurant.imageUrl})` }}
+                        />
+                      )}
+                      <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                          <CardTitle>{restaurant.name}</CardTitle>
+                          {restaurant.rating && (
+                            <Badge variant="outline" className="ml-2">
+                              {restaurant.rating} ★
+                            </Badge>
+                          )}
+                        </div>
+                        <CardDescription>{restaurant.cuisineType}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground mb-4">{restaurant.description}</p>
+                        <p className="text-sm text-muted-foreground">{restaurant.address}</p>
+                      </CardContent>
+                      <CardFooter>
+                        <Button 
+                          variant="default" 
+                          className="w-full"
+                          onClick={() => setSelectedRestaurant(restaurant)}
+                        >
+                          <Wine className="h-4 w-4 mr-2" />
+                          Manage Wine Inventory
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </TabsContent>
