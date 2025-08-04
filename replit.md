@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains Convive - a comprehensive dining and networking platform featuring AI-powered culinary intelligence with wine enrichment and recipe analysis capabilities. The system features a 5-stage AI enrichment pipeline that transforms basic wine lists into comprehensive, restaurant-grade content with professional tasting notes, food pairings, and prestige analysis.
+This repository contains Convive - a comprehensive dining and networking platform featuring AI-powered culinary intelligence with wine enrichment and recipe analysis capabilities. The system features a 5-stage AI enrichment pipeline that transforms basic wine lists into comprehensive, restaurant-grade content with professional tasting notes, food pairings, and prestige analysis. Recently added Wine Concierge Tool - a mobile-first wine recommendation system that helps restaurant servers find and compare wines based on guest preferences using AI-powered semantic matching.
 
 ## System Architecture
 
@@ -58,6 +58,15 @@ This repository contains Convive - a comprehensive dining and networking platfor
 - **Multi-slide Education** - Techniques, culture, wine pairings, tips per term
 - **Touch/Swipe Support** - Mobile-friendly carousel navigation
 - **Category Color Coding** - Basic (green), Intermediate (blue), Advanced (purple), Cultural (orange)
+
+### 6. Wine Concierge Tool
+- **Mobile-First Interface** - Optimized for restaurant servers using phones/tablets
+- **Natural Language Search** - Input guest preferences in plain language
+- **Semantic Matching** - Uses OpenAI embeddings for intelligent wine matching
+- **Price Flexibility** - ±10% range automatically applied to find best matches
+- **Comparison Cards** - Shows 3 wines with differences highlighted
+- **Wild Card Option** - 3rd recommendation is adventurous choice
+- **Embedding Management** - Automatic generation and storage of wine vectors
 
 ## Data Flow
 
@@ -121,6 +130,8 @@ Changelog:
 - July 09, 2025. Implemented Data Management tab in SuperAdmin dashboard - provides secure deletion capabilities for users and restaurants with proper cascade deletion and safety checks
 - July 09, 2025. Made email optional for user creation in SuperAdmin dashboard - only username, password, and full name are now required
 - July 09, 2025. Added logout button directly in SuperAdmin dashboard header for convenient access
+- July 09, 2025. Added Wine Concierge Tool - mobile-first AI-powered wine recommendation system for restaurant servers with semantic search and comparison cards
+- July 09, 2025. Integrated pgvector embeddings with OpenAI for intelligent wine matching based on natural language guest preferences
 
 ## User Preferences
 

@@ -1,8 +1,21 @@
-import { pgTable, serial, text, varchar, integer, boolean, timestamp, uuid, foreignKey, unique, decimal } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, varchar, integer, boolean, timestamp, uuid, foreignKey, unique, decimal, customType } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { restaurants } from "./schema";
+
+// Define pgvector type for Drizzle ORM
+const vector = customType<{ data: number[]; driverData: string }>({
+  dataType() {
+    return 'vector(1536)';
+  },
+  toDriver(value: number[]): string {
+    return JSON.stringify(value);
+  },
+  fromDriver(value: string): number[] {
+    return JSON.parse(value);
+  },
+});
 
 /**
  * Global wines table
@@ -111,6 +124,11 @@ export const restaurantWinesIsolated = pgTable("restaurant_wines_isolated", {
   // Metadata
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
+  
+  // Wine Concierge Tool - Vector embeddings for semantic search
+  wine_embedding: vector("wine_embedding"), // OpenAI embeddings (1536 dimensions)
+  embedding_generated_at: timestamp("embedding_generated_at"),
+  embedding_model: varchar("embedding_model", { length: 50 }), // Track model version (e.g., "text-embedding-3-small")
   
   // Unique constraint to prevent duplicate wines per restaurant
 }, (table) => {

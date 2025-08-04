@@ -2503,6 +2503,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   } catch (error) {
     console.log('Restaurant wine routes registration failed:', (error as Error).message);
   }
+
+  // Register Wine Concierge routes
+  try {
+    const { default: wineConciergeRoutes } = await import('./routes/wine-concierge');
+    app.use('/api/wine-concierge', isAuthenticated, wineConciergeRoutes);
+    console.log('✓ Wine Concierge routes registered successfully');
+  } catch (error) {
+    console.log('Wine Concierge routes registration failed:', (error as Error).message);
+  }
   
 
   

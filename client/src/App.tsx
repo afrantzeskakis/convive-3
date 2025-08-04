@@ -34,6 +34,7 @@ import WineUploader from "./pages/WineUploader";
 import WineDatabase from "./pages/WineDatabase";
 import WineRecommendations from "./pages/WineRecommendations";
 import WineVerificationDashboard from "./pages/WineVerificationDashboard";
+import WineConciergePage from "./pages/WineConciergePage";
 
 import RecipeMenu from "./pages/recipe-menu";
 import RecipeDetail from "./pages/recipe-detail";
@@ -240,6 +241,13 @@ function Router() {
             path="/wine-verification" 
             component={WineVerificationDashboard}
             requiredRole="super_admin"
+          />
+          
+          {/* Wine Concierge route - accessible to restaurant staff */}
+          <ProtectedRoute 
+            path="/wine-concierge" 
+            component={WineConciergePage}
+            requiredRole="user"
           />
 
           
