@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Wine, Search, DollarSign, Star, Sparkles } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface WineRecommendation {
   id: number;
@@ -32,12 +32,20 @@ interface WineConciergeProps {
   restaurantId: number;
 }
 
+interface EmbeddingStats {
+  restaurant_id: number;
+  total_wines: number;
+  wines_with_embeddings: number;
+  wines_without_embeddings: number;
+}
+
 export function WineConcierge({ restaurantId }: WineConciergeProps) {
   const [query, setQuery] = useState("");
   const [recommendations, setRecommendations] = useState<WineRecommendation[]>([]);
+  const { toast } = useToast();
 
   // Check embedding statistics
-  const { data: stats } = useQuery({
+  const { data: stats } = useQuery<EmbeddingStats>({
     queryKey: [`/api/wine-concierge/embeddings/stats/${restaurantId}`],
     refetchInterval: 30000, // Refresh every 30 seconds
   });
@@ -45,10 +53,8 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
   // Generate embeddings mutation
   const generateEmbeddings = useMutation({
     mutationFn: async () => {
-      return await apiRequest(`/api/wine-concierge/embeddings/generate`, {
-        method: "POST",
-        body: JSON.stringify({ restaurantId }),
-      });
+      const response = await apiRequest("POST", `/api/wine-concierge/embeddings/generate`, { restaurantId });
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -68,14 +74,11 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
   // Get recommendations mutation
   const getRecommendations = useMutation({
     mutationFn: async (searchQuery: string) => {
-      const response = await apiRequest("/api/wine-concierge/recommend", {
-        method: "POST",
-        body: JSON.stringify({ 
-          restaurantId, 
-          query: searchQuery 
-        }),
+      const response = await apiRequest("POST", "/api/wine-concierge/recommend", { 
+        restaurantId, 
+        query: searchQuery 
       });
-      return response;
+      return response.json();
     },
     onSuccess: (data) => {
       setRecommendations(data.recommendations || []);
