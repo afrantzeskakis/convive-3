@@ -261,17 +261,15 @@ export default function RestaurantAdmin() {
             <Building className="w-4 h-4 mr-2" />
             Restaurants
           </TabsTrigger>
+          <TabsTrigger value="wines" className="flex items-center">
+            <Wine className="w-4 h-4 mr-2" />
+            Wine Management
+          </TabsTrigger>
           {selectedRestaurant && (
-            <>
-              <TabsTrigger value="users" className="flex items-center">
-                <Users className="w-4 h-4 mr-2" />
-                Restaurant Staff
-              </TabsTrigger>
-              <TabsTrigger value="wines" className="flex items-center">
-                <Wine className="w-4 h-4 mr-2" />
-                Wine Management
-              </TabsTrigger>
-            </>
+            <TabsTrigger value="users" className="flex items-center">
+              <Users className="w-4 h-4 mr-2" />
+              Restaurant Staff
+            </TabsTrigger>
           )}
           {isAdmin && (
             <TabsTrigger value="search" className="flex items-center">

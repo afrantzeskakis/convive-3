@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import {
   Wine,
   Upload,
@@ -19,7 +20,8 @@ import {
   BarChart3,
   TrendingUp,
   Award,
-  Globe
+  Globe,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -279,10 +281,18 @@ export function RestaurantWineEnrichmentDashboard({ selectedRestaurant }: Restau
             Upload wine lists and leverage AI to generate comprehensive premium wine profiles
           </p>
         </div>
-        <Badge variant="secondary" className="flex items-center gap-2 w-fit">
-          <Sparkles className="w-4 h-4" />
-          5-Stage AI Enhancement
-        </Badge>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Badge variant="secondary" className="flex items-center gap-2 w-fit">
+            <Sparkles className="w-4 h-4" />
+            5-Stage AI Enhancement
+          </Badge>
+          <Link href="/wine-concierge">
+            <Button className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Wine Concierge
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Restaurant Selector */}
