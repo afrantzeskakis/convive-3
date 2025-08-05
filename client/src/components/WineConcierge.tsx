@@ -72,6 +72,21 @@ const createWineSummary = (wine: WineRecommendation): string => {
 const extractKeyDifferences = (wine: WineRecommendation, referenceWine: WineRecommendation): string[] => {
   const differences: string[] = [];
   
+  // Helper to find exclusive traits
+  const findExclusiveTraits = (text1: string, text2: string, keywords: string[]): [string[], string[]] => {
+    const lower1 = text1.toLowerCase();
+    const lower2 = text2.toLowerCase();
+    const traits1 = keywords.filter(k => lower1.includes(k));
+    const traits2 = keywords.filter(k => lower2.includes(k));
+    
+    // Find traits that are in text1 but NOT in text2
+    const exclusive1 = traits1.filter(t => !traits2.includes(t));
+    // Find traits that are in text2 but NOT in text1
+    const exclusive2 = traits2.filter(t => !traits1.includes(t));
+    
+    return [exclusive1, exclusive2];
+  };
+  
   // Price difference (always include if significant)
   const winePrice = typeof wine.price === 'string' ? parseFloat(wine.price.replace(/[^0-9.]/g, '')) : wine.price;
   const refPrice = typeof referenceWine.price === 'string' ? parseFloat(referenceWine.price.replace(/[^0-9.]/g, '')) : referenceWine.price;
@@ -80,80 +95,76 @@ const extractKeyDifferences = (wine: WineRecommendation, referenceWine: WineReco
     differences.push(`${winePrice > refPrice ? 'Higher' : 'Lower'} price point by $${priceDiff.toFixed(0)}`);
   }
   
-  // Analyze tasting notes for flavor profile differences
+  // Analyze tasting notes for actual contrasts
   if (wine.tasting_notes && referenceWine.tasting_notes) {
-    const wineNotes = wine.tasting_notes.toLowerCase();
-    const refNotes = referenceWine.tasting_notes.toLowerCase();
+    // Fruit notes - only show if one has something the other doesn't
+    const fruitKeywords = ['cherry', 'blackberry', 'raspberry', 'plum', 'strawberry', 'blueberry', 
+                          'apple', 'pear', 'citrus', 'lemon', 'lime', 'orange', 'grapefruit',
+                          'peach', 'apricot', 'melon', 'pineapple', 'tropical'];
+    const [wineFruits, refFruits] = findExclusiveTraits(wine.tasting_notes, referenceWine.tasting_notes, fruitKeywords);
     
-    // Extract flavor keywords
-    const fruitKeywords = ['cherry', 'blackberry', 'raspberry', 'plum', 'apple', 'pear', 'citrus', 'lemon', 'peach', 'apricot'];
-    const bodyKeywords = ['light', 'medium', 'full', 'bold', 'delicate', 'robust', 'elegant'];
-    const tanninKeywords = ['tannic', 'smooth', 'silky', 'grippy', 'soft tannins', 'firm tannins'];
+    if (wineFruits.length > 0 && refFruits.length > 0) {
+      differences.push(`Notes of ${wineFruits[0]} vs notes of ${refFruits[0]}`);
+    }
     
-    // Find body differences
-    const wineBody = bodyKeywords.find(keyword => wineNotes.includes(keyword));
-    const refBody = bodyKeywords.find(keyword => refNotes.includes(keyword));
+    // Body/structure - only if explicitly different
+    const bodyKeywords = ['light-bodied', 'medium-bodied', 'full-bodied', 'light bodied', 'medium bodied', 'full bodied'];
+    const wineBody = bodyKeywords.find(k => wine.tasting_notes.toLowerCase().includes(k));
+    const refBody = bodyKeywords.find(k => referenceWine.tasting_notes.toLowerCase().includes(k));
+    
     if (wineBody && refBody && wineBody !== refBody) {
-      differences.push(`${wineBody.charAt(0).toUpperCase() + wineBody.slice(1)}-bodied vs ${refBody}-bodied`);
+      const wineBodyClean = wineBody.replace('-', ' ').replace(' bodied', '');
+      const refBodyClean = refBody.replace('-', ' ').replace(' bodied', '');
+      differences.push(`${wineBodyClean.charAt(0).toUpperCase() + wineBodyClean.slice(1)}-bodied vs ${refBodyClean}-bodied`);
     }
     
-    // Find fruit profile differences
-    const wineFruits = fruitKeywords.filter(fruit => wineNotes.includes(fruit));
-    const refFruits = fruitKeywords.filter(fruit => refNotes.includes(fruit));
-    if (wineFruits.length > 0 && refFruits.length > 0 && wineFruits[0] !== refFruits[0]) {
-      differences.push(`${wineFruits[0].charAt(0).toUpperCase() + wineFruits[0].slice(1)} notes vs ${refFruits[0]} notes`);
-    }
+    // Flavor characteristics - only actual contrasts
+    const flavorKeywords = ['oaky', 'earthy', 'spicy', 'herbal', 'floral', 'mineral', 'buttery', 
+                           'smoky', 'vanilla', 'chocolate', 'coffee', 'tobacco', 'leather'];
+    const [wineFlavors, refFlavors] = findExclusiveTraits(wine.tasting_notes, referenceWine.tasting_notes, flavorKeywords);
     
-    // Find tannin differences
-    const wineTannins = tanninKeywords.find(keyword => wineNotes.includes(keyword));
-    const refTannins = tanninKeywords.find(keyword => refNotes.includes(keyword));
-    if (wineTannins && refTannins && wineTannins !== refTannins) {
-      differences.push(`${wineTannins.charAt(0).toUpperCase() + wineTannins.slice(1)} vs ${refTannins}`);
+    if (wineFlavors.length > 0 && refFlavors.length > 0) {
+      differences.push(`${wineFlavors[0].charAt(0).toUpperCase() + wineFlavors[0].slice(1)} character vs ${refFlavors[0]} notes`);
     }
   }
   
-  // Region/Origin difference (more descriptive)
-  if (wine.country !== referenceWine.country || wine.region !== referenceWine.region) {
-    if (wine.region && referenceWine.region) {
-      differences.push(`${wine.region} terroir vs ${referenceWine.region}`);
-    } else {
-      differences.push(`${wine.country} origin vs ${referenceWine.country}`);
-    }
+  // Region/Origin - only if actually different
+  if (wine.region && referenceWine.region && wine.region !== referenceWine.region) {
+    differences.push(`${wine.region} vs ${referenceWine.region}`);
+  } else if (wine.country && referenceWine.country && wine.country !== referenceWine.country) {
+    differences.push(`${wine.country} vs ${referenceWine.country}`);
   }
   
-  // Grape variety difference (more descriptive)
-  if (wine.grape_variety !== referenceWine.grape_variety && wine.grape_variety && referenceWine.grape_variety) {
-    differences.push(`${wine.grape_variety} character vs ${referenceWine.grape_variety}`);
+  // Grape variety - only if actually different
+  if (wine.grape_variety && referenceWine.grape_variety && wine.grape_variety !== referenceWine.grape_variety) {
+    differences.push(`${wine.grape_variety} vs ${referenceWine.grape_variety}`);
   }
   
-  // Wine type/style difference
-  if (wine.type !== referenceWine.type) {
-    differences.push(`${wine.type} style vs ${referenceWine.type}`);
+  // Wine type - only if different
+  if (wine.type && referenceWine.type && wine.type !== referenceWine.type) {
+    differences.push(`${wine.type} vs ${referenceWine.type}`);
   }
   
-  // Vintage difference (only if significant)
-  if (wine.vintage !== referenceWine.vintage) {
+  // Vintage - only if significant gap
+  if (wine.vintage && referenceWine.vintage) {
     const vintageGap = Math.abs(parseInt(wine.vintage) - parseInt(referenceWine.vintage));
     if (vintageGap >= 3) {
       differences.push(`${vintageGap} years ${parseInt(wine.vintage) > parseInt(referenceWine.vintage) ? 'younger' : 'older'}`);
     }
   }
   
-  // Food pairing differences
-  if (wine.food_pairing && referenceWine.food_pairing && differences.length < 3) {
-    const winePairing = wine.food_pairing.toLowerCase();
-    const refPairing = referenceWine.food_pairing.toLowerCase();
-    const meatKeywords = ['beef', 'lamb', 'pork', 'chicken', 'fish', 'seafood', 'duck', 'game'];
+  // Food pairing contrasts
+  if (wine.food_pairing && referenceWine.food_pairing) {
+    const pairingKeywords = ['beef', 'lamb', 'pork', 'chicken', 'fish', 'seafood', 'duck', 'game', 
+                            'cheese', 'pasta', 'vegetables', 'dessert', 'chocolate'];
+    const [winePairings, refPairings] = findExclusiveTraits(wine.food_pairing, referenceWine.food_pairing, pairingKeywords);
     
-    const wineMeat = meatKeywords.find(meat => winePairing.includes(meat));
-    const refMeat = meatKeywords.find(meat => refPairing.includes(meat));
-    
-    if (wineMeat && refMeat && wineMeat !== refMeat) {
-      differences.push(`Pairs with ${wineMeat} vs ${refMeat}`);
+    if (winePairings.length > 0 && refPairings.length > 0) {
+      differences.push(`Pairs with ${winePairings[0]} vs ${refPairings[0]}`);
     }
   }
   
-  // Ensure we have exactly 3 meaningful differences
+  // Return only the differences we actually found (up to 3)
   return differences.slice(0, 3);
 };
 
