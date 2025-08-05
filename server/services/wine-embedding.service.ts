@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { db } from "../db";
 import { restaurantWinesIsolated } from "@shared/wine-schema";
-import { eq, isNull, and } from "drizzle-orm";
+import { eq, isNull, and, inArray } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 
 // Initialize OpenAI client
@@ -25,7 +25,7 @@ export class WineEmbeddingService {
         .from(restaurantWinesIsolated)
         .where(
           and(
-            sql`${restaurantWinesIsolated.id} = ANY(${wineIds})`,
+            inArray(restaurantWinesIsolated.id, wineIds),
             isNull(restaurantWinesIsolated.wine_embedding)
           )
         );
