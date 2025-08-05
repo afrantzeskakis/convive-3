@@ -155,6 +155,9 @@ const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRe
     }
   }
   
+  // Store intensity differences for later (after checking unique flavors)
+  const intensityDifferences: string[] = [];
+  
   // For traits that appear in multiple wines, only the wine with highest intensity gets "More X"
   for (const [trait, winesWithTrait] of traitIntensityMap) {
     if (winesWithTrait.length > 1) {
@@ -163,28 +166,33 @@ const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRe
       const highestIntensity = sorted[0];
       
       // Only add to this wine if it has the highest intensity
-      if (wine.id === highestIntensity.wineId && characteristics.length < 3) {
-        characteristics.push(`More ${trait}`);
+      if (wine.id === highestIntensity.wineId) {
+        intensityDifferences.push(`More ${trait}`);
       }
     }
   }
   
-  // Check for completely unique flavors (not in any other wine)
+  // Priority 1: Check for completely unique flavors and aromas (most important)
   const flavorKeywords = {
+    'salinity': ['salinity', 'salty', 'saline', 'brine', 'briny', 'salt'],
     'hazelnut': ['hazelnut', 'nutty', 'toasted nuts'],
     'honey': ['honey', 'honeyed'],
-    'brioche': ['brioche', 'bread', 'yeast'],
-    'chocolate': ['chocolate', 'cocoa'],
-    'coffee': ['coffee', 'espresso'],
-    'tobacco': ['tobacco', 'smoke'],
-    'leather': ['leather'],
-    'mineral': ['mineral', 'minerality'],
-    'floral': ['floral', 'flowers'],
+    'brioche': ['brioche', 'bread', 'yeast', 'bready'],
+    'chocolate': ['chocolate', 'cocoa', 'cacao'],
+    'coffee': ['coffee', 'espresso', 'roasted'],
+    'tobacco': ['tobacco', 'smoke', 'smoky'],
+    'leather': ['leather', 'leathery'],
+    'mineral': ['mineral', 'minerality', 'stony', 'chalky'],
+    'floral': ['floral', 'flowers', 'rose', 'violet'],
     'almond': ['almond', 'marzipan'],
-    'caramel': ['caramel', 'butterscotch'],
-    'butter': ['butter', 'buttery']
+    'caramel': ['caramel', 'butterscotch', 'toffee'],
+    'butter': ['butter', 'buttery', 'cream'],
+    'herbal': ['herbal', 'herbs', 'thyme', 'rosemary', 'sage'],
+    'earthy': ['earthy', 'earth', 'soil', 'mushroom', 'truffle'],
+    'spice': ['cinnamon', 'clove', 'nutmeg', 'pepper', 'peppery']
   };
   
+  // First pass: unique flavors/aromas
   for (const [flavor, variations] of Object.entries(flavorKeywords)) {
     if (characteristics.length >= 3) break;
     
@@ -194,11 +202,38 @@ const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRe
     );
     
     if (hasThisFlavor && !othersHaveFlavor) {
-      characteristics.push(`Notes of ${flavor}`);
+      // Special handling for certain flavors
+      if (flavor === 'salinity') {
+        characteristics.push(`Hint of salinity`);
+      } else {
+        characteristics.push(`Notes of ${flavor}`);
+      }
     }
   }
   
-  // Check for unique texture/mouthfeel
+  // Priority 2: Check for unique fruit notes (still flavor/aroma)
+  const fruitKeywords = ['cherry', 'blackberry', 'raspberry', 'plum', 'apple', 'pear', 
+                        'peach', 'apricot', 'tropical', 'pineapple', 'lemon', 'lime',
+                        'grapefruit', 'orange', 'strawberry', 'blueberry', 'fig', 'mango',
+                        'passion fruit', 'guava', 'melon', 'watermelon'];
+  
+  for (const fruit of fruitKeywords) {
+    if (characteristics.length >= 3) break;
+    
+    const hasFruit = wineNotes.includes(fruit);
+    const othersHaveFruit = allWines.some(w => 
+      w.id !== wine.id && (w.tasting_notes?.toLowerCase() || '').includes(fruit)
+    );
+    
+    if (hasFruit && !othersHaveFruit) {
+      characteristics.push(`${fruit.charAt(0).toUpperCase() + fruit.slice(1)} notes`);
+    }
+  }
+  
+  // Priority 3: Body/tannins traits (from earlier intensity analysis)
+  // These are already added from the intensity analysis above
+  
+  // Priority 4: Check for unique texture/mouthfeel (lower priority)
   const textureKeywords = {
     'Luxurious mousse': ['luxurious mousse', 'rich mousse'],
     'Silky texture': ['silky mouth feel', 'silky mouthfeel', 'silky texture'],
@@ -221,25 +256,13 @@ const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRe
     }
   }
   
-  // Check for unique fruit notes
-  const fruitKeywords = ['cherry', 'blackberry', 'raspberry', 'plum', 'apple', 'pear', 
-                        'peach', 'apricot', 'tropical', 'pineapple', 'lemon', 'lime',
-                        'grapefruit', 'orange', 'strawberry', 'blueberry'];
-  
-  for (const fruit of fruitKeywords) {
-    if (characteristics.length >= 3) break;
-    
-    const hasFruit = wineNotes.includes(fruit);
-    const othersHaveFruit = allWines.some(w => 
-      w.id !== wine.id && (w.tasting_notes?.toLowerCase() || '').includes(fruit)
-    );
-    
-    if (hasFruit && !othersHaveFruit) {
-      characteristics.push(`${fruit.charAt(0).toUpperCase() + fruit.slice(1)} notes`);
-    }
+  // Priority 5: Add intensity differences (body/tannins) if we still need characteristics
+  if (characteristics.length < 3) {
+    const remaining = 3 - characteristics.length;
+    characteristics.push(...intensityDifferences.slice(0, remaining));
   }
   
-  // Add other distinguishing features if needed
+  // Priority 6: Add other distinguishing features if still needed
   if (characteristics.length < 3) {
     // Region if unique
     const regions = allWines.map(w => w.region).filter(r => r);
