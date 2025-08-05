@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Wine, Search, DollarSign, Star, Sparkles } from "lucide-react";
+import { Loader2, Wine, Search, DollarSign, Star, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface WineRecommendation {
   id: number;
@@ -39,9 +40,80 @@ interface EmbeddingStats {
   wines_without_embeddings: number;
 }
 
+// Helper function to create a 3-sentence summary
+const createWineSummary = (wine: WineRecommendation): string => {
+  const sentences: string[] = [];
+  
+  // Sentence 1: Basic info
+  sentences.push(`${wine.producer} ${wine.wine_name} is a ${wine.type} from ${wine.region}, ${wine.country}.`);
+  
+  // Sentence 2: Flavor profile
+  if (wine.tasting_notes) {
+    const notes = wine.tasting_notes.split('.')[0] + '.';
+    sentences.push(notes.length > 150 ? notes.substring(0, 147) + '...' : notes);
+  } else {
+    sentences.push(`This ${wine.grape_variety || wine.type} offers distinctive character.`);
+  }
+  
+  // Sentence 3: Food pairing or serving suggestion
+  if (wine.food_pairing) {
+    const pairing = wine.food_pairing.split('.')[0] + '.';
+    sentences.push(pairing.length > 150 ? pairing.substring(0, 147) + '...' : pairing);
+  } else if (wine.serving_temp) {
+    sentences.push(`Best served at ${wine.serving_temp}.`);
+  } else {
+    sentences.push(`A versatile wine suitable for various occasions.`);
+  }
+  
+  return sentences.join(' ');
+};
+
+// Helper function to extract key differences
+const extractKeyDifferences = (wine: WineRecommendation, referenceWine: WineRecommendation): string[] => {
+  const differences: string[] = [];
+  
+  // Price difference
+  const winePrice = typeof wine.price === 'string' ? parseFloat(wine.price.replace(/[^0-9.]/g, '')) : wine.price;
+  const refPrice = typeof referenceWine.price === 'string' ? parseFloat(referenceWine.price.replace(/[^0-9.]/g, '')) : referenceWine.price;
+  const priceDiff = Math.abs(winePrice - refPrice);
+  if (priceDiff > 10) {
+    differences.push(`${winePrice > refPrice ? 'Higher' : 'Lower'} price point by $${priceDiff.toFixed(0)}`);
+  }
+  
+  // Region/Origin difference
+  if (wine.country !== referenceWine.country || wine.region !== referenceWine.region) {
+    differences.push(`From ${wine.region}, ${wine.country} vs ${referenceWine.region}, ${referenceWine.country}`);
+  }
+  
+  // Grape variety difference
+  if (wine.grape_variety !== referenceWine.grape_variety) {
+    differences.push(`${wine.grape_variety} vs ${referenceWine.grape_variety}`);
+  }
+  
+  // If not enough differences, add style/body differences
+  if (differences.length < 3) {
+    if (wine.type !== referenceWine.type) {
+      differences.push(`${wine.type} style vs ${referenceWine.type}`);
+    }
+  }
+  
+  // If still not enough, add vintage difference
+  if (differences.length < 3 && wine.vintage !== referenceWine.vintage) {
+    differences.push(`${wine.vintage} vintage vs ${referenceWine.vintage}`);
+  }
+  
+  // Ensure we have exactly 3 differences
+  while (differences.length < 3) {
+    differences.push(`Different flavor profile`);
+  }
+  
+  return differences.slice(0, 3);
+};
+
 export function WineConcierge({ restaurantId }: WineConciergeProps) {
   const [query, setQuery] = useState("");
   const [recommendations, setRecommendations] = useState<WineRecommendation[]>([]);
+  const [expandedWines, setExpandedWines] = useState<Set<number>>(new Set());
   const { toast } = useToast();
 
   // Check embedding statistics
@@ -205,114 +277,145 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
       {recommendations.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold">Recommended Wines</h3>
-          {recommendations.map((wine, index) => (
-            <Card 
-              key={wine.id} 
-              className={wine.is_wild_card ? "border-purple-500/50" : ""}
-            >
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">
+          <div className="grid gap-4 md:grid-cols-3">
+            {recommendations.map((wine, index) => (
+              <Card 
+                key={wine.id} 
+                className={wine.is_wild_card ? "border-purple-500/50" : ""}
+              >
+                <CardHeader>
+                  <div className="space-y-1">
+                    <CardTitle className="text-lg line-clamp-2">
                       {wine.wine_name}
                     </CardTitle>
                     <CardDescription>
                       {wine.producer} • {wine.vintage}
                     </CardDescription>
                   </div>
-                  <div className="text-right">
-                    <div className="text-2xl font-bold">{formatPrice(wine.price)}</div>
-                    {wine.glass_price && (
-                      <div className="text-sm text-muted-foreground">
-                        Glass: {formatPrice(wine.glass_price)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex gap-2 mt-2">
-                  <Badge variant={wine.is_wild_card ? "secondary" : "default"}>
-                    {wine.match_reason}
-                  </Badge>
-                  {wine.similarity_score && (
-                    <Badge variant="outline" className="gap-1">
-                      <Star className="h-3 w-3" />
-                      {Math.round(wine.similarity_score * 100)}% match
-                    </Badge>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Wine Details */}
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Type:</span>
-                    <div className="font-medium">{wine.type || "N/A"}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Varietal:</span>
-                    <div className="font-medium">{wine.grape_variety || "N/A"}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Region:</span>
-                    <div className="font-medium">{wine.region || "N/A"}</div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Country:</span>
-                    <div className="font-medium">{wine.country || "N/A"}</div>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Tasting Notes */}
-                {wine.tasting_notes && (
-                  <div>
-                    <h4 className="font-medium mb-1">Tasting Notes</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {wine.tasting_notes}
-                    </p>
-                  </div>
-                )}
-
-                {/* Food Pairing */}
-                {wine.food_pairing && (
-                  <div>
-                    <h4 className="font-medium mb-1">Food Pairing</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {wine.food_pairing}
-                    </p>
-                  </div>
-                )}
-
-                {/* Serving Temperature */}
-                {wine.serving_temp && (
-                  <div>
-                    <h4 className="font-medium mb-1">Serving Temperature</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {wine.serving_temp}
-                    </p>
-                  </div>
-                )}
-
-                {/* Comparison with Previous Wine */}
-                {index > 0 && (
-                  <div className="mt-4 pt-4 border-t">
-                    <h4 className="text-sm font-medium mb-2">
-                      Compared to {recommendations[0].wine_name}:
-                    </h4>
-                    <div className="text-sm text-muted-foreground space-y-1">
-                      {getComparisonPoints(wine, recommendations[0]).map((point, i) => (
-                        <div key={i} className="flex items-start gap-2">
-                          <span className="text-primary">•</span>
-                          <span>{point}</span>
-                        </div>
-                      ))}
+                  <div className="flex justify-between items-center mt-3">
+                    <div className="text-2xl font-bold">
+                      {formatPrice(wine.price)}
                     </div>
+                    <Badge variant={wine.is_wild_card ? "secondary" : "default"} className="text-xs">
+                      {index === 2 ? "Wild Card" : index === 1 ? "Alternative" : "Best Match"}
+                    </Badge>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+                </CardHeader>
+                
+                <CardContent className="space-y-4">
+                  {/* 3-Sentence Summary */}
+                  <div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {createWineSummary(wine)}
+                    </p>
+                  </div>
+
+                  {/* Key Differences (show for 2nd and 3rd wines) */}
+                  {index > 0 && (
+                    <div className="border-t pt-3">
+                      <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                        Key Differences
+                      </h4>
+                      <ul className="space-y-1">
+                        {extractKeyDifferences(wine, recommendations[0]).map((diff, i) => (
+                          <li key={i} className="text-xs text-muted-foreground flex items-start gap-1">
+                            <span className="text-purple-500 mt-0.5">•</span>
+                            <span>{diff}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Expandable Full Details */}
+                  <Collapsible 
+                    open={expandedWines.has(wine.id)}
+                    onOpenChange={(open) => {
+                      const newExpanded = new Set(expandedWines);
+                      if (open) {
+                        newExpanded.add(wine.id);
+                      } else {
+                        newExpanded.delete(wine.id);
+                      }
+                      setExpandedWines(newExpanded);
+                    }}
+                  >
+                    <CollapsibleTrigger asChild>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full justify-between hover:bg-purple-50 dark:hover:bg-purple-950"
+                      >
+                        <span className="text-xs">View Full Details</span>
+                        {expandedWines.has(wine.id) ? (
+                          <ChevronUp className="h-3 w-3" />
+                        ) : (
+                          <ChevronDown className="h-3 w-3" />
+                        )}
+                      </Button>
+                    </CollapsibleTrigger>
+                    
+                    <CollapsibleContent className="mt-3 space-y-3">
+                      <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <span className="text-muted-foreground">Type:</span>
+                          <div className="font-medium">{wine.type || "N/A"}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Varietal:</span>
+                          <div className="font-medium">{wine.grape_variety || "N/A"}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Region:</span>
+                          <div className="font-medium">{wine.region || "N/A"}</div>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">Country:</span>
+                          <div className="font-medium">{wine.country || "N/A"}</div>
+                        </div>
+                      </div>
+
+                      {wine.tasting_notes && (
+                        <div>
+                          <h5 className="text-xs font-semibold mb-1">Full Tasting Notes</h5>
+                          <p className="text-xs text-muted-foreground">
+                            {wine.tasting_notes}
+                          </p>
+                        </div>
+                      )}
+
+                      {wine.food_pairing && (
+                        <div>
+                          <h5 className="text-xs font-semibold mb-1">Food Pairing</h5>
+                          <p className="text-xs text-muted-foreground">
+                            {wine.food_pairing}
+                          </p>
+                        </div>
+                      )}
+
+                      {wine.serving_temp && (
+                        <div>
+                          <h5 className="text-xs font-semibold mb-1">Serving Temperature</h5>
+                          <p className="text-xs text-muted-foreground">
+                            {wine.serving_temp}
+                          </p>
+                        </div>
+                      )}
+
+                      {wine.glass_price && (
+                        <div>
+                          <h5 className="text-xs font-semibold mb-1">Glass Price</h5>
+                          <p className="text-xs text-muted-foreground">
+                            {formatPrice(wine.glass_price)}
+                          </p>
+                        </div>
+                      )}
+                    </CollapsibleContent>
+                  </Collapsible>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       )}
     </div>
