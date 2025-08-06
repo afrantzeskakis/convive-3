@@ -12,7 +12,9 @@ for (let i = 0; i < lines.length; i++) {
   const line = lines[i];
   if (line.match(/^[A-Z].*:/)) {
     if (currentNote) {
-      notes[currentNote.toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').trim()] = currentDesc.trim();
+      // Keep parenthetical distinctions as underscores to preserve variations
+      const key = currentNote.toLowerCase().replace(/\s+\(/g, '_').replace(/\)/g, '').replace(/\s+/g, '_');
+      notes[key] = currentDesc.trim();
     }
     const parts = line.split(':');
     currentNote = parts[0].trim();
@@ -20,13 +22,17 @@ for (let i = 0; i < lines.length; i++) {
   } else if (line.trim() && currentNote) {
     currentDesc += ' ' + line.trim();
   } else if (!line.trim() && currentNote) {
-    notes[currentNote.toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').trim()] = currentDesc.trim();
+    // Keep parenthetical distinctions as underscores to preserve variations
+    const key = currentNote.toLowerCase().replace(/\s+\(/g, '_').replace(/\)/g, '').replace(/\s+/g, '_');
+    notes[key] = currentDesc.trim();
     currentNote = '';
     currentDesc = '';
   }
 }
 if (currentNote) {
-  notes[currentNote.toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').trim()] = currentDesc.trim();
+  // Keep parenthetical distinctions as underscores to preserve variations
+  const key = currentNote.toLowerCase().replace(/\s+\(/g, '_').replace(/\)/g, '').replace(/\s+/g, '_');
+  notes[key] = currentDesc.trim();
 }
 
 // Generate TypeScript file content
