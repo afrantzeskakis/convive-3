@@ -10,6 +10,87 @@ export interface WineDescriptor {
 }
 
 export const wineDescriptors: Record<string, WineDescriptor> = {
+  // Texture & Structure
+  'lush': {
+    term: 'lush',
+    category: 'texture',
+    definition: 'Sumptuously rich and soft on the palate, often low in acidity but full of ripe fruit.',
+    examples: ['Napa Valley Chardonnay', 'Amarone'],
+    relatedTerms: ['voluptuous', 'opulent']
+  },
+  'voluptuous': {
+    term: 'voluptuous',
+    category: 'texture',
+    definition: 'Luxuriously full-bodied and caressing in mouthfeel; indulgent in flavor.',
+    examples: ['Barossa Shiraz', 'Châteauneuf-du-Pape'],
+    relatedTerms: ['lush', 'seductive']
+  },
+  'seductive': {
+    term: 'seductive',
+    category: 'texture',
+    definition: 'Alluring wine with soft, inviting texture and engaging aromatics.',
+    examples: ['Burgundy Pinot Noir', 'Champagne'],
+    relatedTerms: ['voluptuous', 'silky']
+  },
+  'linear': {
+    term: 'linear',
+    category: 'texture',
+    definition: 'Focused, direct wine that evolves in a clean progression.',
+    examples: ['German Riesling', 'Chablis'],
+    relatedTerms: ['precise', 'focused']
+  },
+  'layered': {
+    term: 'layered',
+    category: 'texture',
+    definition: 'Wine showing multiple distinct elements that unfold over time.',
+    examples: ['Grand Cru Burgundy', 'Aged Bordeaux'],
+    relatedTerms: ['complex', 'multifaceted']
+  },
+  'textbook': {
+    term: 'textbook',
+    category: 'character',
+    definition: 'Perfect example of its varietal or regional type.',
+    examples: ['Sancerre', 'Mosel Riesling'],
+    relatedTerms: ['classic', 'typical']
+  },
+  'opulent': {
+    term: 'opulent',
+    category: 'texture',
+    definition: 'Rich and lavish, displaying extravagant depth with silky mouthfeel.',
+    examples: ['Napa Cabernet', 'Pomerol'],
+    relatedTerms: ['lush', 'voluptuous']
+  },
+
+  // Acidity & Freshness
+  'vibrant': {
+    term: 'vibrant',
+    category: 'structure',
+    definition: 'Full of energy, with lively acidity giving freshness and vitality.',
+    examples: ['Loire Valley wines', 'Vinho Verde'],
+    relatedTerms: ['racy', 'zesty']
+  },
+  'racy': {
+    term: 'racy',
+    category: 'structure',
+    definition: 'Marked by high, mouthwatering acidity with energy and lift.',
+    examples: ['Mosel Riesling', 'Sancerre'],
+    relatedTerms: ['vibrant', 'zippy']
+  },
+  'zesty': {
+    term: 'zesty',
+    category: 'structure',
+    definition: 'Bright citrus-like acidity, refreshing and clean.',
+    examples: ['Albariño', 'Verdicchio'],
+    relatedTerms: ['racy', 'crisp']
+  },
+  'piercing': {
+    term: 'piercing',
+    category: 'structure',
+    definition: 'Intensely sharp acidity that cuts distinctly through the palate.',
+    examples: ['Young Riesling', 'Txakoli'],
+    relatedTerms: ['sharp', 'angular']
+  },
+
   // Tree Fruits
   'apple': {
     term: 'apple',
@@ -156,55 +237,92 @@ export const wineDescriptors: Record<string, WineDescriptor> = {
     relatedTerms: ['dried fruit', 'prune']
   },
   
-  // Fruit Descriptors - White/Citrus
-  'lemon': {
-    term: 'lemon',
+  // Tropical Fruits
+  'pineapple': {
+    term: 'pineapple',
     category: 'taste',
-    definition: 'Bright citrus note providing freshness and acidity. Common in crisp white wines, especially those from cool climates.',
-    examples: ['Chablis', 'Albariño', 'Vermentino'],
-    relatedTerms: ['lemon zest', 'meyer lemon', 'citrus']
+    definition: 'Tropical sweetness in ripe Chardonnay and Chenin Blanc.',
+    examples: ['California Chardonnay', 'South African Chenin'],
+    relatedTerms: ['tropical fruit', 'mango']
   },
-  'grapefruit': {
-    term: 'grapefruit',
+  'mango': {
+    term: 'mango',
     category: 'taste',
-    definition: 'Tangy citrus flavor with slight bitterness. Characteristic of Sauvignon Blanc and some Rieslings.',
-    examples: ['New Zealand Sauvignon Blanc', 'Sancerre'],
-    relatedTerms: ['citrus', 'pomelo', 'white grapefruit']
+    definition: 'Exotic, sweet tropical fruit in aromatic varieties.',
+    examples: ['Viognier', 'Albariño'],
+    relatedTerms: ['tropical fruit', 'peach']
   },
-  'green apple': {
-    term: 'green apple',
+  'passion fruit': {
+    term: 'passion fruit',
     category: 'taste',
-    definition: 'Tart, crisp fruit flavor indicating high acidity and freshness. Common in cool-climate whites and young wines.',
-    examples: ['Grüner Veltliner', 'Chablis', 'Txakoli'],
-    relatedTerms: ['apple', 'granny smith']
+    definition: 'Intense tropical aroma in New World Sauvignon Blanc.',
+    examples: ['Marlborough Sauvignon Blanc'],
+    relatedTerms: ['tropical fruit', 'guava']
   },
-  'apple': {
-    term: 'apple',
+  'lychee': {
+    term: 'lychee',
     category: 'taste',
-    definition: 'Fresh orchard fruit flavor ranging from tart green to sweet red varieties. Common in many white wines.',
-    examples: ['Riesling', 'Pinot Grigio', 'Albariño'],
-    relatedTerms: ['green apple', 'red apple', 'baked apple']
+    definition: 'Distinctive sweet-floral fruit in Gewürztraminer.',
+    examples: ['Alsace Gewürztraminer'],
+    relatedTerms: ['rose', 'exotic fruit']
   },
-  'pear': {
-    term: 'pear',
+  'guava': {
+    term: 'guava',
     category: 'taste',
-    definition: 'Soft, subtle orchard fruit flavor. Often found in Pinot Grigio, Albariño, and some Chardonnays.',
-    examples: ['Alsace Pinot Gris', 'White Burgundy'],
-    relatedTerms: ['asian pear', 'bosc pear']
+    definition: 'Tropical fruit with musky sweetness, found in aromatic whites.',
+    examples: ['New Zealand Sauvignon Blanc', 'Torrontés'],
+    relatedTerms: ['passion fruit', 'tropical']
   },
-  'peach': {
-    term: 'peach',
+  'melon': {
+    term: 'melon',
     category: 'taste',
-    definition: 'Stone fruit flavor indicating ripeness. Common in Viognier, Riesling, and aged Chardonnay.',
-    examples: ['Condrieu', 'Spätlese Riesling'],
-    relatedTerms: ['apricot', 'nectarine', 'stone fruit']
+    definition: 'Soft, sweet fruit character in light whites.',
+    examples: ['Pinot Grigio', 'Muscadet'],
+    relatedTerms: ['cantaloupe', 'honeydew']
   },
-  'apricot': {
-    term: 'apricot',
+  
+  // Dried & Cooked Fruits
+  'raisin': {
+    term: 'raisin',
     category: 'taste',
-    definition: 'Delicate stone fruit flavor, often found in aromatic whites and dessert wines. Can indicate bottle age.',
-    examples: ['Viognier', 'Tokaji', 'Aged Riesling'],
-    relatedTerms: ['peach', 'dried apricot']
+    definition: 'Dried grape sweetness in late-harvest and aged wines.',
+    examples: ['Amarone', 'Pedro Ximénez Sherry'],
+    relatedTerms: ['dried fruit', 'sultana']
+  },
+  'prune': {
+    term: 'prune',
+    category: 'taste',
+    definition: 'Dried plum notes indicating very ripe or aged character.',
+    examples: ['Aged Zinfandel', 'Vintage Port'],
+    relatedTerms: ['plum', 'dried fruit']
+  },
+  'brambly': {
+    term: 'brambly',
+    category: 'taste',
+    definition: 'Wild blackberries or raspberries, often slightly earthy.',
+    examples: ['Côtes du Rhône', 'Old vine Zinfandel'],
+    relatedTerms: ['blackberry', 'wild berries']
+  },
+  'stewed': {
+    term: 'stewed',
+    category: 'taste',
+    definition: 'Cooked or preserved fruit, suggesting warmth or overripeness.',
+    examples: ['Hot vintage wines', 'Late harvest reds'],
+    relatedTerms: ['cooked', 'jammy']
+  },
+  'fleshy': {
+    term: 'fleshy',
+    category: 'texture',
+    definition: 'Ripe and succulent fruit character, juicy and rich.',
+    examples: ['Grenache', 'Ripe Chardonnay'],
+    relatedTerms: ['juicy', 'succulent']
+  },
+  'macerated': {
+    term: 'macerated',
+    category: 'taste',
+    definition: 'Fruit softened and intensified by soaking, richer or sweeter.',
+    examples: ['Orange wines', 'Amarone'],
+    relatedTerms: ['steeped', 'extracted']
   },
   
   // Nuts
@@ -237,6 +355,103 @@ export const wineDescriptors: Record<string, WineDescriptor> = {
     relatedTerms: ['hazelnut', 'roasted nuts']
   },
   
+  // Tannins & Finish
+  'supple': {
+    term: 'supple',
+    category: 'texture',
+    definition: 'Smooth, flexible tannins that gently structure without astringency.',
+    examples: ['Aged Bordeaux', 'Valpolicella'],
+    relatedTerms: ['silky', 'velvety']
+  },
+  'grippy': {
+    term: 'grippy',
+    category: 'texture',
+    definition: 'Noticeably firm tannins that cling to the palate with drying sensation.',
+    examples: ['Young Barolo', 'Tannat'],
+    relatedTerms: ['chewy', 'austere']
+  },
+  'velvety': {
+    term: 'velvety',
+    category: 'texture',
+    definition: 'Extremely smooth tannins with plush, soft mouthfeel.',
+    examples: ['Aged Pomerol', 'Top Rioja'],
+    relatedTerms: ['silky', 'supple']
+  },
+  'dusty': {
+    term: 'dusty',
+    category: 'texture',
+    definition: 'Fine-grained, dry tannins with powdered texture, subtle but lingering.',
+    examples: ['Rutherford Cabernet', 'Brunello'],
+    relatedTerms: ['chalky', 'powdery']
+  },
+  'chewy': {
+    term: 'chewy',
+    category: 'texture',
+    definition: 'Rich, dense tannins creating substantial texture sensation.',
+    examples: ['Young Napa Cabernet', 'Cahors'],
+    relatedTerms: ['grippy', 'muscular']
+  },
+
+  // Complexity & Development
+  'multifaceted': {
+    term: 'multifaceted',
+    category: 'character',
+    definition: 'Numerous distinct aromas and flavors indicating high complexity.',
+    examples: ['Grand Cru Burgundy', 'Vintage Champagne'],
+    relatedTerms: ['layered', 'complex']
+  },
+  'brooding': {
+    term: 'brooding',
+    category: 'character',
+    definition: 'Deep and closed initially, revealing complexity with time.',
+    examples: ['Young Barolo', 'Northern Rhône Syrah'],
+    relatedTerms: ['reticent', 'backward']
+  },
+  'nuanced': {
+    term: 'nuanced',
+    category: 'character',
+    definition: 'Subtle complexities requiring careful attention to appreciate.',
+    examples: ['Aged Burgundy', 'Fine German Riesling'],
+    relatedTerms: ['delicate', 'subtle']
+  },
+  'evolving': {
+    term: 'evolving',
+    category: 'character',
+    definition: 'Continuously changing and unfolding new characteristics.',
+    examples: ['Decanted Bordeaux', 'Aged Barolo'],
+    relatedTerms: ['developing', 'opening']
+  },
+
+  // Earth & Mineral
+  'flinty': {
+    term: 'flinty',
+    category: 'aroma',
+    definition: 'Stony mineral aroma reminiscent of struck flint or wet stones.',
+    examples: ['Pouilly-Fumé', 'Sancerre'],
+    relatedTerms: ['mineral', 'wet stone']
+  },
+  'graphite': {
+    term: 'graphite',
+    category: 'aroma',
+    definition: 'Mineral aroma like pencil lead in structured, mineral-driven wines.',
+    examples: ['Pauillac', 'Priorat'],
+    relatedTerms: ['pencil lead', 'mineral']
+  },
+  'loamy': {
+    term: 'loamy',
+    category: 'aroma',
+    definition: 'Earthy aroma reminiscent of fertile, rich soil.',
+    examples: ['Burgundy', 'Piedmont wines'],
+    relatedTerms: ['earthy', 'soil']
+  },
+  'chalky': {
+    term: 'chalky',
+    category: 'texture',
+    definition: 'Mineral note suggesting crushed chalk with dry texture.',
+    examples: ['Champagne', 'White Burgundy'],
+    relatedTerms: ['mineral', 'limestone']
+  },
+
   // Floral & Herbal
   'violet': {
     term: 'violet',
@@ -251,6 +466,106 @@ export const wineDescriptors: Record<string, WineDescriptor> = {
     definition: 'Classic floral note found in aromatic varieties like Gewürztraminer and Nebbiolo. Adds perfumed complexity.',
     examples: ['Gewürztraminer', 'Barbaresco'],
     relatedTerms: ['rose petal', 'floral']
+  },
+  'lavender': {
+    term: 'lavender',
+    category: 'aroma',
+    definition: 'Aromatic purple flower scent in Rhône blends.',
+    examples: ['Châteauneuf-du-Pape', 'Côtes de Provence'],
+    relatedTerms: ['floral', 'herbal']
+  },
+  'honeysuckle': {
+    term: 'honeysuckle',
+    category: 'aroma',
+    definition: 'Sweet floral aroma in aromatic whites.',
+    examples: ['Riesling', 'Chenin Blanc'],
+    relatedTerms: ['floral', 'jasmine']
+  },
+  'orange blossom': {
+    term: 'orange blossom',
+    category: 'aroma',
+    definition: 'Citrus flower aroma in Mediterranean whites.',
+    examples: ['Albariño', 'Fiano'],
+    relatedTerms: ['floral', 'citrus']
+  },
+  'jasmine': {
+    term: 'jasmine',
+    category: 'aroma',
+    definition: 'Intense white flower aroma in aromatic varieties.',
+    examples: ['Torrontés', 'Viognier'],
+    relatedTerms: ['floral', 'honeysuckle']
+  },
+  'elderflower': {
+    term: 'elderflower',
+    category: 'aroma',
+    definition: 'Delicate, muscat-like floral in aromatic whites.',
+    examples: ['Sauvignon Blanc', 'Grüner Veltliner'],
+    relatedTerms: ['floral', 'muscat']
+  },
+  'lifted': {
+    term: 'lifted',
+    category: 'aroma',
+    definition: 'Bright, pronounced aromatic intensity, often floral or fruity.',
+    examples: ['Cool-climate wines', 'Young aromatics'],
+    relatedTerms: ['aromatic', 'perfumed']
+  },
+  'perfumed': {
+    term: 'perfumed',
+    category: 'aroma',
+    definition: 'Intense and attractive aromas, often floral or exotic.',
+    examples: ['Barolo', 'Northern Rhône Syrah'],
+    relatedTerms: ['aromatic', 'fragrant']
+  },
+  'exotic': {
+    term: 'exotic',
+    category: 'aroma',
+    definition: 'Intriguing and unusual aromas, often tropical or floral.',
+    examples: ['Gewürztraminer', 'Torrontés'],
+    relatedTerms: ['unusual', 'distinctive']
+  },
+  
+  // Herbs & Vegetables
+  'sage': {
+    term: 'sage',
+    category: 'aroma',
+    definition: 'Earthy herb character in rustic reds.',
+    examples: ['Sangiovese', 'Tempranillo'],
+    relatedTerms: ['herbs', 'savory']
+  },
+  'mint': {
+    term: 'mint',
+    category: 'aroma',
+    definition: 'Fresh, cooling herb often in Australian Cabernet.',
+    examples: ['Coonawarra Cabernet', 'Washington State wines'],
+    relatedTerms: ['eucalyptus', 'menthol']
+  },
+  'green bell pepper': {
+    term: 'green bell pepper',
+    category: 'aroma',
+    definition: 'Vegetal note in underripe Cabernet.',
+    examples: ['Cool-climate Cabernet', 'Loire Cabernet Franc'],
+    relatedTerms: ['pyrazine', 'vegetal']
+  },
+  'asparagus': {
+    term: 'asparagus',
+    category: 'aroma',
+    definition: 'Green vegetable note in Sauvignon Blanc.',
+    examples: ['Loire Sauvignon', 'Cool-climate examples'],
+    relatedTerms: ['vegetal', 'green']
+  },
+  'grass': {
+    term: 'grass',
+    category: 'aroma',
+    definition: 'Fresh-cut grass in crisp whites.',
+    examples: ['Sauvignon Blanc', 'Grüner Veltliner'],
+    relatedTerms: ['green', 'herbal']
+  },
+  'hay': {
+    term: 'hay',
+    category: 'aroma',
+    definition: 'Dried grass aroma in aged whites.',
+    examples: ['Aged Chenin Blanc', 'Oxidative whites'],
+    relatedTerms: ['dried herbs', 'straw']
   },
   'eucalyptus': {
     term: 'eucalyptus',
@@ -295,6 +610,101 @@ export const wineDescriptors: Record<string, WineDescriptor> = {
     definition: 'Spicy, pungent note characteristic of Syrah/Shiraz and cool-climate Grüner Veltliner. Adds complexity and bite.',
     examples: ['Northern Rhône Syrah', 'Grüner Veltliner'],
     relatedTerms: ['white pepper', 'peppercorn', 'spice']
+  },
+  'white pepper': {
+    term: 'white pepper',
+    category: 'taste',
+    definition: 'Milder pepper spice in aromatic whites.',
+    examples: ['Grüner Veltliner', 'Gewürztraminer'],
+    relatedTerms: ['black pepper', 'spice']
+  },
+  'clove': {
+    term: 'clove',
+    category: 'taste',
+    definition: 'Warm, sweet, aromatic spice note from oak aging.',
+    examples: ['Rioja', 'Aged Rhône wines'],
+    relatedTerms: ['baking spice', 'cinnamon']
+  },
+  'nutmeg': {
+    term: 'nutmeg',
+    category: 'taste',
+    definition: 'Sweet, warm spice often from oak influence.',
+    examples: ['Aged Chardonnay', 'Vintage Port'],
+    relatedTerms: ['baking spice', 'cinnamon']
+  },
+  'allspice': {
+    term: 'allspice',
+    category: 'taste',
+    definition: 'Spice combining cinnamon, nutmeg, and cloves.',
+    examples: ['Oak-aged wines', 'Rhône blends'],
+    relatedTerms: ['baking spice', 'complex spice']
+  },
+  'cedar': {
+    term: 'cedar',
+    category: 'aroma',
+    definition: 'Wood aroma like pencil shavings or cedar boxes.',
+    examples: ['Aged Bordeaux', 'Rioja Reserva'],
+    relatedTerms: ['oak', 'cigar box']
+  },
+  'toasty': {
+    term: 'toasty',
+    category: 'aroma',
+    definition: 'Toasted oak aromas like freshly baked bread.',
+    examples: ['Champagne', 'Oaked Chardonnay'],
+    relatedTerms: ['oak', 'brioche']
+  },
+  'vanillin': {
+    term: 'vanillin',
+    category: 'taste',
+    definition: 'Sweet spice from oak aging, distinct vanilla aroma.',
+    examples: ['American oak aged wines', 'Rioja'],
+    relatedTerms: ['vanilla', 'oak']
+  },
+  'spicy': {
+    term: 'spicy',
+    category: 'taste',
+    definition: 'General spice notes adding complexity and depth.',
+    examples: ['Syrah', 'Gewürztraminer'],
+    relatedTerms: ['pepper', 'cinnamon', 'clove']
+  },
+  
+  // Sweetness & Balance
+  'off-dry': {
+    term: 'off-dry',
+    category: 'taste',
+    definition: 'Slightly sweet, not completely dry but subtly sweet.',
+    examples: ['Kabinett Riesling', 'Vouvray'],
+    relatedTerms: ['demi-sec', 'halbtrocken']
+  },
+  'rounded': {
+    term: 'rounded',
+    category: 'texture',
+    definition: 'Harmonious balance with no harsh edges.',
+    examples: ['Well-aged wines', 'Quality Chardonnay'],
+    relatedTerms: ['balanced', 'integrated']
+  },
+  'polished': {
+    term: 'polished',
+    category: 'texture',
+    definition: 'Smooth, well-integrated components creating refinement.',
+    examples: ['Grand Cru wines', 'Top estates'],
+    relatedTerms: ['refined', 'elegant']
+  },
+  
+  // Alcohol & Body
+  'warming': {
+    term: 'warming',
+    category: 'texture',
+    definition: 'Noticeable alcohol warmth creating richness or heat.',
+    examples: ['High-alcohol reds', 'Amarone'],
+    relatedTerms: ['hot', 'alcoholic']
+  },
+  'heady': {
+    term: 'heady',
+    category: 'texture',
+    definition: 'Potent alcoholic impression, robust and powerful.',
+    examples: ['Barossa Shiraz', 'Zinfandel'],
+    relatedTerms: ['warming', 'powerful']
   },
   
   // Earth & Mineral
