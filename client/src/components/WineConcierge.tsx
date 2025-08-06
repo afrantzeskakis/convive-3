@@ -9,6 +9,12 @@ import { apiRequest } from "@/lib/queryClient";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { 
+  identifyTastingNotes, 
+  findUniqueNotes, 
+  formatNoteForDisplay, 
+  sortNotesByPriority 
+} from "@/lib/wine-tasting-notes";
 
 interface WineRecommendation {
   id: number;
@@ -68,201 +74,72 @@ const createWineSummary = (wine: WineRecommendation): string => {
   return sentences.join(' ');
 };
 
-// Helper function to extract unique characteristics of each wine
+// Helper function to extract unique characteristics of each wine using the tasting notes guide
 const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRecommendation[]): string[] => {
-  const characteristics: string[] = [];
+  if (!wine.tasting_notes) return [];
   
-  if (!wine.tasting_notes) return characteristics;
+  // Parse tasting notes for all wines using the comprehensive guide
+  const wineNotes = identifyTastingNotes(wine.tasting_notes);
   
-  const wineNotes = wine.tasting_notes.toLowerCase();
-  const wineIndex = allWines.findIndex(w => w.id === wine.id);
+  // Get notes from other wines
+  const otherWines = allWines.filter(w => w.id !== wine.id);
+  const otherWineNotes = otherWines.map(w => 
+    w.tasting_notes ? identifyTastingNotes(w.tasting_notes) : []
+  );
   
-  // Create a map of traits to wines that have them with intensity scores
-  const traitIntensityMap = new Map<string, Array<{wineId: number, intensity: number, modifier: string}>>();
+  // Find unique notes - notes that appear in this wine but not in others
+  const uniqueNotes: string[] = [];
+  for (const note of wineNotes) {
+    const appearsInOthers = otherWineNotes.some(notes => notes.includes(note));
+    if (!appearsInOthers) {
+      uniqueNotes.push(note);
+    }
+  }
   
-  // Helper to score intensity (higher = more intense)
-  const scoreIntensity = (modifier: string): number => {
-    const scores: {[key: string]: number} = {
-      'burst of': 10,
-      'dominant': 9,
-      'pronounced': 8,
-      'layers of': 7,
-      'full': 6,  // no modifier
-      'notes of': 5,
-      'nuances of': 4,
-      'touch of': 3,
-      'hint of': 2,
-      'subtle': 1,
-      'whisper of': 1
-    };
-    return scores[modifier] || 5;
-  };
+  // Sort unique notes by priority
+  const sortedNotes = sortNotesByPriority(uniqueNotes);
   
-  // Analyze all wines for common traits
-  // Use trait groups to avoid duplicates (e.g., citrus zest vs citrus)
-  const traitGroups = [
-    { traits: ['citrus zest', 'citrus'], displayAs: 'citrus' },
-    { traits: ['oak'], displayAs: 'oak' },
-    { traits: ['vanilla'], displayAs: 'vanilla' },
-    { traits: ['spice', 'spicy', 'nuances of spice'], displayAs: 'spice' },
-    { traits: ['tannins', 'tannic'], displayAs: 'tannins' }
-  ];
+  // Format notes for display (max 3)
+  const characteristics = sortedNotes.slice(0, 3).map(note => formatNoteForDisplay(note));
   
-  for (const group of traitGroups) {
-    const winesWithTrait: Array<{wineId: number, intensity: number, modifier: string, specificTrait: string}> = [];
+  // If we don't have enough unique notes, add some comparative descriptors
+  if (characteristics.length < 3 && wine.tasting_notes) {
+    const wineNotesLower = wine.tasting_notes.toLowerCase();
     
-    allWines.forEach((w, idx) => {
-      const notes = w.tasting_notes?.toLowerCase() || '';
-      let foundModifier = '';
-      let foundIntensity = 0;
-      let foundTrait = '';
-      
-      // Check for modifiers
-      const intensityModifiers = [
-        'burst of', 'dominant', 'pronounced', 'layers of',
-        'notes of', 'nuances of', 'touch of', 'hint of', 'subtle', 'whisper of'
-      ];
-      
-      // Check each trait variant in the group
-      for (const trait of group.traits) {
+    // Check for shared notes with intensity differences
+    const sharedNotesWithIntensity: string[] = [];
+    for (const note of wineNotes) {
+      const appearsInOthers = otherWineNotes.some(notes => notes.includes(note));
+      if (appearsInOthers) {
+        // Check if this wine has more intensity for this note
+        const intensityModifiers = ['burst of', 'dominant', 'pronounced', 'layers of', 'hint of', 'subtle'];
         for (const modifier of intensityModifiers) {
-          if (notes.includes(`${modifier} ${trait}`)) {
-            foundModifier = modifier;
-            foundIntensity = scoreIntensity(modifier);
-            foundTrait = trait;
-            break;
+          if (wineNotesLower.includes(`${modifier} ${note}`)) {
+            const othersHaveModifier = otherWines.some(w => 
+              (w.tasting_notes?.toLowerCase() || '').includes(`${modifier} ${note}`)
+            );
+            if (!othersHaveModifier) {
+              sharedNotesWithIntensity.push(`${modifier} ${note}`);
+              break;
+            }
           }
         }
-        
-        // Check if trait exists without modifier
-        if (!foundModifier && notes.includes(trait)) {
-          foundModifier = 'full';
-          foundIntensity = scoreIntensity('full');
-          foundTrait = trait;
-          break;
-        }
-        
-        if (foundTrait) break;
-      }
-      
-      if (foundIntensity > 0) {
-        winesWithTrait.push({ wineId: w.id, intensity: foundIntensity, modifier: foundModifier, specificTrait: foundTrait });
-      }
-    });
-    
-    if (winesWithTrait.length > 0) {
-      traitIntensityMap.set(group.displayAs, winesWithTrait);
-    }
-  }
-  
-  // Store intensity differences for later (after checking unique flavors)
-  const intensityDifferences: string[] = [];
-  
-  // For traits that appear in multiple wines, only the wine with highest intensity gets "More X"
-  for (const [trait, winesWithTrait] of traitIntensityMap) {
-    if (winesWithTrait.length > 1) {
-      // Sort by intensity
-      const sorted = [...winesWithTrait].sort((a, b) => b.intensity - a.intensity);
-      const highestIntensity = sorted[0];
-      
-      // Only add to this wine if it has the highest intensity
-      if (wine.id === highestIntensity.wineId) {
-        intensityDifferences.push(`More ${trait}`);
       }
     }
-  }
-  
-  // Priority 1: Check for completely unique flavors and aromas (most important)
-  const flavorKeywords = {
-    'salinity': ['salinity', 'salty', 'saline', 'brine', 'briny', 'salt'],
-    'hazelnut': ['hazelnut', 'nutty', 'toasted nuts'],
-    'honey': ['honey', 'honeyed'],
-    'brioche': ['brioche', 'bread', 'yeast', 'bready'],
-    'chocolate': ['chocolate', 'cocoa', 'cacao'],
-    'coffee': ['coffee', 'espresso', 'roasted'],
-    'tobacco': ['tobacco', 'smoke', 'smoky'],
-    'leather': ['leather', 'leathery'],
-    'mineral': ['mineral', 'minerality', 'stony', 'chalky'],
-    'floral': ['floral', 'flowers', 'rose', 'violet'],
-    'almond': ['almond', 'marzipan'],
-    'caramel': ['caramel', 'butterscotch', 'toffee'],
-    'butter': ['butter', 'buttery', 'cream'],
-    'herbal': ['herbal', 'herbs', 'thyme', 'rosemary', 'sage'],
-    'earthy': ['earthy', 'earth', 'soil', 'mushroom', 'truffle'],
-    'spice': ['cinnamon', 'clove', 'nutmeg', 'pepper', 'peppery']
-  };
-  
-  // First pass: unique flavors/aromas
-  for (const [flavor, variations] of Object.entries(flavorKeywords)) {
-    if (characteristics.length >= 3) break;
     
-    const hasThisFlavor = variations.some(v => wineNotes.includes(v));
-    const othersHaveFlavor = allWines.some(w => 
-      w.id !== wine.id && variations.some(v => (w.tasting_notes?.toLowerCase() || '').includes(v))
-    );
-    
-    if (hasThisFlavor && !othersHaveFlavor) {
-      // Special handling for certain flavors
-      if (flavor === 'salinity') {
-        characteristics.push(`Hint of salinity`);
-      } else {
-        characteristics.push(`Notes of ${flavor}`);
-      }
-    }
-  }
-  
-  // Priority 2: Check for unique fruit notes (still flavor/aroma)
-  const fruitKeywords = ['cherry', 'blackberry', 'raspberry', 'plum', 'apple', 'pear', 
-                        'peach', 'apricot', 'tropical', 'pineapple', 'lemon', 'lime',
-                        'grapefruit', 'orange', 'strawberry', 'blueberry', 'fig', 'mango',
-                        'passion fruit', 'guava', 'melon', 'watermelon'];
-  
-  for (const fruit of fruitKeywords) {
-    if (characteristics.length >= 3) break;
-    
-    const hasFruit = wineNotes.includes(fruit);
-    const othersHaveFruit = allWines.some(w => 
-      w.id !== wine.id && (w.tasting_notes?.toLowerCase() || '').includes(fruit)
-    );
-    
-    if (hasFruit && !othersHaveFruit) {
-      characteristics.push(`${fruit.charAt(0).toUpperCase() + fruit.slice(1)} notes`);
-    }
-  }
-  
-  // Priority 3: Body/tannins traits (from earlier intensity analysis)
-  // These are already added from the intensity analysis above
-  
-  // Priority 4: Check for unique texture/mouthfeel (lower priority)
-  const textureKeywords = {
-    'Luxurious mousse': ['luxurious mousse', 'rich mousse'],
-    'Silky texture': ['silky mouth feel', 'silky mouthfeel', 'silky texture'],
-    'Creamy texture': ['creamy texture', 'creamy mouthfeel'],
-    'Crisp finish': ['crisp finish', 'crisp acidity'],
-    'Velvety texture': ['velvety texture', 'velvety mouthfeel'],
-    'Smooth finish': ['smooth finish', 'smooth texture']
-  };
-  
-  for (const [texture, variations] of Object.entries(textureKeywords)) {
-    if (characteristics.length >= 3) break;
-    
-    const hasThisTexture = variations.some(v => wineNotes.includes(v));
-    const othersHaveTexture = allWines.some(w => 
-      w.id !== wine.id && variations.some(v => (w.tasting_notes?.toLowerCase() || '').includes(v))
-    );
-    
-    if (hasThisTexture && !othersHaveTexture) {
-      characteristics.push(texture);
-    }
-  }
-  
-  // Priority 5: Add intensity differences (body/tannins) if we still need characteristics
-  if (characteristics.length < 3) {
+    // Add intensity-based characteristics
     const remaining = 3 - characteristics.length;
-    characteristics.push(...intensityDifferences.slice(0, remaining));
+    const intensityChars = sharedNotesWithIntensity.slice(0, remaining).map(note => {
+      // Format the intensity-based note
+      if (note.includes('hint of')) {
+        return note.replace('hint of', 'Hint of');
+      }
+      return note.charAt(0).toUpperCase() + note.slice(1);
+    });
+    characteristics.push(...intensityChars);
   }
   
-  // Priority 6: Add other distinguishing features if still needed
+  // If still need more, add region or vintage differences
   if (characteristics.length < 3) {
     // Region if unique
     const regions = allWines.map(w => w.region).filter(r => r);
@@ -282,19 +159,6 @@ const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRe
         const avgVintage = vintages.reduce((a, b) => a + b, 0) / vintages.length;
         if (Math.abs(thisVintage - avgVintage) >= 3) {
           characteristics.push(`${wine.vintage} vintage`);
-        }
-      }
-    }
-    
-    // Producer style if mentioned
-    if (characteristics.length < 3) {
-      const styleKeywords = ['traditional', 'modern', 'innovative', 'classic', 'bold', 'elegant'];
-      for (const style of styleKeywords) {
-        if (wineNotes.includes(style) && !allWines.some(w => 
-          w.id !== wine.id && (w.tasting_notes?.toLowerCase() || '').includes(style)
-        )) {
-          characteristics.push(`${style.charAt(0).toUpperCase() + style.slice(1)} style`);
-          break;
         }
       }
     }
