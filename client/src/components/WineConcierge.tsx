@@ -30,6 +30,7 @@ interface WineRecommendation {
   food_pairing: string;
   serving_temp: string;
   glass_price: string | number;
+  what_makes_special: string;
   similarity_score: number;
   is_wild_card: boolean;
   match_reason: string;
@@ -493,7 +494,7 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
                   {/* Unique Characteristics */}
                   <div className="border-t pt-3">
                     <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                      What Makes It Special
+                      Key Differences
                     </h4>
                     <ul className="space-y-1">
                       {(() => {
@@ -545,6 +546,18 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
                     </CollapsibleTrigger>
                     
                     <CollapsibleContent className="mt-3 space-y-3">
+                      {/* What Makes This Wine Special - First Section */}
+                      {wine.what_makes_special && (
+                        <div className="bg-purple-50 dark:bg-purple-950/20 p-3 rounded-lg">
+                          <h5 className="text-xs font-semibold mb-2 text-purple-900 dark:text-purple-100">
+                            What Makes This Wine Special
+                          </h5>
+                          <p className="text-xs text-purple-800 dark:text-purple-200 leading-relaxed">
+                            {wine.what_makes_special}
+                          </p>
+                        </div>
+                      )}
+                      
                       <div className="grid grid-cols-2 gap-3 text-xs">
                         <div>
                           <span className="text-muted-foreground">Type:</span>

@@ -98,6 +98,7 @@ router.post("/recommend", async (req, res) => {
         food_pairing: wine.food_pairing,
         serving_temp: wine.serving_temp,
         glass_price: wine.glass_price,
+        what_makes_special: wine.what_makes_special,
         similarity_score: wine.similarity,
         is_wild_card: isWildCard,
         match_reason: isWildCard 
