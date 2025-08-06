@@ -62,12 +62,33 @@ export const wineDescriptors: Record<string, WineDescriptor> = {
     examples: ['Grüner Veltliner', 'Chablis', 'Txakoli'],
     relatedTerms: ['apple', 'granny smith']
   },
+  'apple': {
+    term: 'apple',
+    category: 'taste',
+    definition: 'Fresh orchard fruit flavor ranging from tart green to sweet red varieties. Common in many white wines.',
+    examples: ['Riesling', 'Pinot Grigio', 'Albariño'],
+    relatedTerms: ['green apple', 'red apple', 'baked apple']
+  },
   'pear': {
     term: 'pear',
     category: 'taste',
     definition: 'Soft, subtle orchard fruit flavor. Often found in Pinot Grigio, Albariño, and some Chardonnays.',
     examples: ['Alsace Pinot Gris', 'White Burgundy'],
     relatedTerms: ['asian pear', 'bosc pear']
+  },
+  'peach': {
+    term: 'peach',
+    category: 'taste',
+    definition: 'Stone fruit flavor indicating ripeness. Common in Viognier, Riesling, and aged Chardonnay.',
+    examples: ['Condrieu', 'Spätlese Riesling'],
+    relatedTerms: ['apricot', 'nectarine', 'stone fruit']
+  },
+  'apricot': {
+    term: 'apricot',
+    category: 'taste',
+    definition: 'Delicate stone fruit flavor, often found in aromatic whites and dessert wines. Can indicate bottle age.',
+    examples: ['Viognier', 'Tokaji', 'Aged Riesling'],
+    relatedTerms: ['peach', 'dried apricot']
   },
   
   // Floral & Herbal
