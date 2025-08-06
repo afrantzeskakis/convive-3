@@ -132,6 +132,8 @@ Changelog:
 - July 09, 2025. Added logout button directly in SuperAdmin dashboard header for convenient access
 - July 09, 2025. Added Wine Concierge Tool - mobile-first AI-powered wine recommendation system for restaurant servers with semantic search and comparison cards
 - July 09, 2025. Integrated pgvector embeddings with OpenAI for intelligent wine matching based on natural language guest preferences
+- July 12, 2025. Implemented comprehensive wine descriptor database with 214 terms for highlight-to-define feature
+- July 12, 2025. Added interactive carousel for wine descriptors showing definitions, examples, and related terms when clicked
 
 ## User Preferences
 
