@@ -173,14 +173,28 @@ const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRe
     }
   }
   
-  // 6. Add serving temperature if different
+  // 6. Add serving temperature if different (extract temperature value only)
   if (characteristics.length < 4 && wine.serving_temp) {
-    const temps = allWines.map(w => w.serving_temp).filter(t => t);
-    const uniqueTemps = [...new Set(temps)];
-    if (uniqueTemps.length > 1) {
-      const othersHaveSameTemp = allWines.some(w => w.id !== wine.id && w.serving_temp === wine.serving_temp);
-      if (!othersHaveSameTemp) {
-        characteristics.push(`Serve at ${wine.serving_temp}`);
+    // Extract just the temperature value from potentially long text
+    const tempMatch = wine.serving_temp.match(/(\d+[-–]\d+°[CF]|\d+°[CF])/);
+    if (tempMatch) {
+      const tempValue = tempMatch[0];
+      const temps = allWines.map(w => {
+        if (!w.serving_temp) return null;
+        const match = w.serving_temp.match(/(\d+[-–]\d+°[CF]|\d+°[CF])/);
+        return match ? match[0] : null;
+      }).filter(t => t);
+      
+      const uniqueTemps = [...new Set(temps)];
+      if (uniqueTemps.length > 1) {
+        const othersHaveSameTemp = allWines.some(w => {
+          if (w.id === wine.id || !w.serving_temp) return false;
+          const otherMatch = w.serving_temp.match(/(\d+[-–]\d+°[CF]|\d+°[CF])/);
+          return otherMatch && otherMatch[0] === tempValue;
+        });
+        if (!othersHaveSameTemp) {
+          characteristics.push(`Serve at ${tempValue}`);
+        }
       }
     }
   }
