@@ -15,6 +15,7 @@ import {
   formatNoteForDisplay, 
   sortNotesByPriority 
 } from "@/lib/wine-tasting-notes";
+import { HighlightableWineText } from "./HighlightableWineText";
 
 interface WineRecommendation {
   id: number;
@@ -486,9 +487,11 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
                 <CardContent className="space-y-4">
                   {/* 3-Sentence Summary */}
                   <div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {createWineSummary(wine)}
-                    </p>
+                    <HighlightableWineText 
+                      text={createWineSummary(wine)}
+                      className="text-sm text-muted-foreground leading-relaxed"
+                      showInstructions={index === 0}
+                    />
                   </div>
 
                   {/* Unique Characteristics */}
@@ -510,7 +513,7 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
                         return characteristics.map((char, i) => (
                           <li key={i} className="text-xs text-muted-foreground flex items-start gap-1">
                             <span className="text-purple-500 mt-0.5">•</span>
-                            <span>{char}</span>
+                            <HighlightableWineText text={char} className="inline" />
                           </li>
                         ));
                       })()}
@@ -552,9 +555,10 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
                           <h5 className="text-xs font-semibold mb-2 text-purple-900 dark:text-purple-100">
                             What Makes This Wine Special
                           </h5>
-                          <p className="text-xs text-purple-800 dark:text-purple-200 leading-relaxed">
-                            {wine.what_makes_special}
-                          </p>
+                          <HighlightableWineText 
+                            text={wine.what_makes_special}
+                            className="text-xs text-purple-800 dark:text-purple-200 leading-relaxed"
+                          />
                         </div>
                       )}
                       
@@ -580,18 +584,20 @@ export function WineConcierge({ restaurantId }: WineConciergeProps) {
                       {wine.tasting_notes && (
                         <div>
                           <h5 className="text-xs font-semibold mb-1">Full Tasting Notes</h5>
-                          <p className="text-xs text-muted-foreground">
-                            {wine.tasting_notes}
-                          </p>
+                          <HighlightableWineText 
+                            text={wine.tasting_notes}
+                            className="text-xs text-muted-foreground"
+                          />
                         </div>
                       )}
 
                       {wine.food_pairing && (
                         <div>
                           <h5 className="text-xs font-semibold mb-1">Food Pairing</h5>
-                          <p className="text-xs text-muted-foreground">
-                            {wine.food_pairing}
-                          </p>
+                          <HighlightableWineText 
+                            text={wine.food_pairing}
+                            className="text-xs text-muted-foreground"
+                          />
                         </div>
                       )}
 
