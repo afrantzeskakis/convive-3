@@ -20,6 +20,27 @@ export function WineDescriptorCarousel({ term, onClose }: WineDescriptorCarousel
     setCurrentSlide(0);
   }, [term]);
 
+  // Handle keyboard navigation - must be declared before any conditional returns
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft' && currentSlide > 0) {
+        setCurrentSlide((prev) => prev - 1);
+      }
+      if (e.key === 'ArrowRight' && descriptor) {
+        const maxSlides = 1 + 
+          (descriptor.examples && descriptor.examples.length > 0 ? 1 : 0) +
+          (descriptor.relatedTerms && descriptor.relatedTerms.length > 0 ? 1 : 0);
+        if (currentSlide < maxSlides - 1) {
+          setCurrentSlide((prev) => prev + 1);
+        }
+      }
+      if (e.key === 'Escape') onClose();
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [currentSlide, descriptor, onClose]);
+
   if (!descriptor) {
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -107,18 +128,6 @@ export function WineDescriptorCarousel({ term, onClose }: WineDescriptorCarousel
   const prevSlide = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') prevSlide();
-      if (e.key === 'ArrowRight') nextSlide();
-      if (e.key === 'Escape') onClose();
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-    return () => window.removeEventListener('keydown', handleKeyPress);
-  }, []);
 
   return (
     <div 
