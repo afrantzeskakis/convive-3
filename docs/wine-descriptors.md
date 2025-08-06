@@ -1,6 +1,6 @@
 # Professional Wine Descriptors Dictionary
 
-**Note: This documentation is now superseded by the unified wine descriptor system in `shared/wine-descriptors.ts`. Please reference that file for the comprehensive, merged wine descriptor database that powers both the highlighting system and OpenAI analysis.**
+**⚠️ DEPRECATION NOTICE:** This document has been superseded by the unified wine descriptor system in `shared/wine-descriptors.ts`. This file contains only 97 descriptors and is kept for reference only. The active system now contains **ALL 211 comprehensive descriptors** from the original source documents with complete definitions preserved.
 
 ## Texture & Structure
 - **Lush** – Sumptuously rich and soft on the palate, often low in acidity but full of ripe fruit and a cushiony texture.

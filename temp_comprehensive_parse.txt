@@ -1,0 +1,5 @@
+#!/bin/bash
+# Extract all wine descriptors from the comprehensive document
+# Parse format: "Term: Definition"
+
+grep -E '^[A-Z][^:]*:' attached_assets/Pasted-A-F-Acacia-A-delicate-floral-aroma-reminiscent-of-acacia-blossoms-which-are-sweet-and-lightly-fra-1754463020814_1754463020814.txt > all_descriptors.txt
