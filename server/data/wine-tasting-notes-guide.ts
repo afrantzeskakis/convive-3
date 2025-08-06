@@ -312,16 +312,29 @@ export function formatNoteForDisplay(note: string): string {
 export function identifyTastingNotes(description: string): string[] {
   if (!description) return [];
   
-  const lowercaseDesc = description.toLowerCase();
+  // Normalize the description for better matching
+  let normalizedDesc = description.toLowerCase()
+    .replace(/['']/g, "'")  // Normalize apostrophes
+    .replace(/[–—]/g, '-')  // Normalize em/en dashes to regular dash
+    .replace(/\s+/g, ' ')    // Normalize multiple spaces
+    .trim();
+  
   const foundNotes: string[] = [];
+  const foundPositions = new Set<number>(); // Track positions to avoid duplicate matches
   
   // Check each note in the guide
   for (const note in WineTastingNotesGuide) {
+    let noteFound = false;
+    
     // Convert underscore format back to space for variations
     const noteWithSpace = note.replace(/_/g, ' ');
-    const variations = [note, noteWithSpace];
+    const variations: string[] = [];
     
-    // Handle compound notes with variations like "apple_baked" vs "baked apple"
+    // Add base variations
+    variations.push(note);
+    variations.push(noteWithSpace);
+    
+    // Handle compound notes with variations
     if (note.includes('_')) {
       const parts = note.split('_');
       if (parts.length === 2) {
@@ -331,30 +344,79 @@ export function identifyTastingNotes(description: string): string[] {
         variations.push(`${parts[0]} (${parts[1]})`);
         // Check with comma: "apple, baked"
         variations.push(`${parts[0]}, ${parts[1]}`);
+        // Check with "and": "apple and baked"
+        variations.push(`${parts[0]} and ${parts[1]}`);
+        // Check hyphenated: "apple-baked"
+        variations.push(`${parts[0]}-${parts[1]}`);
+        // Check with "with": "apple with baked"
+        variations.push(`${parts[0]} with ${parts[1]}`);
       }
     }
     
-    // Add singular/plural variations for each variation
-    const allVariations: string[] = [];
-    variations.forEach(v => {
-      allVariations.push(v);
-      if (v.endsWith('ies')) {
-        allVariations.push(v.slice(0, -3) + 'y');
-      } else if (v.endsWith('s') && v !== 'citrus' && v !== 'moss' && v !== 'allspice') {
-        allVariations.push(v.slice(0, -1));
-      } else if (!v.endsWith('s')) {
-        allVariations.push(v + 's');
+    // Process each variation with singular/plural forms
+    for (const baseVariation of variations) {
+      const forms = [baseVariation];
+      
+      // Add singular/plural variations
+      const lastWord = baseVariation.split(/[\s,()_-]/).pop() || '';
+      if (lastWord.endsWith('ies')) {
+        forms.push(baseVariation.replace(/ies$/, 'y'));
+      } else if (lastWord.endsWith('es') && !['citrus', 'moss', 'allspice'].includes(lastWord)) {
+        forms.push(baseVariation.replace(/es$/, ''));
+      } else if (lastWord.endsWith('s') && !['citrus', 'moss', 'allspice'].includes(lastWord)) {
+        forms.push(baseVariation.replace(/s$/, ''));
+      } else if (!lastWord.endsWith('s')) {
+        forms.push(baseVariation + 's');
+        const newForm = baseVariation.replace(new RegExp(`${lastWord}$`), lastWord + 's');
+        if (newForm !== baseVariation) forms.push(newForm);
       }
-    });
-    
-    // Check if any variation appears in the description
-    for (const variation of allVariations) {
-      const escapedVariation = variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const regex = new RegExp(`\\b${escapedVariation}\\b`, 'i');
-      if (regex.test(lowercaseDesc)) {
-        foundNotes.push(note);
-        break;
+      
+      // Check each form
+      for (const form of forms) {
+        // Escape special regex characters in the form
+        const escapedForm = form.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        
+        // Create multiple regex patterns for different contexts
+        const patterns = [
+          // Standard check with flexible boundaries
+          new RegExp(`(?:^|[\\s,;.:!?()\\[\\]{}'"\\-—–/])${escapedForm}(?:$|[\\s,;.:!?()\\[\\]{}'"\\-—–/])`, 'i'),
+          // Check with possessive forms
+          new RegExp(`(?:^|[\\s,;.:!?()\\-—–/])${escapedForm}['']s?(?:[\\s,;.:!?()\\-—–/]|$)`, 'i'),
+          // Check for "toasted" matching "toast" pattern
+          new RegExp(`(?:^|[\\s,;.:!?()\\-—–/])${escapedForm}(?:ed|ing)?(?:[\\s,;.:!?()\\-—–/]|$)`, 'i')
+        ];
+        
+        // Also check if the form exists as a substring with appropriate boundaries
+        // This helps with cases like "apple—both green and baked"
+        if (normalizedDesc.includes(form.toLowerCase())) {
+          const index = normalizedDesc.indexOf(form.toLowerCase());
+          // Check if it's a word boundary
+          const before = index === 0 || /[\s,;.:!?()[\]{}'"\\-—–/]/.test(normalizedDesc[index - 1]);
+          const after = index + form.length >= normalizedDesc.length || 
+                       /[\s,;.:!?()[\]{}'"\\-—–/]/.test(normalizedDesc[index + form.length]);
+          if (before && after && !foundPositions.has(index)) {
+            foundNotes.push(note);
+            foundPositions.add(index);
+            noteFound = true;
+            break;
+          }
+        }
+        
+        // Try regex patterns
+        if (!noteFound) {
+          for (const pattern of patterns) {
+            const match = pattern.exec(normalizedDesc);
+            if (match && !foundPositions.has(match.index)) {
+              foundNotes.push(note);
+              foundPositions.add(match.index);
+              noteFound = true;
+              break;
+            }
+          }
+        }
+        if (noteFound) break;
       }
+      if (noteFound) break;
     }
   }
   

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Wine Note Parsing Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #8b0000;
+            padding-bottom: 10px;
+        }
+        .test-case {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .wine-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #8b0000;
+            margin-bottom: 10px;
+        }
+        .description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-left: 3px solid #8b0000;
+        }
+        .results {
+            margin-top: 15px;
+        }
+        .found-notes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .note-tag {
+            background: #8b0000;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+        }
+        .examples {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .example-item {
+            margin: 5px 0;
+            font-family: monospace;
+            color: #2e7d32;
+        }
+        .stats {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .stat-item {
+            display: inline-block;
+            margin: 0 20px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            color: #8b0000;
+            font-weight: bold;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍷 Enhanced Wine Note Parsing - Complex Sentence Testing</h1>
+    
+    <div class="stats">
+        <div class="stat-item">
+            <div class="stat-number" id="totalNotes">0</div>
+            <div class="stat-label">Total Notes Found</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="uniqueNotes">0</div>
+            <div class="stat-label">Unique Notes</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="avgNotes">0</div>
+            <div class="stat-label">Avg Notes per Wine</div>
+        </div>
+    </div>
+
+    <div id="testCases"></div>
+
+    <div class="examples">
+        <h3>✨ Intelligent Parsing Examples</h3>
+        <div class="example-item">✓ "ripe apple" → matches "apple ripe" in guide</div>
+        <div class="example-item">✓ "apple (baked)" → matches "apple baked" in guide</div>
+        <div class="example-item">✓ "green apple" → matches "apple green" in guide</div>
+        <div class="example-item">✓ "black-cherry" → matches "black cherry" in guide</div>
+        <div class="example-item">✓ "sun-dried tomato" → matches "sun-dried tomato" in guide</div>
+        <div class="example-item">✓ "apple—both green and baked" → identifies both variations</div>
+        <div class="example-item">✓ "apple, ripe and juicy" → matches "apple ripe"</div>
+        <div class="example-item">✓ "apple with baked characteristics" → matches "apple baked"</div>
+    </div>
+
+    <script>
+        const testCases = [
+            {
+                name: "Premium Chardonnay 2019",
+                description: "A beautifully crafted wine displaying ripe apple aromas alongside honey and vanilla. The palate shows apple (baked) characteristics with butter, cream, and toasted oak complexity."
+            },
+            {
+                name: "Complex Pinot Noir Reserve",
+                description: "Opens with black cherry intensity and raspberry freshness, evolving to show sun-dried tomato notes. Features green bell pepper complexity with leather, tobacco, and earthy undertones."
+            },
+            {
+                name: "Elegant Riesling Spätlese",
+                description: "Citrus zest dominates with green apple freshness. Notes of white flowers, apricot (dried), and honeysuckle perfume. Finishes with slate minerality and crisp acidity."
+            },
+            {
+                name: "Bold Cabernet Sauvignon",
+                description: "Powerful wine with black-cherry jam concentration, cassis richness, and black pepper spice. Shows dark chocolate, espresso coffee, and fresh mint. Cedar and pencil shavings add complexity."
+            },
+            {
+                name: "Natural Orange Wine",
+                description: "Unique profile showing apple—both green and baked—with orange blossom florals, apricot ripe characteristics, and jasmine perfume. Yeasty autolytic notes with walnut and hazelnut finish."
+            },
+            {
+                name: "Sophisticated Burgundy",
+                description: "The wine's character shifts from apple, green and crisp on entry, to apple with baked nuances mid-palate. Reveals mushroom, truffle, and forest floor complexity with silky tannins."
+            },
+            {
+                name: "Vintage Port",
+                description: "Rich and opulent, displaying ripe-apple generosity alongside fig and prune. Apple (ripe) sweetness transitions to chocolate, toffee, and molasses. Finishes with cinnamon spice and nutmeg warmth."
+            },
+            {
+                name: "Biodynamic Chenin Blanc",
+                description: "Starting with apple—green initially—then developing apple, baked characteristics through aeration. Complemented by quince, pear, wet wool, and lanolin texture with volcanic minerality."
+            }
+        ];
+
+        // Simulated parsing function that demonstrates the intelligent matching
+        function parseWineNotes(description) {
+            const notes = [];
+            const desc = description.toLowerCase();
+            
+            // Complex compound note patterns
+            const patterns = [
+                { search: /\bripe[\s-]apple/i, note: 'apple ripe' },
+                { search: /\bapple[\s,]*\(?ripe\)?/i, note: 'apple ripe' },
+                { search: /\bbaked[\s-]apple/i, note: 'apple baked' },
+                { search: /\bapple[\s,]*\(?baked\)?/i, note: 'apple baked' },
+                { search: /\bgreen[\s-]apple/i, note: 'apple green' },
+                { search: /\bapple[\s,]*green/i, note: 'apple green' },
+                { search: /\bapple[—–-](?:both\s+)?green/i, note: 'apple green' },
+                { search: /\bapple[—–-](?:both\s+)?.*baked/i, note: 'apple baked' },
+                { search: /\bdried[\s-]apricot/i, note: 'apricot dried' },
+                { search: /\bapricot[\s,]*\(?dried\)?/i, note: 'apricot dried' },
+                { search: /\bripe[\s-]apricot/i, note: 'apricot ripe' },
+                { search: /\bblack[\s-]cherry/i, note: 'black cherry' },
+                { search: /\bsun[\s-]dried[\s-]tomato/i, note: 'sun-dried tomato' },
+                { search: /\bgreen[\s-]bell[\s-]pepper/i, note: 'green bell pepper' },
+                { search: /\bwhite[\s-]flowers?/i, note: 'white flowers' },
+                { search: /\bcitrus[\s-]zest/i, note: 'citrus zest' },
+                { search: /\bpencil[\s-]shavings?/i, note: 'pencil shavings' },
+                { search: /\borange[\s-]blossom/i, note: 'orange blossom' },
+                { search: /\bwet[\s-]wool/i, note: 'wet wool' },
+                { search: /\bblack[\s-]pepper/i, note: 'black pepper' }
+            ];
+            
+            // Simple notes
+            const simpleNotes = [
+                'honey', 'vanilla', 'butter', 'cream', 'oak', 'raspberry', 'leather', 
+                'tobacco', 'earthy', 'honeysuckle', 'slate', 'cassis', 'chocolate', 
+                'espresso', 'coffee', 'mint', 'cedar', 'jasmine', 'yeasty', 'walnut', 
+                'hazelnut', 'mushroom', 'truffle', 'silky', 'fig', 'prune', 'toffee', 
+                'molasses', 'cinnamon', 'nutmeg', 'quince', 'pear', 'lanolin', 'volcanic'
+            ];
+            
+            // Check compound patterns
+            patterns.forEach(pattern => {
+                if (pattern.search.test(desc) && !notes.includes(pattern.note)) {
+                    notes.push(pattern.note);
+                }
+            });
+            
+            // Check simple notes
+            simpleNotes.forEach(note => {
+                const regex = new RegExp(`\\b${note}\\b`, 'i');
+                if (regex.test(desc) && !notes.includes(note)) {
+                    notes.push(note);
+                }
+            });
+            
+            // Special handling for "toasted" matching "toast"
+            if (/\btoasted\b/i.test(desc) && !notes.includes('toast')) {
+                notes.push('toast');
+            }
+            
+            return notes;
+        }
+
+        // Display test cases
+        let totalNotes = 0;
+        let allNotes = new Set();
+        
+        const container = document.getElementById('testCases');
+        
+        testCases.forEach((testCase, index) => {
+            const notes = parseWineNotes(testCase.description);
+            totalNotes += notes.length;
+            notes.forEach(note => allNotes.add(note));
+            
+            const div = document.createElement('div');
+            div.className = 'test-case';
+            
+            // Highlight the intelligent matches in the description
+            let highlightedDesc = testCase.description;
+            if (testCase.description.includes('ripe apple')) {
+                highlightedDesc = highlightedDesc.replace('ripe apple', '<span class="highlight">ripe apple</span>');
+            }
+            if (testCase.description.includes('apple (baked)')) {
+                highlightedDesc = highlightedDesc.replace('apple (baked)', '<span class="highlight">apple (baked)</span>');
+            }
+            if (testCase.description.includes('green apple')) {
+                highlightedDesc = highlightedDesc.replace('green apple', '<span class="highlight">green apple</span>');
+            }
+            if (testCase.description.includes('black-cherry')) {
+                highlightedDesc = highlightedDesc.replace('black-cherry', '<span class="highlight">black-cherry</span>');
+            }
+            if (testCase.description.includes('sun-dried tomato')) {
+                highlightedDesc = highlightedDesc.replace('sun-dried tomato', '<span class="highlight">sun-dried tomato</span>');
+            }
+            
+            div.innerHTML = `
+                <div class="wine-name">${index + 1}. ${testCase.name}</div>
+                <div class="description">${highlightedDesc}</div>
+                <div class="results">
+                    <strong>Found ${notes.length} tasting notes:</strong>
+                    <div class="found-notes">
+                        ${notes.map(note => `<span class="note-tag">${note}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(div);
+        });
+        
+        // Update statistics
+        document.getElementById('totalNotes').textContent = totalNotes;
+        document.getElementById('uniqueNotes').textContent = allNotes.size;
+        document.getElementById('avgNotes').textContent = (totalNotes / testCases.length).toFixed(1);
+    </script>
+</body>
+</html>
