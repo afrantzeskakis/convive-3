@@ -70,41 +70,17 @@ router.post("/recommend", async (req, res) => {
     // Generate embedding for the query
     const queryEmbedding = await wineEmbeddingService.generateQueryEmbedding(cleanQuery);
 
-    // Find top 2 similar wines
-    const topRecommendations = await wineEmbeddingService.findSimilarWines(
+    // Find similar wines
+    const recommendations = await wineEmbeddingService.findSimilarWines(
       queryEmbedding,
       data.restaurantId,
       finalPriceMin,
       finalPriceMax,
-      2 // Get top 2 recommendations
+      3 // Get top 3 recommendations
     );
-
-    // Extract wine names to exclude for wild card
-    const excludeNames = topRecommendations.map(w => w.wine_name);
-    console.log(`[WineConcierge] Top 2 wines to exclude from wild card:`, excludeNames);
-
-    // Find a wild card wine that's different
-    const wildCard = await wineEmbeddingService.findWildCardWine(
-      queryEmbedding,
-      data.restaurantId,
-      finalPriceMin,
-      finalPriceMax,
-      excludeNames
-    );
-
-    if (wildCard) {
-      console.log(`[WineConcierge] Wild card found: ${wildCard.wine_name} (similarity: ${wildCard.similarity?.toFixed(3)})`);
-    } else {
-      console.log(`[WineConcierge] No suitable wild card found`);
-    }
-
-    // Combine recommendations
-    const allRecommendations = wildCard 
-      ? [...topRecommendations, wildCard]
-      : topRecommendations;
 
     // Format response with comparison highlights
-    const formattedRecommendations = allRecommendations.map((wine, index) => {
+    const formattedRecommendations = recommendations.map((wine, index) => {
       // Determine if this is the wild card (3rd recommendation)
       const isWildCard = index === 2;
       
