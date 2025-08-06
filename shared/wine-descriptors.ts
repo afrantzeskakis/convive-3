@@ -10,20 +10,115 @@ export interface WineDescriptor {
 }
 
 export const wineDescriptors: Record<string, WineDescriptor> = {
-  // Fruit Descriptors - Red
-  'blackberry': {
-    term: 'blackberry',
+  // Tree Fruits
+  'apple': {
+    term: 'apple',
     category: 'taste',
-    definition: 'Dark, jammy fruit flavor typical of ripe red wines, especially Cabernet Sauvignon and Syrah. Indicates good ripeness and concentration.',
-    examples: ['Napa Valley Cabernet', 'Australian Shiraz'],
-    relatedTerms: ['black currant', 'black cherry', 'bramble']
+    definition: 'Fresh orchard fruit ranging from tart green to sweet red varieties, common in crisp whites.',
+    examples: ['Riesling', 'Pinot Grigio', 'Albariño'],
+    relatedTerms: ['green apple', 'red apple', 'baked apple']
+  },
+  'green apple': {
+    term: 'green apple',
+    category: 'taste',
+    definition: 'Tart, crisp fruit indicating high acidity and freshness in cool-climate whites.',
+    examples: ['Grüner Veltliner', 'Chablis', 'Txakoli'],
+    relatedTerms: ['apple', 'granny smith']
+  },
+  'pear': {
+    term: 'pear',
+    category: 'taste',
+    definition: 'Soft, subtle orchard fruit often found in Pinot Grigio and Albariño.',
+    examples: ['Alsace Pinot Gris', 'White Burgundy'],
+    relatedTerms: ['asian pear', 'bosc pear']
+  },
+  'peach': {
+    term: 'peach',
+    category: 'taste',
+    definition: 'Stone fruit flavor indicating ripeness, common in Viognier and aged Chardonnay.',
+    examples: ['Condrieu', 'Spätlese Riesling'],
+    relatedTerms: ['apricot', 'nectarine', 'stone fruit']
+  },
+  'apricot': {
+    term: 'apricot',
+    category: 'taste',
+    definition: 'Delicate stone fruit, often in aromatic whites and dessert wines.',
+    examples: ['Viognier', 'Tokaji', 'Aged Riesling'],
+    relatedTerms: ['peach', 'dried apricot']
+  },
+  'quince': {
+    term: 'quince',
+    category: 'taste',
+    definition: 'Aromatic, slightly tart fruit with floral notes, found in aged whites.',
+    examples: ['Aged Chenin Blanc', 'White Rioja'],
+    relatedTerms: ['pear', 'apple']
+  },
+
+  // Citrus Fruits
+  'lemon': {
+    term: 'lemon',
+    category: 'taste',
+    definition: 'Bright citrus providing freshness and acidity in crisp whites.',
+    examples: ['Chablis', 'Albariño', 'Vermentino'],
+    relatedTerms: ['lemon zest', 'meyer lemon', 'citrus']
+  },
+  'lime': {
+    term: 'lime',
+    category: 'taste',
+    definition: 'Zesty, sharp citrus common in Sauvignon Blanc and Verdejo.',
+    examples: ['Australian Riesling', 'Verdejo'],
+    relatedTerms: ['citrus', 'key lime']
+  },
+  'grapefruit': {
+    term: 'grapefruit',
+    category: 'taste',
+    definition: 'Tangy citrus with slight bitterness, characteristic of Sauvignon Blanc.',
+    examples: ['New Zealand Sauvignon Blanc', 'Sancerre'],
+    relatedTerms: ['citrus', 'pomelo']
+  },
+  'orange': {
+    term: 'orange',
+    category: 'taste',
+    definition: 'Sweet citrus notes, often orange zest in aromatic whites.',
+    examples: ['Moscato', 'Orange wines'],
+    relatedTerms: ['orange zest', 'blood orange']
+  },
+  
+  // Red & Black Fruits
+  'cherry': {
+    term: 'cherry',
+    category: 'taste',
+    definition: 'Fresh red fruit common in Pinot Noir and Sangiovese.',
+    examples: ['Burgundy', 'Chianti'],
+    relatedTerms: ['black cherry', 'sour cherry']
   },
   'black cherry': {
     term: 'black cherry',
     category: 'taste',
-    definition: 'Rich, dark fruit flavor with slight tartness. Common in Pinot Noir and Sangiovese, suggesting optimal ripeness.',
+    definition: 'Rich, dark fruit with slight tartness in mature reds.',
     examples: ['Burgundy Pinot Noir', 'Chianti Classico'],
-    relatedTerms: ['cherry', 'sour cherry', 'morello cherry']
+    relatedTerms: ['cherry', 'morello cherry']
+  },
+  'blackberry': {
+    term: 'blackberry',
+    category: 'taste',
+    definition: 'Dark, jammy fruit typical of ripe Cabernet and Syrah.',
+    examples: ['Napa Valley Cabernet', 'Australian Shiraz'],
+    relatedTerms: ['black currant', 'bramble']
+  },
+  'raspberry': {
+    term: 'raspberry',
+    category: 'taste',
+    definition: 'Bright red berry with sweet-tart character in Grenache.',
+    examples: ['Côtes du Rhône', 'Garnacha'],
+    relatedTerms: ['red berry', 'strawberry']
+  },
+  'strawberry': {
+    term: 'strawberry',
+    category: 'taste',
+    definition: 'Sweet red berry often found in rosé and light reds.',
+    examples: ['Provence Rosé', 'Beaujolais'],
+    relatedTerms: ['raspberry', 'red fruit']
   },
   'cassis': {
     term: 'cassis',
@@ -38,6 +133,27 @@ export const wineDescriptors: Record<string, WineDescriptor> = {
     definition: 'Soft, sweet dark fruit flavor found in medium-bodied reds like Merlot. Can range from fresh to dried/pruney in older wines.',
     examples: ['Right Bank Bordeaux', 'Chilean Carmenère'],
     relatedTerms: ['prune', 'dried plum']
+  },
+  'blueberry': {
+    term: 'blueberry',
+    category: 'taste',
+    definition: 'Sweet dark berry common in warm-climate Syrah.',
+    examples: ['Barossa Shiraz', 'Paso Robles Syrah'],
+    relatedTerms: ['blackberry', 'dark fruit']
+  },
+  'cranberry': {
+    term: 'cranberry',
+    category: 'taste',
+    definition: 'Tart red fruit indicating bright acidity in light reds.',
+    examples: ['Pinot Noir', 'Gamay'],
+    relatedTerms: ['cherry', 'red fruit']
+  },
+  'fig': {
+    term: 'fig',
+    category: 'taste',
+    definition: 'Sweet, jammy character in aged reds and fortified wines.',
+    examples: ['Amarone', 'Vintage Port'],
+    relatedTerms: ['dried fruit', 'prune']
   },
   
   // Fruit Descriptors - White/Citrus
@@ -89,6 +205,36 @@ export const wineDescriptors: Record<string, WineDescriptor> = {
     definition: 'Delicate stone fruit flavor, often found in aromatic whites and dessert wines. Can indicate bottle age.',
     examples: ['Viognier', 'Tokaji', 'Aged Riesling'],
     relatedTerms: ['peach', 'dried apricot']
+  },
+  
+  // Nuts
+  'hazelnut': {
+    term: 'hazelnut',
+    category: 'taste',
+    definition: 'Toasted, sweet nut character often from oak aging or oxidative development.',
+    examples: ['Aged White Burgundy', 'Fino Sherry'],
+    relatedTerms: ['almond', 'walnut', 'nutty']
+  },
+  'almond': {
+    term: 'almond',
+    category: 'taste',
+    definition: 'Delicate nut flavor, can be sweet or bitter, common in aged whites.',
+    examples: ['Aged Chablis', 'White Rioja'],
+    relatedTerms: ['marzipan', 'hazelnut']
+  },
+  'walnut': {
+    term: 'walnut',
+    category: 'taste',
+    definition: 'Rich, slightly bitter nut character in aged wines.',
+    examples: ['Aged Barolo', 'Oloroso Sherry'],
+    relatedTerms: ['hazelnut', 'nutty']
+  },
+  'chestnut': {
+    term: 'chestnut',
+    category: 'taste',
+    definition: 'Sweet, earthy nut flavor in mature wines.',
+    examples: ['Aged Rhône wines', 'Mature Rioja'],
+    relatedTerms: ['hazelnut', 'roasted nuts']
   },
   
   // Floral & Herbal
