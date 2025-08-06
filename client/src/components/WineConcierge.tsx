@@ -173,82 +173,121 @@ const extractUniqueCharacteristics = (wine: WineRecommendation, allWines: WineRe
     }
   }
   
-  // 6. Add serving temperature if different (extract temperature value only)
-  if (characteristics.length < 4 && wine.serving_temp) {
-    // Extract just the temperature value from potentially long text
-    const tempMatch = wine.serving_temp.match(/(\d+[-–]\d+°[CF]|\d+°[CF])/);
-    if (tempMatch) {
-      const tempValue = tempMatch[0];
-      const temps = allWines.map(w => {
-        if (!w.serving_temp) return null;
-        const match = w.serving_temp.match(/(\d+[-–]\d+°[CF]|\d+°[CF])/);
-        return match ? match[0] : null;
-      }).filter(t => t);
-      
-      const uniqueTemps = [...new Set(temps)];
-      if (uniqueTemps.length > 1) {
-        const othersHaveSameTemp = allWines.some(w => {
-          if (w.id === wine.id || !w.serving_temp) return false;
-          const otherMatch = w.serving_temp.match(/(\d+[-–]\d+°[CF]|\d+°[CF])/);
-          return otherMatch && otherMatch[0] === tempValue;
-        });
-        if (!othersHaveSameTemp) {
-          characteristics.push(`Serve at ${tempValue}`);
+  // 6. Add more tasting characteristics from wine description
+  if (characteristics.length < 4 && wine.tasting_notes) {
+    // Look for texture descriptors
+    const textureDescriptors = ['silky', 'velvety', 'creamy', 'chalky', 'tannic', 'grippy', 'supple', 'round', 'angular'];
+    for (const descriptor of textureDescriptors) {
+      if (wine.tasting_notes.toLowerCase().includes(descriptor)) {
+        const othersHaveDescriptor = otherWines.some(w => 
+          (w.tasting_notes?.toLowerCase() || '').includes(descriptor)
+        );
+        if (!othersHaveDescriptor && !characteristics.includes(descriptor.charAt(0).toUpperCase() + descriptor.slice(1))) {
+          characteristics.push(descriptor.charAt(0).toUpperCase() + descriptor.slice(1));
+          if (characteristics.length >= 4) break;
         }
       }
     }
   }
   
-  // 7. If still need more, add generic but accurate descriptors based on wine type
-  if (characteristics.length < 3) {
-    const genericDescriptors: string[] = [];
-    
-    if (wine.type?.toLowerCase().includes('red')) {
-      genericDescriptors.push('Red wine profile');
-    } else if (wine.type?.toLowerCase().includes('white')) {
-      genericDescriptors.push('White wine profile');
-    } else if (wine.type?.toLowerCase().includes('rosé')) {
-      genericDescriptors.push('Rosé character');
-    } else if (wine.type?.toLowerCase().includes('sparkling')) {
-      genericDescriptors.push('Sparkling style');
+  // 7. Add finish/aftertaste characteristics if unique
+  if (characteristics.length < 4 && wine.tasting_notes) {
+    const finishDescriptors = ['long finish', 'short finish', 'lingering', 'persistent', 'clean finish', 'dry finish'];
+    for (const descriptor of finishDescriptors) {
+      if (wine.tasting_notes.toLowerCase().includes(descriptor)) {
+        const othersHaveDescriptor = otherWines.some(w => 
+          (w.tasting_notes?.toLowerCase() || '').includes(descriptor)
+        );
+        if (!othersHaveDescriptor) {
+          characteristics.push(descriptor.charAt(0).toUpperCase() + descriptor.slice(1));
+          if (characteristics.length >= 4) break;
+        }
+      }
     }
+  }
+  
+  // 8. Add more specific wine style descriptors
+  if (characteristics.length < 4) {
+    const styleDescriptors: string[] = [];
     
-    // Add any food pairing differences
-    if (wine.food_pairing && characteristics.length < 3) {
-      const pairings = wine.food_pairing.split(/[,;]/).map(p => p.trim()).slice(0, 1);
-      if (pairings[0]) {
-        genericDescriptors.push(`Pairs with ${pairings[0]}`);
+    // Add wine type as a distinguisher if types differ
+    const types = allWines.map(w => w.type?.toLowerCase()).filter(t => t);
+    const uniqueTypes = [...new Set(types)];
+    if (uniqueTypes.length > 1 && wine.type) {
+      if (wine.type.toLowerCase().includes('red')) {
+        styleDescriptors.push('Red wine style');
+      } else if (wine.type.toLowerCase().includes('white')) {
+        styleDescriptors.push('White wine style');
+      } else if (wine.type.toLowerCase().includes('rosé')) {
+        styleDescriptors.push('Rosé style');
+      } else if (wine.type.toLowerCase().includes('sparkling')) {
+        styleDescriptors.push('Sparkling style');
+      } else if (wine.type.toLowerCase().includes('champagne')) {
+        styleDescriptors.push('Champagne method');
       }
     }
     
     // Add producer style if unique
-    if (wine.producer && characteristics.length < 3) {
+    if (wine.producer && characteristics.length < 4) {
       const producers = allWines.map(w => w.producer).filter(p => p);
       const uniqueProducers = [...new Set(producers)];
       if (uniqueProducers.length > 1) {
-        genericDescriptors.push(`${wine.producer} style`);
+        const othersHaveSameProducer = allWines.some(w => w.id !== wine.id && w.producer === wine.producer);
+        if (!othersHaveSameProducer) {
+          styleDescriptors.push(`${wine.producer} house style`);
+        }
       }
     }
     
-    characteristics.push(...genericDescriptors.slice(0, 3 - characteristics.length));
+    characteristics.push(...styleDescriptors.slice(0, 4 - characteristics.length));
   }
   
-  // STRICT ENFORCEMENT: Always return between 3-4 differences
-  // Never include vintage as a difference
-  if (characteristics.length < 3) {
-    // Emergency fallback - add general distinguishing features
-    const fallbacks = [
-      'Distinctive character',
-      'Unique profile',
-      'Special selection'
-    ];
-    while (characteristics.length < 3 && fallbacks.length > 0) {
-      characteristics.push(fallbacks.shift()!);
+  // 9. Look for acidity/sweetness level differences
+  if (characteristics.length < 4 && wine.tasting_notes) {
+    const acidityDescriptors = ['high acidity', 'bright acidity', 'crisp acidity', 'balanced acidity', 'low acidity', 'fresh acidity'];
+    const sweetnessDescriptors = ['bone dry', 'dry', 'off-dry', 'semi-sweet', 'sweet', 'lusciously sweet'];
+    
+    const allDescriptors = [...acidityDescriptors, ...sweetnessDescriptors];
+    for (const descriptor of allDescriptors) {
+      if (wine.tasting_notes.toLowerCase().includes(descriptor)) {
+        const othersHaveDescriptor = otherWines.some(w => 
+          (w.tasting_notes?.toLowerCase() || '').includes(descriptor)
+        );
+        if (!othersHaveDescriptor) {
+          characteristics.push(descriptor.charAt(0).toUpperCase() + descriptor.slice(1));
+          if (characteristics.length >= 4) break;
+        }
+      }
     }
   }
   
-  // Return exactly 3-4 characteristics (prefer 3, but allow up to 4 if we have good ones)
-  return characteristics.slice(0, 4).slice(0, Math.max(3, Math.min(characteristics.length, 4)));
+  // STRICT ENFORCEMENT: Always return between 3-4 differences
+  // Never include vintage, serving temperature, or food pairing as differences
+  if (characteristics.length < 3) {
+    // Emergency fallback - add wine-specific distinguishing features
+    const fallbacks: string[] = [];
+    
+    // Try to add more specific wine characteristics
+    if (wine.type) {
+      fallbacks.push(`${wine.type} character`);
+    }
+    if (wine.country && !characteristics.some(c => c.includes(wine.country))) {
+      fallbacks.push(`${wine.country} style`);
+    }
+    if (fallbacks.length === 0) {
+      fallbacks.push('Distinctive profile', 'Unique character', 'Special selection');
+    }
+    
+    while (characteristics.length < 3 && fallbacks.length > 0) {
+      const fallback = fallbacks.shift()!;
+      if (!characteristics.includes(fallback)) {
+        characteristics.push(fallback);
+      }
+    }
+  }
+  
+  // Return exactly 3-4 characteristics (minimum 3, maximum 4)
+  return characteristics.slice(0, 4).length >= 3 ? characteristics.slice(0, 4) : characteristics.slice(0, 3);
 };
 
 export function WineConcierge({ restaurantId }: WineConciergeProps) {
