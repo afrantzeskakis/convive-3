@@ -1,38 +1,40 @@
 // Wine Tasting Notes Reference Guide for parsing wine descriptions
 // Used to identify unique characteristics between wines
 
-// All 207 wine tasting notes from the comprehensive guide
+// All 211 wine tasting notes from the comprehensive guide
 export const wineTastingNotes = [
   'acacia', 'acidic', 'aftertaste', 'alcoholic', 'allspice', 'almond', 'angular', 'anise',
-  'apple', 'apricot', 'aromatic', 'ashy', 'asparagus', 'astringent', 'austere', 'autolytic',
-  'backward', 'bacon fat', 'baked', 'balanced', 'balsamic', 'banana', 'band-aid', 'barnyard',
-  'basil', 'bay leaf', 'beeswax', 'beetroot', 'big', 'biscuit', 'bitter', 'black cherry',
-  'black pepper', 'black tea', 'blackberry', 'blackcurrant', 'blueberry', 'body',
-  'boiled cabbage', 'boiled egg', 'boxwood', 'boysenberry', 'brioche', 'brooding', 'bubblegum',
-  'burnt rubber', 'butterscotch', 'buttery', 'cassis', 'cedar', 'chalky', 'cherry', 'chocolate',
-  'cinnamon', 'citrus', 'citrus zest', 'clove', 'coconut', 'coffee', 'complex', 'cranberry',
-  'cream', 'creamy', 'crisp', 'earthy', 'elegant', 'espresso', 'eucalyptus', 'fig', 'flint',
-  'floral', 'fresh', 'fruity', 'gamey', 'garlic', 'garrigue', 'geranium', 'ginger', 'gooseberry',
-  'grapefruit', 'grapey', 'graphite', 'grassy', 'green', 'green bell pepper', 'green tea',
-  'guava', 'gunflint', 'hard', 'hawthorn', 'hay', 'hazelnut', 'heavy', 'herbaceous', 'hibiscus',
-  'hollow', 'honey', 'honeysuckle', 'horse blanket', 'horse manure', 'hot', 'incense', 'iodine',
-  'iris', 'jalapeño', 'jammy', 'jasmine', 'kirsch', 'lavender', 'lean', 'leather', 'lemon',
-  'lemongrass', 'licorice', 'lilac', 'lime', 'linden', 'lit match', 'lively', 'lychee',
-  'mango', 'maple syrup', 'marmalade', 'marzipan', 'mature', 'meaty', 'mellow', 'melon',
-  'menthol', 'metallic', 'mineral', 'minerality', 'mint', 'mocha', 'molasses', 'monolithic',
-  'mousse', 'mulberry', 'mushroom', 'musky', 'musty', 'nail polish', 'nectarine', 'nervy',
-  'nettles', 'nutmeg', 'nutty', 'oak', 'oaky', 'oily', 'olive', 'onion', 'opulent', 'orange',
-  'orange blossom', 'overripe', 'oxidized', 'papaya', 'passion fruit', 'peach', 'pear',
-  'peardrop', 'pencil shavings', 'peony', 'perfumed', 'persimmon', 'petrichor', 'petrol',
-  'pine', 'pineapple', 'plum', 'polished', 'pomegranate', 'potpourri', 'powerful', 'prune',
-  'pungent', 'quince', 'racy', 'raisin', 'raspberry', 'red currant', 'red plum', 'rhubarb',
-  'rich', 'robust', 'rose', 'rosemary', 'rotten egg', 'round', 'saffron', 'sage', 'saline',
-  'salinity', 'salt', 'salty', 'brine', 'briny', 'savory', 'sharp', 'silky', 'slate', 'smoky',
-  'smooth', 'soapy', 'soft', 'sour cherry', 'spice', 'spicy', 'stalky', 'stewed fruit',
-  'strawberry', 'sun-dried tomato', 'supple', 'sweet', 'tannic', 'tannins', 'tar', 'tart',
-  'thin', 'thyme', 'tight', 'toast', 'tobacco', 'toffee', 'tomato', 'tomato leaf', 'truffle',
-  'underripe', 'vanilla', 'vegetal', 'velvety', 'vinegar', 'violet', 'volcanic', 'walnut',
-  'wet dog', 'wet wool', 'white flowers', 'white pepper', 'yeasty', 'youthful', 'zesty'
+  'apple baked', 'apple green', 'apple ripe', 'apricot dried', 'apricot ripe', 'aromatic', 
+  'ashy', 'asparagus', 'astringent', 'austere', 'autolytic', 'backward', 'bacon fat', 'baked',
+  'balanced', 'balsamic', 'banana', 'band-aid', 'barnyard', 'basil', 'bay leaf', 'beeswax',
+  'beetroot', 'big', 'biscuit', 'bitter', 'black cherry', 'black pepper', 'black tea',
+  'blackberry', 'blackcurrant', 'blueberry', 'body', 'boiled cabbage', 'boiled egg',
+  'boxwood', 'boysenberry', 'brioche', 'brooding', 'bubblegum', 'burnt rubber', 'butterscotch',
+  'buttery', 'cassis', 'cedar', 'chalky', 'cherry', 'chocolate', 'cinnamon', 'citrus',
+  'citrus zest', 'clove', 'coconut', 'coffee', 'complex', 'cranberry', 'cream', 'creamy',
+  'crisp', 'earthy', 'elegant', 'espresso', 'eucalyptus', 'fig', 'flint', 'floral', 'fresh',
+  'fruity', 'gamey', 'garlic', 'garrigue', 'geranium', 'ginger', 'gooseberry', 'grapefruit',
+  'grapey', 'graphite', 'grassy', 'green', 'green bell pepper', 'green tea', 'guava',
+  'gunflint', 'hard', 'hawthorn', 'hay', 'hazelnut', 'heavy', 'herbaceous', 'hibiscus',
+  'hollow', 'honey', 'honeysuckle', 'horse blanket', 'horse manure', 'hot', 'incense',
+  'iodine', 'iris', 'jalapeño', 'jammy', 'jasmine', 'kirsch', 'lavender', 'lean', 'leather',
+  'lemon', 'lemongrass', 'licorice', 'lilac', 'lime', 'linden', 'lit match', 'lively',
+  'lychee', 'mango', 'maple syrup', 'marmalade', 'marzipan', 'mature', 'meaty', 'mellow',
+  'melon', 'menthol', 'metallic', 'mineral', 'minerality', 'mint', 'mocha', 'molasses',
+  'monolithic', 'mousse', 'mulberry', 'mushroom', 'musky', 'musty', 'nail polish', 'nectarine',
+  'nervy', 'nettles', 'nutmeg', 'nutty', 'oak', 'oaky', 'oily', 'olive', 'onion', 'opulent',
+  'orange', 'orange blossom', 'overripe', 'oxidized', 'papaya', 'passion fruit', 'peach',
+  'pear', 'peardrop', 'pencil shavings', 'peony', 'perfumed', 'persimmon', 'petrichor',
+  'petrol', 'pine', 'pineapple', 'plum', 'polished', 'pomegranate', 'potpourri', 'powerful',
+  'prune', 'pungent', 'quince', 'racy', 'raisin', 'raspberry', 'red currant', 'red plum',
+  'rhubarb', 'rich', 'robust', 'rose', 'rosemary', 'rotten egg', 'round', 'saffron', 'sage',
+  'saline', 'salinity', 'salt', 'salty', 'brine', 'briny', 'savory', 'sharp', 'silky',
+  'slate', 'smoky', 'smooth', 'soapy', 'soft', 'sour cherry', 'spice', 'spicy', 'stalky',
+  'stewed fruit', 'strawberry', 'sun-dried tomato', 'supple', 'sweet', 'tannic', 'tannins',
+  'tar', 'tart', 'thin', 'thyme', 'tight', 'toast', 'tobacco', 'toffee', 'tomato',
+  'tomato leaf', 'truffle', 'underripe', 'vanilla', 'vegetal', 'velvety', 'vinegar', 'violet',
+  'volcanic', 'walnut', 'wet dog', 'wet wool', 'white flowers', 'white pepper', 'yeasty',
+  'youthful', 'zesty'
 ];
 
 // Function to identify tasting notes in wine descriptions
@@ -47,23 +49,40 @@ export function identifyTastingNotes(description: string): string[] {
     // Create variations of the note to check
     const variations = [note];
     
-    // Add singular/plural variations
-    if (note.endsWith('ies')) {
-      variations.push(note.slice(0, -3) + 'y');
-    } else if (note.endsWith('s') && note !== 'citrus' && note !== 'moss') {
-      variations.push(note.slice(0, -1));
-    } else if (!note.endsWith('s')) {
-      variations.push(note + 's');
-    }
-    
-    // Check if any variation appears in the description
-    for (const variation of variations) {
-      const regex = new RegExp(`\\b${variation}\\b`, 'i');
-      if (regex.test(lowercaseDesc)) {
-        foundNotes.push(note);
-        break;
+    // Handle compound notes with variations like "apple baked" vs "baked apple"
+    if (note.includes(' ')) {
+      const parts = note.split(' ');
+      if (parts.length === 2) {
+        // For "apple baked", also check for "baked apple"
+        variations.push(`${parts[1]} ${parts[0]}`);
+        // Also check for parenthetical format: "apple (baked)"
+        variations.push(`${parts[0]} (${parts[1]})`);
+        // Check with comma: "apple, baked"
+        variations.push(`${parts[0]}, ${parts[1]}`);
       }
     }
+    
+    // Add singular/plural variations
+    variations.forEach(v => {
+      const baseVariations = [v];
+      if (v.endsWith('ies')) {
+        baseVariations.push(v.slice(0, -3) + 'y');
+      } else if (v.endsWith('s') && v !== 'citrus' && v !== 'moss' && v !== 'allspice') {
+        baseVariations.push(v.slice(0, -1));
+      } else if (!v.endsWith('s')) {
+        baseVariations.push(v + 's');
+      }
+      
+      // Check if any variation appears in the description
+      for (const variation of baseVariations) {
+        const escapedVariation = variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escapedVariation}\\b`, 'i');
+        if (regex.test(lowercaseDesc)) {
+          foundNotes.push(note);
+          return; // Move to next note once found
+        }
+      }
+    });
   }
   
   return [...new Set(foundNotes)]; // Remove duplicates

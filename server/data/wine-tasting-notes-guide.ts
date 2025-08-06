@@ -307,3 +307,56 @@ export function formatNoteForDisplay(note: string): string {
   // Capitalize first letter
   return note.charAt(0).toUpperCase() + note.slice(1) + ' notes';
 }
+
+// Helper function to identify notes in wine descriptions with intelligent matching
+export function identifyTastingNotes(description: string): string[] {
+  if (!description) return [];
+  
+  const lowercaseDesc = description.toLowerCase();
+  const foundNotes: string[] = [];
+  
+  // Check each note in the guide
+  for (const note in WineTastingNotesGuide) {
+    // Convert underscore format back to space for variations
+    const noteWithSpace = note.replace(/_/g, ' ');
+    const variations = [note, noteWithSpace];
+    
+    // Handle compound notes with variations like "apple_baked" vs "baked apple"
+    if (note.includes('_')) {
+      const parts = note.split('_');
+      if (parts.length === 2) {
+        // For "apple_baked", check for "baked apple"
+        variations.push(`${parts[1]} ${parts[0]}`);
+        // Check for parenthetical format: "apple (baked)"
+        variations.push(`${parts[0]} (${parts[1]})`);
+        // Check with comma: "apple, baked"
+        variations.push(`${parts[0]}, ${parts[1]}`);
+      }
+    }
+    
+    // Add singular/plural variations for each variation
+    const allVariations: string[] = [];
+    variations.forEach(v => {
+      allVariations.push(v);
+      if (v.endsWith('ies')) {
+        allVariations.push(v.slice(0, -3) + 'y');
+      } else if (v.endsWith('s') && v !== 'citrus' && v !== 'moss' && v !== 'allspice') {
+        allVariations.push(v.slice(0, -1));
+      } else if (!v.endsWith('s')) {
+        allVariations.push(v + 's');
+      }
+    });
+    
+    // Check if any variation appears in the description
+    for (const variation of allVariations) {
+      const escapedVariation = variation.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedVariation}\\b`, 'i');
+      if (regex.test(lowercaseDesc)) {
+        foundNotes.push(note);
+        break;
+      }
+    }
+  }
+  
+  return [...new Set(foundNotes)]; // Remove duplicates
+}
