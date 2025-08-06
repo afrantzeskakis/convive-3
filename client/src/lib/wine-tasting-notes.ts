@@ -1,41 +1,11 @@
 // Wine Tasting Notes Reference Guide for parsing wine descriptions
 // Used to identify unique characteristics between wines
+// Now integrated with the comprehensive wine descriptor system
 
-// All 211 wine tasting notes from the comprehensive guide
-export const wineTastingNotes = [
-  'acacia', 'acidic', 'aftertaste', 'alcoholic', 'allspice', 'almond', 'angular', 'anise',
-  'apple baked', 'apple green', 'apple ripe', 'apricot dried', 'apricot ripe', 'aromatic', 
-  'ashy', 'asparagus', 'astringent', 'austere', 'autolytic', 'backward', 'bacon fat', 'baked',
-  'balanced', 'balsamic', 'banana', 'band-aid', 'barnyard', 'basil', 'bay leaf', 'beeswax',
-  'beetroot', 'big', 'biscuit', 'bitter', 'black cherry', 'black pepper', 'black tea',
-  'blackberry', 'blackcurrant', 'blueberry', 'body', 'boiled cabbage', 'boiled egg',
-  'boxwood', 'boysenberry', 'brioche', 'brooding', 'bubblegum', 'burnt rubber', 'butterscotch',
-  'buttery', 'cassis', 'cedar', 'chalky', 'cherry', 'chocolate', 'cinnamon', 'citrus',
-  'citrus zest', 'clove', 'coconut', 'coffee', 'complex', 'cranberry', 'cream', 'creamy',
-  'crisp', 'earthy', 'elegant', 'espresso', 'eucalyptus', 'fig', 'flint', 'floral', 'fresh',
-  'fruity', 'gamey', 'garlic', 'garrigue', 'geranium', 'ginger', 'gooseberry', 'grapefruit',
-  'grapey', 'graphite', 'grassy', 'green', 'green bell pepper', 'green tea', 'guava',
-  'gunflint', 'hard', 'hawthorn', 'hay', 'hazelnut', 'heavy', 'herbaceous', 'hibiscus',
-  'hollow', 'honey', 'honeysuckle', 'horse blanket', 'horse manure', 'hot', 'incense',
-  'iodine', 'iris', 'jalapeño', 'jammy', 'jasmine', 'kirsch', 'lavender', 'lean', 'leather',
-  'lemon', 'lemongrass', 'licorice', 'lilac', 'lime', 'linden', 'lit match', 'lively',
-  'lychee', 'mango', 'maple syrup', 'marmalade', 'marzipan', 'mature', 'meaty', 'mellow',
-  'melon', 'menthol', 'metallic', 'mineral', 'minerality', 'mint', 'mocha', 'molasses',
-  'monolithic', 'mousse', 'mulberry', 'mushroom', 'musky', 'musty', 'nail polish', 'nectarine',
-  'nervy', 'nettles', 'nutmeg', 'nutty', 'oak', 'oaky', 'oily', 'olive', 'onion', 'opulent',
-  'orange', 'orange blossom', 'overripe', 'oxidized', 'papaya', 'passion fruit', 'peach',
-  'pear', 'peardrop', 'pencil shavings', 'peony', 'perfumed', 'persimmon', 'petrichor',
-  'petrol', 'pine', 'pineapple', 'plum', 'polished', 'pomegranate', 'potpourri', 'powerful',
-  'prune', 'pungent', 'quince', 'racy', 'raisin', 'raspberry', 'red currant', 'red plum',
-  'rhubarb', 'rich', 'robust', 'rose', 'rosemary', 'rotten egg', 'round', 'saffron', 'sage',
-  'saline', 'salinity', 'salt', 'salty', 'brine', 'briny', 'savory', 'sharp', 'silky',
-  'slate', 'smoky', 'smooth', 'soapy', 'soft', 'sour cherry', 'spice', 'spicy', 'stalky',
-  'stewed fruit', 'strawberry', 'sun-dried tomato', 'supple', 'sweet', 'tannic', 'tannins',
-  'tar', 'tart', 'thin', 'thyme', 'tight', 'toast', 'tobacco', 'toffee', 'tomato',
-  'tomato leaf', 'truffle', 'underripe', 'vanilla', 'vegetal', 'velvety', 'vinegar', 'violet',
-  'volcanic', 'walnut', 'wet dog', 'wet wool', 'white flowers', 'white pepper', 'yeasty',
-  'youthful', 'zesty'
-];
+import { getAllDescriptorTerms } from '../../../shared/wine-descriptors';
+
+// Get all wine tasting notes from the merged comprehensive descriptor system
+export const wineTastingNotes = getAllDescriptorTerms();
 
 // Function to identify tasting notes in wine descriptions
 export function identifyTastingNotes(description: string): string[] {
