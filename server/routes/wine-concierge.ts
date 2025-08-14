@@ -49,6 +49,42 @@ function parsePriceFromQuery(query: string): { cleanQuery: string, priceMin?: nu
   return { cleanQuery, priceMin, priceMax };
 }
 
+// Parse wine type from query
+function parseWineTypeFromQuery(query: string): 'red' | 'white' | 'rosé' | 'sparkling' | 'dessert' | undefined {
+  const queryLower = query.toLowerCase();
+  
+  // Check for explicit wine types
+  if (queryLower.includes('red wine') || queryLower.includes('red ')) {
+    return 'red';
+  }
+  if (queryLower.includes('white wine') || queryLower.includes('white ')) {
+    return 'white';
+  }
+  if (queryLower.includes('rosé') || queryLower.includes('rose')) {
+    return 'rosé';
+  }
+  if (queryLower.includes('sparkling') || queryLower.includes('champagne') || queryLower.includes('prosecco') || queryLower.includes('cava')) {
+    return 'sparkling';
+  }
+  if (queryLower.includes('dessert') || queryLower.includes('sweet wine') || queryLower.includes('port')) {
+    return 'dessert';
+  }
+  
+  // Check for red wine varieties
+  const redVarieties = ['cabernet', 'merlot', 'pinot noir', 'syrah', 'shiraz', 'malbec', 'zinfandel', 'tempranillo', 'sangiovese', 'nebbiolo', 'grenache'];
+  for (const variety of redVarieties) {
+    if (queryLower.includes(variety)) return 'red';
+  }
+  
+  // Check for white wine varieties
+  const whiteVarieties = ['chardonnay', 'sauvignon blanc', 'pinot grigio', 'pinot gris', 'riesling', 'gewürztraminer', 'albariño', 'grüner veltliner', 'chenin blanc', 'viognier'];
+  for (const variety of whiteVarieties) {
+    if (queryLower.includes(variety)) return 'white';
+  }
+  
+  return undefined;
+}
+
 /**
  * Get wine recommendations based on guest query
  */
@@ -59,12 +95,16 @@ router.post("/recommend", async (req, res) => {
     // Parse price from query if not provided explicitly
     const { cleanQuery, priceMin, priceMax } = parsePriceFromQuery(data.query);
     
+    // Parse wine type from query
+    const wineType = parseWineTypeFromQuery(data.query);
+    
     // Use parsed prices if not provided in request
     const finalPriceMin = data.priceRange?.min ?? priceMin;
     const finalPriceMax = data.priceRange?.max ?? priceMax;
 
     console.log(`[WineConcierge] Processing query: "${data.query}"`);
     console.log(`[WineConcierge] Clean query: "${cleanQuery}"`);
+    console.log(`[WineConcierge] Wine type: ${wineType || 'any'}`);
     console.log(`[WineConcierge] Price range: $${finalPriceMin} - $${finalPriceMax}`);
 
     // Generate embedding for the query
@@ -76,7 +116,8 @@ router.post("/recommend", async (req, res) => {
       data.restaurantId,
       finalPriceMin,
       finalPriceMax,
-      3 // Get top 3 recommendations
+      3, // Get top 3 recommendations
+      wineType // Pass wine type filter
     );
 
     // Format response with comparison highlights

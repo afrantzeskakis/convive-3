@@ -123,7 +123,8 @@ export class WineEmbeddingService {
     restaurantId: number, 
     priceMin?: number,
     priceMax?: number,
-    limit: number = 3
+    limit: number = 3,
+    wineType?: 'red' | 'white' | 'rosé' | 'sparkling' | 'dessert'
   ): Promise<any[]> {
     try {
       // Convert embedding array to PostgreSQL vector format
@@ -133,6 +134,21 @@ export class WineEmbeddingService {
       let priceFilter = sql`1=1`;
       if (priceMin !== undefined && priceMax !== undefined) {
         priceFilter = sql`${restaurantWinesIsolated.menu_price} BETWEEN ${priceMin} AND ${priceMax}`;
+      }
+      
+      // Build wine type filter
+      let typeFilter = sql`1=1`;
+      if (wineType) {
+        // Map wine type to expected database values
+        const typeMapping: Record<string, string[]> = {
+          'red': ['Red', 'red', 'Red Wine', 'RED'],
+          'white': ['White', 'white', 'White Wine', 'WHITE'],
+          'rosé': ['Rosé', 'rosé', 'Rose', 'rose', 'ROSÉ'],
+          'sparkling': ['Sparkling', 'sparkling', 'Champagne', 'champagne', 'Prosecco', 'prosecco', 'Cava', 'cava', 'SPARKLING'],
+          'dessert': ['Dessert', 'dessert', 'Sweet', 'sweet', 'Port', 'port', 'DESSERT']
+        };
+        const typeValues = typeMapping[wineType] || [wineType];
+        typeFilter = sql`LOWER(${restaurantWinesIsolated.wine_type}) = ANY(ARRAY[${sql.raw(typeValues.map(t => `'${t.toLowerCase()}'`).join(','))}])`;
       }
 
       // Get top matches first
@@ -145,6 +161,7 @@ export class WineEmbeddingService {
           ${restaurantWinesIsolated.restaurant_id} = ${restaurantId}
           AND ${restaurantWinesIsolated.wine_embedding} IS NOT NULL
           AND ${priceFilter}
+          AND ${typeFilter}
         ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
         LIMIT ${Math.min(limit, 2)}
       `);
@@ -180,6 +197,7 @@ export class WineEmbeddingService {
             AND ${restaurantWinesIsolated.wine_embedding} IS NOT NULL
             AND ${expandedPriceFilter}
             AND ${excludeClause}
+            AND ${typeFilter}
             AND (1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector)) > 0.7
           ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
           LIMIT 5
