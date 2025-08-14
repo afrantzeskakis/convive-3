@@ -387,7 +387,11 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                       {selectedRecipe.ingredients.map((ingredient, index) => (
                         <div key={index} className="flex items-start gap-2">
                           <span className="text-primary mt-1">•</span>
-                          <span className="text-sm">{ingredient}</span>
+                          <span className="text-sm">
+                            {typeof ingredient === 'string' 
+                              ? ingredient 
+                              : ingredient.name || ingredient}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -445,7 +449,11 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                             <div key={allergen} className="text-xs">
                               <span className="font-medium text-warning">{allergen}:</span>
                               <span className="text-muted-foreground ml-1">
-                                {(ingredients as string[]).join(', ')}
+                                {Array.isArray(ingredients) 
+                                  ? ingredients.map(ing => 
+                                      typeof ing === 'string' ? ing : ing.name || ing
+                                    ).join(', ')
+                                  : ingredients}
                               </span>
                             </div>
                           ))}
@@ -461,7 +469,11 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                             <div key={restriction} className="text-xs">
                               <span className="font-medium">{restriction}:</span>
                               <span className="text-muted-foreground ml-1">
-                                {(ingredients as string[]).join(', ')}
+                                {Array.isArray(ingredients) 
+                                  ? ingredients.map(ing => 
+                                      typeof ing === 'string' ? ing : ing.name || ing
+                                    ).join(', ')
+                                  : ingredients}
                               </span>
                             </div>
                           ))}
