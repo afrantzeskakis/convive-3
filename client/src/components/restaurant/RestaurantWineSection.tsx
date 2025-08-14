@@ -182,7 +182,7 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
 
       {/* Wine Details Dialog */}
       <Dialog open={showWineDetails} onOpenChange={setShowWineDetails}>
-        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Wine className="w-5 h-5" />
@@ -193,7 +193,7 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
             </DialogDescription>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 pr-4">
+          <div className="mt-4">
             {selectedWine && (
               <div className="space-y-6">
                 {/* Basic Wine Information */}
@@ -336,7 +336,7 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
                 )}
               </div>
             )}
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

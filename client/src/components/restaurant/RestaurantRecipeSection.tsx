@@ -14,14 +14,23 @@ interface Recipe {
   id: number;
   name: string;
   description: string;
-  ingredients: string[];
-  instructions: string;
+  ingredients?: string[];
+  instructions?: string;
   prepTime?: string;
   cookTime?: string;
   servings?: number;
   difficulty?: string;
   category?: string;
   cuisineType?: string;
+  dishType?: string;
+  cuisine?: string;
+  recipeText?: string;
+  techniques?: Array<{
+    name: string;
+    description: string;
+  }>;
+  allergenSummary?: Record<string, string[]>;
+  dietaryRestrictionSummary?: Record<string, string[]>;
   createdAt: string;
   updatedAt: string;
   restaurantId: number;
@@ -75,7 +84,7 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
     setShowRecipeDetails(true);
   };
 
-  const categories = ['all', ...new Set(recipes.map((r: Recipe) => r.category).filter(Boolean))];
+  const categories = ['all', ...new Set(recipes.map((r: Recipe) => r.category).filter(Boolean).map(c => String(c)))];
 
   if (isLoading) {
     return (
@@ -250,7 +259,7 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
 
       {/* Recipe Details Dialog */}
       <Dialog open={showRecipeDetails} onOpenChange={setShowRecipeDetails}>
-        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <ChefHat className="w-5 h-5" />
@@ -261,7 +270,7 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
             </DialogDescription>
           </DialogHeader>
           
-          <ScrollArea className="flex-1 pr-4">
+          <div className="mt-4">
             {selectedRecipe && (
               <div className="space-y-6">
                 {/* Recipe Overview */}
@@ -354,6 +363,76 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                   </div>
                 )}
 
+                {/* Techniques */}
+                {selectedRecipe.techniques && selectedRecipe.techniques.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Star className="h-4 w-4" />
+                      Cooking Techniques
+                    </h4>
+                    <div className="space-y-2">
+                      {selectedRecipe.techniques.map((technique, index) => (
+                        <div key={index} className="border-l-2 border-primary pl-3">
+                          <p className="text-sm font-medium">{technique.name}</p>
+                          <p className="text-xs text-muted-foreground">{technique.description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Dietary Information */}
+                {(selectedRecipe.allergenSummary || selectedRecipe.dietaryRestrictionSummary) && (
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    {selectedRecipe.allergenSummary && Object.keys(selectedRecipe.allergenSummary).length > 0 && (
+                      <div>
+                        <h4 className="font-semibold mb-2 text-sm">Allergen Information</h4>
+                        <div className="space-y-1">
+                          {Object.entries(selectedRecipe.allergenSummary).map(([allergen, ingredients]) => (
+                            <div key={allergen} className="text-xs">
+                              <span className="font-medium text-warning">{allergen}:</span>
+                              <span className="text-muted-foreground ml-1">
+                                {(ingredients as string[]).join(', ')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {selectedRecipe.dietaryRestrictionSummary && Object.keys(selectedRecipe.dietaryRestrictionSummary).length > 0 && (
+                      <div>
+                        <h4 className="font-semibold mb-2 text-sm">Dietary Restrictions</h4>
+                        <div className="space-y-1">
+                          {Object.entries(selectedRecipe.dietaryRestrictionSummary).map(([restriction, ingredients]) => (
+                            <div key={restriction} className="text-xs">
+                              <span className="font-medium">{restriction}:</span>
+                              <span className="text-muted-foreground ml-1">
+                                {(ingredients as string[]).join(', ')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Full Recipe Text (if available) */}
+                {selectedRecipe.recipeText && (
+                  <div>
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <ChefHat className="h-4 w-4" />
+                      Complete Recipe
+                    </h4>
+                    <div className="bg-muted/30 rounded-lg p-4">
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                        {selectedRecipe.recipeText}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 {/* Metadata */}
                 <div className="pt-4 border-t text-xs text-muted-foreground">
                   <p>Added {formatDistanceToNow(new Date(selectedRecipe.createdAt), { addSuffix: true })}</p>
@@ -363,7 +442,7 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                 </div>
               </div>
             )}
-          </ScrollArea>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
