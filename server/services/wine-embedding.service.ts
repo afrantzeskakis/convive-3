@@ -162,6 +162,14 @@ export class WineEmbeddingService {
         }
 
         // Get wines that are good matches but not in top 2
+        const excludedIds = topResults.rows.map((r: any) => r.id);
+        
+        // Build the query with proper exclusion
+        let excludeClause = sql`1=1`;
+        if (excludedIds.length > 0) {
+          excludeClause = sql`${restaurantWinesIsolated.id} != ALL(ARRAY[${sql.raw(excludedIds.join(','))}]::int[])`;
+        }
+        
         const wildCardResults = await db.execute(sql`
           SELECT 
             *,
@@ -171,7 +179,7 @@ export class WineEmbeddingService {
             ${restaurantWinesIsolated.restaurant_id} = ${restaurantId}
             AND ${restaurantWinesIsolated.wine_embedding} IS NOT NULL
             AND ${expandedPriceFilter}
-            AND ${restaurantWinesIsolated.id} NOT IN (${topResults.rows.map((r: any) => r.id).join(',') || '0'})
+            AND ${excludeClause}
             AND (1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector)) > 0.7
           ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
           LIMIT 5
