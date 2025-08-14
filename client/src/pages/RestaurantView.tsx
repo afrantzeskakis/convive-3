@@ -216,22 +216,22 @@ export default function RestaurantView() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview" className="flex items-center justify-center">
-            <FileText className="h-4 w-4 mr-2" />
-            Restaurant Info
+        <TabsList className="flex w-full overflow-x-auto no-scrollbar">
+          <TabsTrigger value="overview" className="flex items-center justify-center whitespace-nowrap min-w-fit px-3">
+            <FileText className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Restaurant Info</span>
           </TabsTrigger>
-          <TabsTrigger value="recipes" className="flex items-center justify-center">
-            <Utensils className="h-4 w-4 mr-2" />
-            Recipe Analysis
+          <TabsTrigger value="recipes" className="flex items-center justify-center whitespace-nowrap min-w-fit px-3">
+            <Utensils className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Recipe Analysis</span>
           </TabsTrigger>
-          <TabsTrigger value="wine" className="flex items-center justify-center">
-            <Wine className="h-4 w-4 mr-2" />
-            Wine Pairing
+          <TabsTrigger value="wine" className="flex items-center justify-center whitespace-nowrap min-w-fit px-3">
+            <Wine className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Wine Pairing</span>
           </TabsTrigger>
-          <TabsTrigger value="allergies" className="flex items-center justify-center">
-            <FileSearch className="h-4 w-4 mr-2" />
-            Allergen Checker
+          <TabsTrigger value="allergies" className="flex items-center justify-center whitespace-nowrap min-w-fit px-3">
+            <FileSearch className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="text-xs sm:text-sm">Allergen Checker</span>
           </TabsTrigger>
         </TabsList>
 
