@@ -501,23 +501,20 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                     <div 
                       className="bg-muted/30 rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed culinary-content"
                       dangerouslySetInnerHTML={{ __html: selectedRecipe.highlightedText }}
-                      onPointerDown={(e) => {
-                        // Works for both mouse and touch
+                      onClick={(e) => {
+                        // Handle clicks on highlighted terms
                         const target = e.target as HTMLElement;
-                        console.log('Pointer down on:', target.className, 'Term:', target.getAttribute('data-term'));
-                        if (target.classList.contains('culinary-term')) {
+                        console.log('Click on element:', target.tagName, 'Class:', target.className);
+                        
+                        // Check if clicked element is a culinary term span
+                        if (target.tagName === 'SPAN' && target.classList.contains('culinary-term')) {
                           e.preventDefault();
-                          e.stopPropagation();
                           const term = target.getAttribute('data-term');
+                          console.log('Term clicked:', term);
                           if (term) {
-                            console.log('Opening carousel for term:', term);
                             handleTermClick(term, selectedRecipe);
                           }
                         }
-                      }}
-                      style={{
-                        WebkitTapHighlightColor: 'transparent',
-                        userSelect: 'text'
                       }}
                     />
                   </div>
