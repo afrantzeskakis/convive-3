@@ -31,8 +31,8 @@ interface RestaurantWineSectionProps {
 
 export function RestaurantWineSection({ restaurantId, isUserView = false }: RestaurantWineSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState('');
-  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedRegion, setSelectedRegion] = useState('all');
 
   // Fetch restaurant wines
   const { data: wines = [], isLoading } = useQuery({
@@ -40,8 +40,8 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchQuery) params.append('q', searchQuery);
-      if (selectedType) params.append('type', selectedType);
-      if (selectedRegion) params.append('region', selectedRegion);
+      if (selectedType && selectedType !== 'all') params.append('type', selectedType);
+      if (selectedRegion && selectedRegion !== 'all') params.append('region', selectedRegion);
       
       const response = await fetch(`/api/restaurants/${restaurantId}/wines/search?${params}`);
       if (!response.ok) throw new Error('Failed to fetch wines');
@@ -107,7 +107,7 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
                 <SelectValue placeholder="Wine type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All types</SelectItem>
+                <SelectItem value="all">All types</SelectItem>
                 <SelectItem value="red">Red</SelectItem>
                 <SelectItem value="white">White</SelectItem>
                 <SelectItem value="rosé">Rosé</SelectItem>
@@ -120,7 +120,7 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
                 <SelectValue placeholder="Region" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All regions</SelectItem>
+                <SelectItem value="all">All regions</SelectItem>
                 <SelectItem value="bordeaux">Bordeaux</SelectItem>
                 <SelectItem value="burgundy">Burgundy</SelectItem>
                 <SelectItem value="tuscany">Tuscany</SelectItem>

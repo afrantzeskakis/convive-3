@@ -50,12 +50,12 @@ interface WinePairingToolProps {
 export function WinePairingTool({ restaurantId }: WinePairingToolProps) {
   const [dishes, setDishes] = useState('');
   const [preferences, setPreferences] = useState({
-    wine_type: '',
-    body: '',
-    region: '',
-    budget: ''
+    wine_type: 'all',
+    body: 'all',
+    region: 'all',
+    budget: 'all'
   });
-  const [occasion, setOccasion] = useState('');
+  const [occasion, setOccasion] = useState('all');
   const [pairingResult, setPairingResult] = useState<WinePairingResult | null>(null);
   const [recommendationResult, setRecommendationResult] = useState<WineRecommendationResult | null>(null);
   
@@ -193,7 +193,7 @@ export function WinePairingTool({ restaurantId }: WinePairingToolProps) {
                       <SelectValue placeholder="Any" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any type</SelectItem>
+                      <SelectItem value="all">Any type</SelectItem>
                       <SelectItem value="red">Red</SelectItem>
                       <SelectItem value="white">White</SelectItem>
                       <SelectItem value="rosé">Rosé</SelectItem>
@@ -209,7 +209,7 @@ export function WinePairingTool({ restaurantId }: WinePairingToolProps) {
                       <SelectValue placeholder="Any" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any body</SelectItem>
+                      <SelectItem value="all">Any body</SelectItem>
                       <SelectItem value="light">Light</SelectItem>
                       <SelectItem value="medium">Medium</SelectItem>
                       <SelectItem value="full">Full</SelectItem>
@@ -224,7 +224,7 @@ export function WinePairingTool({ restaurantId }: WinePairingToolProps) {
                       <SelectValue placeholder="Any" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any region</SelectItem>
+                      <SelectItem value="all">Any region</SelectItem>
                       <SelectItem value="bordeaux">Bordeaux</SelectItem>
                       <SelectItem value="burgundy">Burgundy</SelectItem>
                       <SelectItem value="tuscany">Tuscany</SelectItem>
@@ -240,7 +240,7 @@ export function WinePairingTool({ restaurantId }: WinePairingToolProps) {
                       <SelectValue placeholder="Any" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any budget</SelectItem>
+                      <SelectItem value="all">Any budget</SelectItem>
                       <SelectItem value="budget">Budget-friendly</SelectItem>
                       <SelectItem value="mid-range">Mid-range</SelectItem>
                       <SelectItem value="premium">Premium</SelectItem>
@@ -334,7 +334,7 @@ export function WinePairingTool({ restaurantId }: WinePairingToolProps) {
                       <SelectValue placeholder="Select occasion" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any occasion</SelectItem>
+                      <SelectItem value="all">Any occasion</SelectItem>
                       <SelectItem value="romantic dinner">Romantic dinner</SelectItem>
                       <SelectItem value="business meeting">Business meeting</SelectItem>
                       <SelectItem value="celebration">Celebration</SelectItem>
