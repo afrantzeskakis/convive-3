@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChefHat, Search, Clock, Users, Star } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { ChefHat, Search, Clock, Users, Star, Eye, Utensils, List } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface Recipe {
@@ -33,6 +35,8 @@ interface RestaurantRecipeSectionProps {
 export function RestaurantRecipeSection({ restaurantId, isUserView = false }: RestaurantRecipeSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [showRecipeDetails, setShowRecipeDetails] = useState(false);
 
   // Fetch restaurant recipes
   const { data: recipes = [], isLoading } = useQuery({
@@ -64,6 +68,11 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
       case 'hard': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const handleViewRecipeDetails = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setShowRecipeDetails(true);
   };
 
   const categories = ['all', ...new Set(recipes.map((r: Recipe) => r.category).filter(Boolean))];
@@ -211,8 +220,17 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                 )}
 
                 {/* Last Updated */}
-                <div className="text-xs text-muted-foreground pt-2 border-t">
-                  Added {formatDistanceToNow(new Date(recipe.createdAt), { addSuffix: true })}
+                <div className="text-xs text-muted-foreground pt-2 border-t flex justify-between items-center">
+                  <span>Added {formatDistanceToNow(new Date(recipe.createdAt), { addSuffix: true })}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleViewRecipeDetails(recipe)}
+                    className="flex items-center gap-1"
+                  >
+                    <Eye className="h-4 w-4" />
+                    View Full Recipe
+                  </Button>
                 </div>
               </div>
             </CardContent>
@@ -229,6 +247,125 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
           </CardContent>
         </Card>
       )}
+
+      {/* Recipe Details Dialog */}
+      <Dialog open={showRecipeDetails} onOpenChange={setShowRecipeDetails}>
+        <DialogContent className="w-[95vw] max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ChefHat className="w-5 h-5" />
+              {selectedRecipe?.name}
+            </DialogTitle>
+            <DialogDescription>
+              {selectedRecipe?.category} • {selectedRecipe?.cuisineType}
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="flex-1 pr-4">
+            {selectedRecipe && (
+              <div className="space-y-6">
+                {/* Recipe Overview */}
+                <div>
+                  <h4 className="font-semibold mb-2">Description</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {selectedRecipe.description}
+                  </p>
+                </div>
+
+                {/* Recipe Details */}
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {selectedRecipe.difficulty && (
+                    <div className="flex items-center gap-2">
+                      <Star className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Difficulty:</span>{' '}
+                        <Badge className={getDifficultyColor(selectedRecipe.difficulty)}>
+                          {selectedRecipe.difficulty}
+                        </Badge>
+                      </span>
+                    </div>
+                  )}
+                  
+                  {selectedRecipe.prepTime && (
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Prep:</span> {selectedRecipe.prepTime}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {selectedRecipe.cookTime && (
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Cook:</span> {selectedRecipe.cookTime}
+                      </span>
+                    </div>
+                  )}
+                  
+                  {selectedRecipe.servings && (
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm">
+                        <span className="font-medium">Serves:</span> {selectedRecipe.servings}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Ingredients */}
+                {selectedRecipe.ingredients && selectedRecipe.ingredients.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <List className="h-4 w-4" />
+                      Ingredients
+                    </h4>
+                    <div className="grid sm:grid-cols-2 gap-2">
+                      {selectedRecipe.ingredients.map((ingredient, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <span className="text-primary mt-1">•</span>
+                          <span className="text-sm">{ingredient}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Instructions */}
+                {selectedRecipe.instructions && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <Utensils className="h-4 w-4" />
+                      Instructions
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedRecipe.instructions.split('\n').filter(step => step.trim()).map((step, index) => (
+                        <div key={index} className="flex gap-3">
+                          <span className="font-medium text-primary min-w-[24px]">
+                            {index + 1}.
+                          </span>
+                          <p className="text-sm text-muted-foreground leading-relaxed">
+                            {step.trim()}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Metadata */}
+                <div className="pt-4 border-t text-xs text-muted-foreground">
+                  <p>Added {formatDistanceToNow(new Date(selectedRecipe.createdAt), { addSuffix: true })}</p>
+                  {selectedRecipe.updatedAt !== selectedRecipe.createdAt && (
+                    <p>Last updated {formatDistanceToNow(new Date(selectedRecipe.updatedAt), { addSuffix: true })}</p>
+                  )}
+                </div>
+              </div>
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
