@@ -135,8 +135,8 @@ export class WineEmbeddingService {
         priceFilter = sql`${restaurantWinesIsolated.menu_price} BETWEEN ${priceMin} AND ${priceMax}`;
       }
 
-      // Query for similar wines using cosine distance
-      const results = await db.execute(sql`
+      // Get top matches first
+      const topResults = await db.execute(sql`
         SELECT 
           *,
           1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector) as similarity
@@ -146,10 +146,46 @@ export class WineEmbeddingService {
           AND ${restaurantWinesIsolated.wine_embedding} IS NOT NULL
           AND ${priceFilter}
         ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
-        LIMIT ${limit}
+        LIMIT ${Math.min(limit, 2)}
       `);
 
-      return results.rows;
+      // If we need a 3rd recommendation, get it with slightly more conservative criteria
+      if (limit > 2 && topResults.rows.length >= 2) {
+        // Expand price range by 20% for more conservative wild card
+        const expandedPriceMin = priceMin ? Math.floor(priceMin * 0.8) : undefined;
+        const expandedPriceMax = priceMax ? Math.ceil(priceMax * 1.2) : undefined;
+        
+        // Build expanded price filter
+        let expandedPriceFilter = sql`1=1`;
+        if (expandedPriceMin !== undefined && expandedPriceMax !== undefined) {
+          expandedPriceFilter = sql`${restaurantWinesIsolated.menu_price} BETWEEN ${expandedPriceMin} AND ${expandedPriceMax}`;
+        }
+
+        // Get wines that are good matches but not in top 2
+        const wildCardResults = await db.execute(sql`
+          SELECT 
+            *,
+            1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector) as similarity
+          FROM ${restaurantWinesIsolated}
+          WHERE 
+            ${restaurantWinesIsolated.restaurant_id} = ${restaurantId}
+            AND ${restaurantWinesIsolated.wine_embedding} IS NOT NULL
+            AND ${expandedPriceFilter}
+            AND ${restaurantWinesIsolated.id} NOT IN (${topResults.rows.map((r: any) => r.id).join(',') || '0'})
+            AND (1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector)) > 0.7
+          ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
+          LIMIT 5
+        `);
+
+        // Select wild card from results with some variety
+        if (wildCardResults.rows.length > 0) {
+          // Pick 2nd best wild card option for more interesting but still conservative choice
+          const wildCardIndex = Math.min(1, wildCardResults.rows.length - 1);
+          return [...topResults.rows, wildCardResults.rows[wildCardIndex]];
+        }
+      }
+
+      return topResults.rows;
     } catch (error) {
       console.error("[WineEmbedding] Error finding similar wines:", error);
       throw error;

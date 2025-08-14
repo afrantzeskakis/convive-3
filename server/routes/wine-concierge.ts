@@ -102,7 +102,7 @@ router.post("/recommend", async (req, res) => {
         similarity_score: wine.similarity,
         is_wild_card: isWildCard,
         match_reason: isWildCard 
-          ? "Surprise pick - different but delightful"
+          ? "Thoughtful alternative - expands your options"
           : index === 0 
             ? "Best match for your preferences"
             : "Strong alternative option"
