@@ -156,9 +156,16 @@ export function WinePairingTool({ restaurantId }: WinePairingToolProps) {
       </div>
 
       <Tabs defaultValue="pairing" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="pairing">Food Pairing</TabsTrigger>
-          <TabsTrigger value="recommendations">Wine Recommendations</TabsTrigger>
+        <TabsList className="w-full flex flex-wrap gap-1">
+          <TabsTrigger value="pairing" className="flex items-center flex-1 min-w-[140px]">
+            <Utensils className="mr-1 sm:mr-2 h-4 w-4" />
+            Food Pairing
+          </TabsTrigger>
+          <TabsTrigger value="recommendations" className="flex items-center flex-1 min-w-[140px]">
+            <Star className="mr-1 sm:mr-2 h-4 w-4" />
+            <span className="hidden sm:inline">Wine Recommendations</span>
+            <span className="sm:hidden">Recommendations</span>
+          </TabsTrigger>
         </TabsList>
 
         {/* Food Pairing Tab */}

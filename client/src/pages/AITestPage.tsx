@@ -300,22 +300,26 @@ export function AITestPage() {
       )}
       
       <Tabs defaultValue="recipe" className="space-y-6">
-        <TabsList className="w-full grid grid-cols-4">
-          <TabsTrigger value="recipe" className="flex gap-2 items-center">
+        <TabsList className="w-full flex flex-wrap gap-1">
+          <TabsTrigger value="recipe" className="flex gap-1 sm:gap-2 items-center flex-1 min-w-[120px]">
             <ChefHat className="h-4 w-4" />
-            Recipe Analysis
+            <span className="hidden sm:inline">Recipe Analysis</span>
+            <span className="sm:hidden">Recipe</span>
           </TabsTrigger>
-          <TabsTrigger value="wine" className="flex gap-2 items-center">
+          <TabsTrigger value="wine" className="flex gap-1 sm:gap-2 items-center flex-1 min-w-[120px]">
             <Wine className="h-4 w-4" />
-            Wine Analysis
+            <span className="hidden sm:inline">Wine Analysis</span>
+            <span className="sm:hidden">Wine</span>
           </TabsTrigger>
-          <TabsTrigger value="wineupload" className="flex gap-2 items-center">
+          <TabsTrigger value="wineupload" className="flex gap-1 sm:gap-2 items-center flex-1 min-w-[120px]">
             <Upload className="h-4 w-4" />
-            Wine Upload
+            <span className="hidden sm:inline">Wine Upload</span>
+            <span className="sm:hidden">Upload</span>
           </TabsTrigger>
-          <TabsTrigger value="call" className="flex gap-2 items-center">
+          <TabsTrigger value="call" className="flex gap-1 sm:gap-2 items-center flex-1 min-w-[120px]">
             <Phone className="h-4 w-4" />
-            Call Scripts
+            <span className="hidden sm:inline">Call Scripts</span>
+            <span className="sm:hidden">Calls</span>
           </TabsTrigger>
         </TabsList>
         

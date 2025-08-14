@@ -261,13 +261,14 @@ function RestaurantPartnerCard({ restaurant }: { restaurant: Restaurant }) {
         <p className="text-slate-600 mb-6">{restaurant.description}</p>
         
         <Tabs defaultValue="about" className="w-full">
-          <TabsList className="w-full grid grid-cols-2 mb-4">
-            <TabsTrigger value="about" className="text-sm">About</TabsTrigger>
+          <TabsList className="w-full flex gap-1">
+            <TabsTrigger value="about" className="text-sm flex-1">About</TabsTrigger>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <TabsTrigger value="awards" className="text-sm flex items-center gap-1">
-                    Awards & Recognition
+                  <TabsTrigger value="awards" className="text-sm flex items-center gap-1 flex-1">
+                    <span className="hidden sm:inline">Awards & Recognition</span>
+                    <span className="sm:hidden">Awards</span>
                     {!restaurant.awards && (
                       <Info className="h-3.5 w-3.5 text-slate-400" />
                     )}

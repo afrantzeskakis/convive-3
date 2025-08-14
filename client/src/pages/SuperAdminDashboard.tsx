@@ -1772,30 +1772,27 @@ Convive: Curated Dining & Extraordinary Connections
             </div>
             
             {/* Desktop Tabs - Hidden on mobile */}
-            <div className="hidden md:block space-y-2">
-              <TabsList className="flex flex-wrap">
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                <TabsTrigger value="users">Users</TabsTrigger>
-                <TabsTrigger value="user-metrics">User Metrics</TabsTrigger>
-                <TabsTrigger value="restaurants">Restaurants</TabsTrigger>
-                <TabsTrigger value="meetups">Today's Meetups</TabsTrigger>
-                <TabsTrigger value="restaurant-notifications">Notifications</TabsTrigger>
-                <TabsTrigger value="ux-consistency">UX Consistency</TabsTrigger>
-              </TabsList>
-              
-              <TabsList className="flex flex-wrap">
-                <TabsTrigger value="recipe-analysis">Recipe Analysis</TabsTrigger>
-                <TabsTrigger value="wine" className="bg-primary/10 text-primary">Wine Upload</TabsTrigger>
-                <TabsTrigger value="premium">Premium Data</TabsTrigger>
-                <TabsTrigger value="user-management">User Management</TabsTrigger>
-                <TabsTrigger value="data-management">Data Management</TabsTrigger>
-                <TabsTrigger value="user-view">User View</TabsTrigger>
-                <TabsTrigger value="restaurant-admin">Rest. Admin</TabsTrigger>
-                <TabsTrigger value="public-view">Public View</TabsTrigger>
-                <TabsTrigger value="call-management">Call Management</TabsTrigger>
-                <TabsTrigger value="vc-valuation">VC Valuation</TabsTrigger>
-                <TabsTrigger value="group-formation-test">Group Formation</TabsTrigger>
-                <TabsTrigger value="ai-testing">AI Testing</TabsTrigger>
+            <div className="hidden md:block">
+              <TabsList className="w-full flex flex-wrap gap-1 mb-2">
+                <TabsTrigger value="analytics" className="flex-shrink-0">Analytics</TabsTrigger>
+                <TabsTrigger value="users" className="flex-shrink-0">Users</TabsTrigger>
+                <TabsTrigger value="user-metrics" className="flex-shrink-0">User Metrics</TabsTrigger>
+                <TabsTrigger value="restaurants" className="flex-shrink-0">Restaurants</TabsTrigger>
+                <TabsTrigger value="meetups" className="flex-shrink-0">Today's Meetups</TabsTrigger>
+                <TabsTrigger value="restaurant-notifications" className="flex-shrink-0">Notifications</TabsTrigger>
+                <TabsTrigger value="ux-consistency" className="flex-shrink-0">UX Consistency</TabsTrigger>
+                <TabsTrigger value="recipe-analysis" className="flex-shrink-0">Recipe Analysis</TabsTrigger>
+                <TabsTrigger value="wine" className="bg-primary/10 text-primary flex-shrink-0">Wine Upload</TabsTrigger>
+                <TabsTrigger value="premium" className="flex-shrink-0">Premium Data</TabsTrigger>
+                <TabsTrigger value="user-management" className="flex-shrink-0">User Management</TabsTrigger>
+                <TabsTrigger value="data-management" className="flex-shrink-0">Data Management</TabsTrigger>
+                <TabsTrigger value="user-view" className="flex-shrink-0">User View</TabsTrigger>
+                <TabsTrigger value="restaurant-admin" className="flex-shrink-0">Rest. Admin</TabsTrigger>
+                <TabsTrigger value="public-view" className="flex-shrink-0">Public View</TabsTrigger>
+                <TabsTrigger value="call-management" className="flex-shrink-0">Call Management</TabsTrigger>
+                <TabsTrigger value="vc-valuation" className="flex-shrink-0">VC Valuation</TabsTrigger>
+                <TabsTrigger value="group-formation-test" className="flex-shrink-0">Group Formation</TabsTrigger>
+                <TabsTrigger value="ai-testing" className="flex-shrink-0">AI Testing</TabsTrigger>
               </TabsList>
             </div>
           </div>

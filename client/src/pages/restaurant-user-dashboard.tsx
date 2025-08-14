@@ -135,25 +135,26 @@ export default function RestaurantUserDashboard() {
       <h1 className="text-4xl font-bold mb-4">Restaurant Staff Dashboard</h1>
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="restaurants" className="flex items-center">
-            <Building className="w-4 h-4 mr-2" />
-            Restaurants
+        <TabsList className="w-full flex flex-wrap gap-1">
+          <TabsTrigger value="restaurants" className="flex items-center flex-1 min-w-[140px]">
+            <Building className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Restaurants</span>
+            <span className="sm:hidden">Restaurants</span>
           </TabsTrigger>
-          <TabsTrigger value="today-meetups" className="flex items-center">
-            <Utensils className="w-4 h-4 mr-2" />
-            Today's Meetups
+          <TabsTrigger value="today-meetups" className="flex items-center flex-1 min-w-[140px]">
+            <Utensils className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Today's Meetups</span>
+            <span className="sm:hidden">Meetups</span>
           </TabsTrigger>
-        </TabsList>
-        
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="recipe-analysis" className="flex items-center">
-            <Utensils className="w-4 h-4 mr-2" />
-            Recipe Analysis
+          <TabsTrigger value="recipe-analysis" className="flex items-center flex-1 min-w-[140px]">
+            <Utensils className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Recipe Analysis</span>
+            <span className="sm:hidden">Recipes</span>
           </TabsTrigger>
-          <TabsTrigger value="wine-pairing" className="flex items-center">
-            <Wine className="w-4 h-4 mr-2" />
-            Wine Pairing
+          <TabsTrigger value="wine-pairing" className="flex items-center flex-1 min-w-[140px]">
+            <Wine className="w-4 h-4 mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Wine Pairing</span>
+            <span className="sm:hidden">Wine</span>
           </TabsTrigger>
         </TabsList>
         

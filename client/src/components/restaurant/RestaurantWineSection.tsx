@@ -132,10 +132,10 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
       </Card>
 
       <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">All Wines ({wines.length})</TabsTrigger>
-          <TabsTrigger value="featured">Featured ({featuredWines.length})</TabsTrigger>
-          <TabsTrigger value="glass">By the Glass ({byTheGlassWines.length})</TabsTrigger>
+        <TabsList className="w-full flex flex-wrap gap-1">
+          <TabsTrigger value="all" className="flex-1 min-w-[120px]">All Wines ({wines.length})</TabsTrigger>
+          <TabsTrigger value="featured" className="flex-1 min-w-[120px]">Featured ({featuredWines.length})</TabsTrigger>
+          <TabsTrigger value="glass" className="flex-1 min-w-[120px]">By the Glass ({byTheGlassWines.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
