@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { AllergenChecker } from '@/components/AllergenChecker';
 import { RestaurantWineSection } from '@/components/restaurant/RestaurantWineSection';
+import { RestaurantRecipeSection } from '@/components/restaurant/RestaurantRecipeSection';
 import { Utensils, Wine, FileText, Server, ChefHat, FileSearch, Search } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -282,41 +283,54 @@ export default function RestaurantView() {
         </TabsContent>
 
         <TabsContent value="recipes">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recipe Analysis Tool</CardTitle>
-              <CardDescription>
-                Analyze recipes to get ingredient breakdowns, cooking techniques, and talking points for hosts.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="recipe">Enter Recipe Text</Label>
-                <textarea 
-                  id="recipe"
-                  placeholder="Paste your recipe here..."
-                  value={recipeText}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setRecipeText(e.target.value)}
-                  rows={10}
-                  className="w-full p-2 rounded-md border"
-                />
-              </div>
-              
-              <Button onClick={analyzeRecipe} className="w-full">
-                <ChefHat className="h-4 w-4 mr-2" />
-                Analyze Recipe
-              </Button>
-              
-              <div className="mt-6 p-4 border rounded-lg bg-slate-50">
-                <h3 className="font-medium mb-2">Recipe Analysis Results</h3>
-                <p className="text-slate-500 text-sm italic">
-                  Recipe analysis results will appear here after submission. 
-                  The analysis includes ingredient breakdown, cooking techniques, 
-                  flavor profiles, cultural origins, and host talking points.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <Tabs defaultValue="view" className="space-y-4">
+            <TabsList className="w-full flex gap-1">
+              <TabsTrigger value="view" className="flex-1">View Recipes</TabsTrigger>
+              <TabsTrigger value="analyze" className="flex-1">Analyze New Recipe</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="view">
+              <RestaurantRecipeSection restaurantId={restaurant.id} isUserView={true} />
+            </TabsContent>
+            
+            <TabsContent value="analyze">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recipe Analysis Tool</CardTitle>
+                  <CardDescription>
+                    Analyze recipes to get ingredient breakdowns, cooking techniques, and talking points for hosts.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="recipe">Enter Recipe Text</Label>
+                    <textarea 
+                      id="recipe"
+                      placeholder="Paste your recipe here..."
+                      value={recipeText}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setRecipeText(e.target.value)}
+                      rows={10}
+                      className="w-full p-2 rounded-md border"
+                    />
+                  </div>
+                  
+                  <Button onClick={analyzeRecipe} className="w-full">
+                    <ChefHat className="h-4 w-4 mr-2" />
+                    Analyze Recipe
+                  </Button>
+                  
+                  <div className="mt-6 p-4 border rounded-lg bg-slate-50">
+                    <h3 className="font-medium mb-2">Recipe Analysis Results</h3>
+                    <p className="text-slate-500 text-sm italic">
+                      Recipe analysis results will appear here after submission. 
+                      The analysis includes ingredient breakdown, cooking techniques, 
+                      flavor profiles, cultural origins, and host talking points.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         <TabsContent value="wine">
