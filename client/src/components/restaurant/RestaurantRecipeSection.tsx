@@ -493,6 +493,15 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                     <div 
                       className="bg-muted/30 rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed"
                       dangerouslySetInnerHTML={{ __html: selectedRecipe.highlightedText }}
+                      onClick={(e) => {
+                        const target = e.target as HTMLElement;
+                        if (target.classList.contains('culinary-term')) {
+                          const term = target.getAttribute('data-term');
+                          if (term) {
+                            handleTermClick(term, selectedRecipe);
+                          }
+                        }
+                      }}
                       style={{
                         '--culinary-term-basic': 'underline decoration-green-500 decoration-2 cursor-pointer hover:bg-green-100 hover:rounded px-1',
                         '--culinary-term-intermediate': 'underline decoration-blue-500 decoration-2 cursor-pointer hover:bg-blue-100 hover:rounded px-1',
