@@ -107,14 +107,12 @@ export function RestaurantWineSection({ restaurantId, isUserView = false }: Rest
           <h2 className="text-2xl font-bold">Wine Collection</h2>
           <p className="text-muted-foreground">Explore our curated selection of wines</p>
         </div>
-        {!isUserView && (
-          <Link href="/wine-concierge">
-            <Button variant="outline">
-              <Sparkles className="mr-2 h-4 w-4" />
-              Wine Concierge
-            </Button>
-          </Link>
-        )}
+        <Link href="/wine-concierge">
+          <Button variant="outline">
+            <Sparkles className="mr-2 h-4 w-4" />
+            Wine Concierge
+          </Button>
+        </Link>
       </div>
 
       {/* Search and filters */}

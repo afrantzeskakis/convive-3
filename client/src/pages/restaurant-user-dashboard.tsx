@@ -359,6 +359,13 @@ export default function RestaurantUserDashboard() {
                 />
               </div>
             </div>
+            <Button 
+              variant="default"
+              onClick={() => window.location.href = '/wine-concierge'}
+            >
+              <Wine className="mr-2 h-4 w-4" />
+              Wine Concierge Tool
+            </Button>
           </div>
           
           {loadingWines ? (
