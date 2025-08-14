@@ -135,6 +135,7 @@ Changelog:
 - July 12, 2025. Implemented comprehensive wine descriptor database with 214 terms for highlight-to-define feature
 - July 12, 2025. Added interactive carousel for wine descriptors showing definitions, examples, and related terms when clicked
 - August 06, 2025. **CRITICAL FIX:** Restored ALL 211 original wine descriptors from comprehensive source document - previous merge had lost 75+ descriptors, now complete vocabulary preserved with all original definitions intact
+- August 14, 2025. Added interactive culinary term highlighting and educational carousel to restaurant user view recipes - clicking highlighted terms opens educational slides with techniques, culture, wine pairings, and tips
 
 ## User Preferences
 

@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ChefHat, Search, Clock, Users, Star, Eye, Utensils, List } from 'lucide-react';
+import { ChefHat, Search, Clock, Users, Star, Eye, Utensils, List, BookOpen } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { CulinaryTermCarousel } from '../CulinaryTermCarousel';
 
 interface Recipe {
   id: number;
@@ -31,6 +32,22 @@ interface Recipe {
   }>;
   allergenSummary?: Record<string, string[]>;
   dietaryRestrictionSummary?: Record<string, string[]>;
+  // Analysis fields
+  highlightedText?: string;
+  highlightedTerms?: Array<{
+    term: string;
+    category: string;
+  }>;
+  culinaryKnowledge?: Array<{
+    term: string;
+    category: string;
+    carouselContent?: any[];
+  }>;
+  culinaryTerms?: Array<{
+    term: string;
+    category: string;
+    carouselContent?: any[];
+  }>;
   createdAt: string;
   updatedAt: string;
   restaurantId: number;
@@ -46,6 +63,11 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [showRecipeDetails, setShowRecipeDetails] = useState(false);
+  
+  // Carousel state for culinary terms
+  const [selectedTerm, setSelectedTerm] = useState<string>('');
+  const [carouselOpen, setCarouselOpen] = useState(false);
+  const [carouselData, setCarouselData] = useState<any[]>([]);
 
   // Fetch restaurant recipes
   const { data: recipes = [], isLoading } = useQuery({
@@ -82,6 +104,37 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
   const handleViewRecipeDetails = (recipe: Recipe) => {
     setSelectedRecipe(recipe);
     setShowRecipeDetails(true);
+  };
+
+  // Handle culinary term clicks
+  const handleTermClick = (term: string, recipe: Recipe) => {
+    const culinaryData = recipe.culinaryKnowledge || recipe.culinaryTerms || [];
+    const termData = culinaryData.find(
+      (knowledge) => knowledge.term?.toLowerCase() === term.toLowerCase()
+    );
+    
+    if (termData && termData.carouselContent) {
+      setSelectedTerm(term);
+      setCarouselData(termData.carouselContent);
+      setCarouselOpen(true);
+    }
+  };
+
+  // Make term click handler globally available for inline HTML clicks
+  if (typeof window !== 'undefined' && selectedRecipe) {
+    (window as any).handleCulinaryTermClick = (term: string) => {
+      handleTermClick(term, selectedRecipe);
+    };
+  }
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'basic': return 'bg-green-100 text-green-800';
+      case 'intermediate': return 'bg-blue-100 text-blue-800';
+      case 'advanced': return 'bg-purple-100 text-purple-800';
+      case 'cultural': return 'bg-orange-100 text-orange-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const categories = ['all', ...new Set(recipes.map((r: Recipe) => r.category).filter(Boolean).map(c => String(c)))];
@@ -418,8 +471,25 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                   </div>
                 )}
 
-                {/* Full Recipe Text (if available) */}
-                {selectedRecipe.recipeText && (
+                {/* Highlighted Recipe Text with Culinary Terms */}
+                {selectedRecipe.highlightedText ? (
+                  <div>
+                    <h4 className="font-semibold mb-2 flex items-center gap-2">
+                      <ChefHat className="h-4 w-4" />
+                      Complete Recipe (Click highlighted terms to learn)
+                    </h4>
+                    <div 
+                      className="bg-muted/30 rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed"
+                      dangerouslySetInnerHTML={{ __html: selectedRecipe.highlightedText }}
+                      style={{
+                        '--culinary-term-basic': 'underline decoration-green-500 decoration-2 cursor-pointer hover:bg-green-100 hover:rounded px-1',
+                        '--culinary-term-intermediate': 'underline decoration-blue-500 decoration-2 cursor-pointer hover:bg-blue-100 hover:rounded px-1',
+                        '--culinary-term-advanced': 'underline decoration-purple-500 decoration-2 cursor-pointer hover:bg-purple-100 hover:rounded px-1',
+                        '--culinary-term-cultural': 'underline decoration-orange-500 decoration-2 cursor-pointer hover:bg-orange-100 hover:rounded px-1'
+                      } as any}
+                    />
+                  </div>
+                ) : selectedRecipe.recipeText && (
                   <div>
                     <h4 className="font-semibold mb-2 flex items-center gap-2">
                       <ChefHat className="h-4 w-4" />
@@ -430,6 +500,52 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                         {selectedRecipe.recipeText}
                       </p>
                     </div>
+                  </div>
+                )}
+
+                {/* Educational Terms Legend */}
+                {selectedRecipe.highlightedTerms && selectedRecipe.highlightedTerms.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold mb-3 flex items-center gap-2">
+                      <BookOpen className="h-4 w-4" />
+                      Educational Terms Found ({selectedRecipe.highlightedTerms.length})
+                    </h4>
+                    
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-0.5 bg-green-500"></div>
+                        <span>Basic - Foundational skills</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-0.5 bg-blue-500"></div>
+                        <span>Intermediate - Professional techniques</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-0.5 bg-purple-500"></div>
+                        <span>Advanced - Expert methods</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-3 h-0.5 bg-orange-500"></div>
+                        <span>Cultural - Traditional practices</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      {selectedRecipe.highlightedTerms.map((termData, index) => (
+                        <Badge
+                          key={`${termData.term}-${index}`}
+                          variant="secondary"
+                          className={`cursor-pointer hover:opacity-80 ${getCategoryColor(termData.category)}`}
+                          onClick={() => handleTermClick(termData.term, selectedRecipe)}
+                        >
+                          {termData.term}
+                        </Badge>
+                      ))}
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Click any underlined term in the recipe text to open its educational carousel
+                    </p>
                   </div>
                 )}
 
@@ -445,6 +561,14 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Culinary Term Carousel */}
+      <CulinaryTermCarousel
+        term={selectedTerm}
+        isOpen={carouselOpen}
+        onClose={() => setCarouselOpen(false)}
+        carouselData={carouselData}
+      />
     </div>
   );
 }
