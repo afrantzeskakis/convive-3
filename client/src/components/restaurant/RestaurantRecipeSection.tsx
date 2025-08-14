@@ -108,15 +108,23 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
 
   // Handle culinary term clicks
   const handleTermClick = (term: string, recipe: Recipe) => {
+    console.log('handleTermClick called with term:', term);
+    console.log('Recipe culinaryKnowledge:', recipe.culinaryKnowledge);
+    
     const culinaryData = recipe.culinaryKnowledge || recipe.culinaryTerms || [];
     const termData = culinaryData.find(
       (knowledge) => knowledge.term?.toLowerCase() === term.toLowerCase()
     );
     
+    console.log('Found term data:', termData);
+    
     if (termData && termData.carouselContent) {
+      console.log('Setting carousel data with', termData.carouselContent.length, 'items');
       setSelectedTerm(term);
       setCarouselData(termData.carouselContent);
       setCarouselOpen(true);
+    } else {
+      console.log('No carousel content found for term:', term);
     }
   };
 
@@ -491,23 +499,26 @@ export function RestaurantRecipeSection({ restaurantId, isUserView = false }: Re
                       Complete Recipe (Click highlighted terms to learn)
                     </h4>
                     <div 
-                      className="bg-muted/30 rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed"
+                      className="bg-muted/30 rounded-lg p-4 text-sm whitespace-pre-wrap leading-relaxed culinary-content"
                       dangerouslySetInnerHTML={{ __html: selectedRecipe.highlightedText }}
-                      onClick={(e) => {
+                      onPointerDown={(e) => {
+                        // Works for both mouse and touch
                         const target = e.target as HTMLElement;
+                        console.log('Pointer down on:', target.className, 'Term:', target.getAttribute('data-term'));
                         if (target.classList.contains('culinary-term')) {
+                          e.preventDefault();
+                          e.stopPropagation();
                           const term = target.getAttribute('data-term');
                           if (term) {
+                            console.log('Opening carousel for term:', term);
                             handleTermClick(term, selectedRecipe);
                           }
                         }
                       }}
                       style={{
-                        '--culinary-term-basic': 'underline decoration-green-500 decoration-2 cursor-pointer hover:bg-green-100 hover:rounded px-1',
-                        '--culinary-term-intermediate': 'underline decoration-blue-500 decoration-2 cursor-pointer hover:bg-blue-100 hover:rounded px-1',
-                        '--culinary-term-advanced': 'underline decoration-purple-500 decoration-2 cursor-pointer hover:bg-purple-100 hover:rounded px-1',
-                        '--culinary-term-cultural': 'underline decoration-orange-500 decoration-2 cursor-pointer hover:bg-orange-100 hover:rounded px-1'
-                      } as any}
+                        WebkitTapHighlightColor: 'transparent',
+                        userSelect: 'text'
+                      }}
                     />
                   </div>
                 ) : selectedRecipe.recipeText && (

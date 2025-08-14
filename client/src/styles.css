@@ -87,22 +87,36 @@
   
   /* Culinary term highlighting styles */
   .culinary-term {
-    @apply cursor-pointer px-1 transition-colors duration-200;
+    @apply cursor-pointer px-1 py-0.5 transition-colors duration-200 inline-block;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   
   .culinary-term.term-basic {
-    @apply underline decoration-green-500 decoration-2 hover:bg-green-100 hover:rounded;
+    @apply underline decoration-green-500 decoration-2 hover:bg-green-100 active:bg-green-200 hover:rounded;
   }
   
   .culinary-term.term-intermediate {
-    @apply underline decoration-blue-500 decoration-2 hover:bg-blue-100 hover:rounded;
+    @apply underline decoration-blue-500 decoration-2 hover:bg-blue-100 active:bg-blue-200 hover:rounded;
   }
   
   .culinary-term.term-advanced {
-    @apply underline decoration-purple-500 decoration-2 hover:bg-purple-100 hover:rounded;
+    @apply underline decoration-purple-500 decoration-2 hover:bg-purple-100 active:bg-purple-200 hover:rounded;
   }
   
   .culinary-term.term-cultural {
-    @apply underline decoration-orange-500 decoration-2 hover:bg-orange-100 hover:rounded;
+    @apply underline decoration-orange-500 decoration-2 hover:bg-orange-100 active:bg-orange-200 hover:rounded;
+  }
+  
+  /* Mobile-specific touch targets */
+  @media (max-width: 768px) {
+    .culinary-term {
+      @apply px-2 py-1;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+    }
   }
 }
