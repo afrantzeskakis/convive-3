@@ -151,8 +151,8 @@ export class WineEmbeddingService {
         typeFilter = sql`LOWER(${restaurantWinesIsolated.wine_type}) = ANY(ARRAY[${sql.raw(typeValues.map(t => `'${t.toLowerCase()}'`).join(','))}])`;
       }
 
-      // Get top matches first
-      const topResults = await db.execute(sql`
+      // Get top matches first - if wine type is specified, try to find matches with that type
+      let topResults = await db.execute(sql`
         SELECT 
           *,
           1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector) as similarity
@@ -165,6 +165,24 @@ export class WineEmbeddingService {
         ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
         LIMIT ${Math.min(limit, 2)}
       `);
+      
+      // If we don't have enough results with strict type filtering, expand to include generic "wine" type
+      if (topResults.rows.length < Math.min(limit, 2) && wineType) {
+        const expandedTypeFilter = sql`LOWER(${restaurantWinesIsolated.wine_type}) IN ('${wineType.toLowerCase()}', 'wine')`;
+        topResults = await db.execute(sql`
+          SELECT 
+            *,
+            1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector) as similarity
+          FROM ${restaurantWinesIsolated}
+          WHERE 
+            ${restaurantWinesIsolated.restaurant_id} = ${restaurantId}
+            AND ${restaurantWinesIsolated.wine_embedding} IS NOT NULL
+            AND ${priceFilter}
+            AND ${expandedTypeFilter}
+          ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
+          LIMIT ${Math.min(limit, 2)}
+        `);
+      }
 
       // If we need a 3rd recommendation, get it with slightly more conservative criteria
       if (limit > 2 && topResults.rows.length >= 2) {
@@ -187,6 +205,20 @@ export class WineEmbeddingService {
           excludeClause = sql`${restaurantWinesIsolated.id} != ALL(ARRAY[${sql.raw(excludedIds.join(','))}]::int[])`;
         }
         
+        // For wild card, be more flexible with wine type - include generic "wine" entries if specific type has few matches
+        let wildCardTypeFilter = typeFilter;
+        if (wineType) {
+          const typeMapping: Record<string, string[]> = {
+            'red': ['Red', 'red', 'Red Wine', 'RED', 'wine'], // Include generic "wine" for more options
+            'white': ['White', 'white', 'White Wine', 'WHITE', 'wine'],
+            'rosé': ['Rosé', 'rosé', 'Rose', 'rose', 'ROSÉ', 'wine'],
+            'sparkling': ['Sparkling', 'sparkling', 'Champagne', 'champagne', 'Prosecco', 'prosecco', 'Cava', 'cava', 'SPARKLING', 'wine'],
+            'dessert': ['Dessert', 'dessert', 'Sweet', 'sweet', 'Port', 'port', 'DESSERT', 'wine']
+          };
+          const typeValues = typeMapping[wineType] || [wineType, 'wine'];
+          wildCardTypeFilter = sql`LOWER(${restaurantWinesIsolated.wine_type}) = ANY(ARRAY[${sql.raw(typeValues.map(t => `'${t.toLowerCase()}'`).join(','))}])`;
+        }
+        
         const wildCardResults = await db.execute(sql`
           SELECT 
             *,
@@ -197,7 +229,7 @@ export class WineEmbeddingService {
             AND ${restaurantWinesIsolated.wine_embedding} IS NOT NULL
             AND ${expandedPriceFilter}
             AND ${excludeClause}
-            AND ${typeFilter}
+            AND ${wildCardTypeFilter}
             AND (1 - (${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector)) > 0.7
           ORDER BY ${restaurantWinesIsolated.wine_embedding} <=> ${vectorString}::vector
           LIMIT 5
