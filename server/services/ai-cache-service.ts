@@ -105,6 +105,9 @@ export class AICacheService {
     try {
       const requestHash = this.generateRequestHash(requestData, model);
       
+      // Default to 30 days from now if no expiration is provided
+      const expiration = expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+      
       await pool.query(
         `INSERT INTO ${this.tableName} 
         (request_hash, request_data, response_data, model, expires_at)
@@ -113,7 +116,7 @@ export class AICacheService {
         DO UPDATE SET 
           response_data = EXCLUDED.response_data,
           expires_at = EXCLUDED.expires_at`,
-        [requestHash, JSON.stringify(requestData), JSON.stringify(responseData), model, expiresAt || null]
+        [requestHash, JSON.stringify(requestData), JSON.stringify(responseData), model, expiration]
       );
     } catch (error) {
       console.error('Error caching response:', error);

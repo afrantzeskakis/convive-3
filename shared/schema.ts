@@ -3,6 +3,9 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { restaurantWines, restaurantWinesIsolated } from "./wine-schema";
 
+// Re-export wine schema for convenience
+export { restaurantWines, restaurantWinesIsolated } from "./wine-schema";
+
 // User model
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -701,6 +704,21 @@ export const recipeAnalyses = pgTable("recipe_analyses", {
   }>>(),
   allergenSummary: jsonb("allergen_summary").$type<Record<string, string[]>>(), // Map of allergen to ingredients
   dietaryRestrictionSummary: jsonb("dietary_restriction_summary").$type<Record<string, string[]>>(), // Map of restriction to ingredients
+  highlightedText: text("highlighted_text"), // HTML with highlighted culinary terms
+  highlightedTerms: jsonb("highlighted_terms").$type<Array<{
+    term: string;
+    category: string;
+  }>>(), // List of highlighted terms with categories
+  culinaryKnowledge: jsonb("culinary_knowledge").$type<Array<{
+    term: string;
+    category: string;
+    carouselContent?: Array<{
+      type: string;
+      title: string;
+      content: string;
+      additionalInfo?: string;
+    }>;
+  }>>(), // Culinary terms with carousel content
   aiGenerated: boolean("ai_generated").default(true),
   confidence: decimal("confidence", { precision: 5, scale: 2 }), // AI confidence score
   feedbackRating: integer("feedback_rating"), // User rating of analysis quality (1-5)

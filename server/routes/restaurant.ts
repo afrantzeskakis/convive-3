@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import { storage } from '../storage';
 import { db } from '../db';
 import { eq, desc } from 'drizzle-orm';
-import { restaurants, insertRestaurantSchema, recipes } from '@shared/schema';
+import { restaurants, insertRestaurantSchema, recipes, recipeAnalyses, restaurantWinesIsolated } from '@shared/schema';
 import { z } from 'zod';
 import { onRestaurantCreated, updateRestaurantAwards } from '../services/restaurant-awards-service';
 
@@ -153,7 +153,7 @@ router.get('/:id/wines/search', async (req: Request, res: Response) => {
           wine.wine_name || '',
           wine.producer || '',
           wine.region || '',
-          wine.varietals || '',
+          wine.varietal || '',
           wine.vintage?.toString() || ''
         ].join(' ').toLowerCase();
         
@@ -190,16 +190,239 @@ router.get('/:id/recipes', async (req: Request, res: Response) => {
   try {
     const restaurantId = parseInt(req.params.id);
     
-    // Get all recipes for this restaurant
-    const allRecipes = await db.select()
+    // Get all recipes for this restaurant with their analyses
+    const allRecipes = await db.select({
+      id: recipes.id,
+      restaurantId: recipes.restaurantId,
+      name: recipes.name,
+      description: recipes.description,
+      dishType: recipes.dishType,
+      cuisine: recipes.cuisine,
+      recipeText: recipes.recipeText,
+      originalFilePath: recipes.originalFilePath,
+      fileType: recipes.fileType,
+      isImage: recipes.isImage,
+      status: recipes.status,
+      createdBy: recipes.createdBy,
+      createdAt: recipes.createdAt,
+      updatedAt: recipes.updatedAt,
+      // Analysis fields
+      ingredients: recipeAnalyses.ingredients,
+      techniques: recipeAnalyses.techniques,
+      allergenSummary: recipeAnalyses.allergenSummary,
+      dietaryRestrictionSummary: recipeAnalyses.dietaryRestrictionSummary,
+      highlightedText: recipeAnalyses.highlightedText,
+      highlightedTerms: recipeAnalyses.highlightedTerms,
+      culinaryKnowledge: recipeAnalyses.culinaryKnowledge,
+    })
       .from(recipes)
+      .leftJoin(recipeAnalyses, eq(recipes.id, recipeAnalyses.recipeId))
       .where(eq(recipes.restaurantId, restaurantId))
       .orderBy(desc(recipes.createdAt));
     
-    res.json(allRecipes);
+    // Map to ensure proper structure
+    const recipesWithAnalysis = allRecipes.map(recipe => ({
+      ...recipe,
+      // Ensure arrays are properly formatted
+      ingredients: recipe.ingredients || [],
+      techniques: recipe.techniques || [],
+      allergenSummary: recipe.allergenSummary || {},
+      dietaryRestrictionSummary: recipe.dietaryRestrictionSummary || {},
+      highlightedTerms: recipe.highlightedTerms || [],
+      culinaryKnowledge: recipe.culinaryKnowledge || [],
+      // Map fields for compatibility
+      category: recipe.dishType, // Map dishType to category for compatibility
+      cuisineType: recipe.cuisine,
+      instructions: recipe.recipeText ? recipe.recipeText.split('\n').filter((line: string) => line.trim()).join('\n') : '',
+    }));
+    
+    res.json(recipesWithAnalysis);
   } catch (error) {
     console.error("Error fetching restaurant recipes:", error);
     res.status(500).json({ message: "Failed to fetch restaurant recipes" });
+  }
+});
+
+// Batch enhance all recipes for a restaurant
+router.post('/:restaurantId/recipes/enhance-all', async (req: Request, res: Response) => {
+  try {
+    const restaurantId = parseInt(req.params.restaurantId);
+    
+    // Get all recipes with their analyses
+    const recipesWithAnalyses = await db.select({
+      recipeId: recipes.id,
+      recipeName: recipes.name,
+      recipeText: recipes.recipeText,
+      recipeDescription: recipes.description,
+      recipeCuisine: recipes.cuisine,
+      analysisId: recipeAnalyses.id,
+      ingredients: recipeAnalyses.ingredients,
+    })
+      .from(recipes)
+      .innerJoin(recipeAnalyses, eq(recipes.id, recipeAnalyses.recipeId))
+      .where(eq(recipes.restaurantId, restaurantId));
+    
+    if (recipesWithAnalyses.length === 0) {
+      return res.status(404).json({ message: "No analyzed recipes found for this restaurant" });
+    }
+    
+    // Get restaurant for cuisine context
+    const [restaurant] = await db.select()
+      .from(restaurants)
+      .where(eq(restaurants.id, restaurantId));
+    
+    const { culinaryKnowledgeService } = await import('../services/culinary-knowledge-service');
+    const { recipeEnhancementService } = await import('../services/recipe-enhancement-service');
+    
+    let enhancedCount = 0;
+    const errors = [];
+    
+    // Process each recipe
+    for (const recipeData of recipesWithAnalyses) {
+      try {
+        const cuisineDescription = restaurant.cuisine || recipeData.recipeCuisine || 'International';
+        const recipeText = recipeData.recipeText || recipeData.recipeDescription || '';
+        
+        // Extract culinary terms with carousel content
+        const extractedTerms = await culinaryKnowledgeService.extractCulinaryTerms(recipeText, cuisineDescription);
+        const termCarouselMap = await culinaryKnowledgeService.batchProcessTerms(extractedTerms, restaurantId);
+        
+        // Convert to culinary terms format
+        const culinaryTerms = [];
+        for (const term of Array.from(termCarouselMap.keys())) {
+          const slides = termCarouselMap.get(term) || [];
+          culinaryTerms.push({
+            term,
+            category: 'basic',
+            explanation: slides[0]?.content || `${term} is a culinary element.`,
+            carouselContent: slides
+          });
+        }
+        
+        // Enhance with highlighting
+        const analysisData = {
+          extractedText: recipeText,
+          ingredients: recipeData.ingredients || [],
+          instructions: recipeText ? recipeText.split('\n').filter((line: string) => line.trim()) : []
+        };
+        
+        const enhancedRecipe = await recipeEnhancementService.enhanceRecipeWithHighlights(
+          analysisData,
+          culinaryTerms
+        );
+        
+        // Update the analysis with enhanced data
+        await db.update(recipeAnalyses)
+          .set({
+            highlightedText: enhancedRecipe.highlightedText,
+            highlightedTerms: enhancedRecipe.highlightedTerms,
+            culinaryKnowledge: enhancedRecipe.culinaryKnowledge,
+            updatedAt: new Date()
+          })
+          .where(eq(recipeAnalyses.recipeId, recipeData.recipeId));
+        
+        enhancedCount++;
+      } catch (error) {
+        console.error(`Error enhancing recipe ${recipeData.recipeName}:`, error);
+        errors.push({ recipe: recipeData.recipeName, error: error.message });
+      }
+    }
+    
+    res.json({ 
+      message: `Enhanced ${enhancedCount} of ${recipesWithAnalyses.length} recipes`,
+      enhancedCount,
+      totalRecipes: recipesWithAnalyses.length,
+      errors: errors.length > 0 ? errors : undefined
+    });
+    
+  } catch (error) {
+    console.error("Error batch enhancing recipes:", error);
+    res.status(500).json({ message: "Failed to batch enhance recipes" });
+  }
+});
+
+// Re-analyze recipes to add highlighting and culinary terms
+router.post('/:restaurantId/recipes/:recipeId/enhance', async (req: Request, res: Response) => {
+  try {
+    const restaurantId = parseInt(req.params.restaurantId);
+    const recipeId = parseInt(req.params.recipeId);
+    
+    // Get the recipe
+    const [recipe] = await db.select()
+      .from(recipes)
+      .where(eq(recipes.id, recipeId));
+      
+    if (!recipe || recipe.restaurantId !== restaurantId) {
+      return res.status(404).json({ message: "Recipe not found" });
+    }
+    
+    // Get the existing analysis
+    const [existingAnalysis] = await db.select()
+      .from(recipeAnalyses)
+      .where(eq(recipeAnalyses.recipeId, recipeId));
+    
+    if (!existingAnalysis) {
+      return res.status(400).json({ message: "Recipe has not been analyzed yet" });
+    }
+    
+    // Get restaurant for cuisine context
+    const [restaurant] = await db.select()
+      .from(restaurants)
+      .where(eq(restaurants.id, restaurantId));
+    
+    const cuisineDescription = restaurant.cuisine || recipe.cuisine || 'International';
+    
+    // Process culinary terms
+    const { culinaryKnowledgeService } = await import('../services/culinary-knowledge-service');
+    const { recipeEnhancementService } = await import('../services/recipe-enhancement-service');
+    
+    // Extract culinary terms with carousel content
+    const recipeText = recipe.recipeText || recipe.description || '';
+    const extractedTerms = await culinaryKnowledgeService.extractCulinaryTerms(recipeText, cuisineDescription);
+    const termCarouselMap = await culinaryKnowledgeService.batchProcessTerms(extractedTerms, restaurantId);
+    
+    // Convert to culinary terms format
+    const culinaryTerms = [];
+    for (const term of Array.from(termCarouselMap.keys())) {
+      const slides = termCarouselMap.get(term) || [];
+      culinaryTerms.push({
+        term,
+        category: 'basic', // Default category
+        explanation: slides[0]?.content || `${term} is a culinary element.`,
+        carouselContent: slides
+      });
+    }
+    
+    // Enhance with highlighting
+    const analysisData = {
+      extractedText: recipeText,
+      ingredients: existingAnalysis.ingredients || [],
+      instructions: recipe.recipeText ? recipe.recipeText.split('\n').filter((line: string) => line.trim()) : []
+    };
+    
+    const enhancedRecipe = await recipeEnhancementService.enhanceRecipeWithHighlights(
+      analysisData,
+      culinaryTerms
+    );
+    
+    // Update the analysis with enhanced data
+    await db.update(recipeAnalyses)
+      .set({
+        highlightedText: enhancedRecipe.highlightedText,
+        highlightedTerms: enhancedRecipe.highlightedTerms,
+        culinaryKnowledge: enhancedRecipe.culinaryKnowledge,
+        updatedAt: new Date()
+      })
+      .where(eq(recipeAnalyses.recipeId, recipeId));
+    
+    res.json({ 
+      message: "Recipe enhanced successfully",
+      highlightedTermsCount: enhancedRecipe.highlightedTerms.length
+    });
+    
+  } catch (error) {
+    console.error("Error enhancing recipe:", error);
+    res.status(500).json({ message: "Failed to enhance recipe" });
   }
 });
 
