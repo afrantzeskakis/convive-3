@@ -262,7 +262,7 @@ export default function TableAccess() {
               <ul className="space-y-2">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-center text-sm">
-                    <span className="text-green-500 mr-2">✓</span> {feature}
+                    <span className="mr-2">✓</span> {feature}
                   </li>
                 ))}
               </ul>
@@ -305,7 +305,7 @@ export default function TableAccess() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4">
             {conviveSelectPlan.features.map((feature, index) => (
               <li key={index} className="flex items-start text-sm sm:text-base list-none">
-                <span className="text-primary font-bold mr-2 mt-0.5">✓</span> {feature}
+                <span className="mr-2 mt-0.5">✓</span> {feature}
               </li>
             ))}
           </div>
@@ -390,7 +390,7 @@ export default function TableAccess() {
           <ul className="space-y-2">
             {ticketOption.features.map((feature, index) => (
               <li key={index} className="flex items-center text-sm">
-                <span className="text-green-500 mr-2">✓</span> {feature}
+                <span className="mr-2">✓</span> {feature}
               </li>
             ))}
           </ul>
@@ -418,7 +418,7 @@ export default function TableAccess() {
           <ul className="space-y-2">
             {highRollerTicket.features.map((feature, index) => (
               <li key={index} className="flex items-center text-sm">
-                <span className="text-green-500 mr-2">✓</span> {feature}
+                <span className="mr-2">✓</span> {feature}
               </li>
             ))}
           </ul>
@@ -465,7 +465,7 @@ export default function TableAccess() {
           <ul className="space-y-2">
             {privateGroupTicket.features.map((feature, index) => (
               <li key={index} className="flex items-center text-sm">
-                <span className="text-green-500 mr-2">✓</span> {feature}
+                <span className="mr-2">✓</span> {feature}
               </li>
             ))}
           </ul>
