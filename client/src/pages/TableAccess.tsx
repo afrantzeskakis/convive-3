@@ -90,7 +90,6 @@ export default function TableAccess() {
       dinners: 2,
       description: "Perfect for occasional diners",
       features: [
-        "Standard match algorithm",
         "Complimentary welcome drink at each dinner"
       ]
     },
@@ -102,7 +101,6 @@ export default function TableAccess() {
       description: "Our most popular option",
       isPopular: true,
       features: [
-        "Enhanced match algorithm",
         "Complimentary welcome drink at each dinner"
       ]
     },
@@ -113,7 +111,6 @@ export default function TableAccess() {
       dinners: 4,
       description: "For the social dining enthusiast",
       features: [
-        "VIP match algorithm",
         "Complimentary welcome drink at each dinner"
       ]
     }
@@ -345,7 +342,7 @@ export default function TableAccess() {
   // One-time ticket options
   const highRollerTicket = {
     id: "high-roller",
-    name: "High Roller Ticket",
+    name: "Convive Select Ticket",
     price: calculateHighRollerPrice(),
     description: "Experience premium dining with high-spending companions",
     features: [
@@ -430,7 +427,7 @@ export default function TableAccess() {
             onClick={() => handlePaymentProcess(highRollerTicket.id, 'ticket')}
           >
             {isProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-            Purchase High Roller Ticket
+            Purchase Convive Select Ticket
           </Button>
           
           <div className="w-full text-center my-1">
@@ -444,7 +441,7 @@ export default function TableAccess() {
                 className="w-full border-primary/30 text-primary hover:bg-primary/5"
               >
                 <Gift className="h-4 w-4 mr-2" />
-                Apply for a Free High Roller Ticket
+                Apply for a Free Convive Select Ticket
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
