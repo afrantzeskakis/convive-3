@@ -410,7 +410,7 @@ export default function TableAccess() {
       <Card className="flex flex-col border-primary/50 shadow-md">
         <CardHeader>
           <Badge variant="secondary" className="w-fit mb-2">Premium Experience</Badge>
-          <CardTitle className="text-lg sm:text-xl">{highRollerTicket.name}</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">Convive Select</CardTitle>
           <CardDescription>{highRollerTicket.description}</CardDescription>
         </CardHeader>
         <CardContent className="py-0 flex-grow">
