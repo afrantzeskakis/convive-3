@@ -72,13 +72,20 @@ export default function LoginPage() {
   if (user) {
     console.log("Already authenticated as:", user.username);
     
-    // Check for bypass flag in localStorage
-    const bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
+    // Check for bypass flag in localStorage (with error handling for restricted contexts)
+    let bypassRedirect = false;
+    try {
+      bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
+      if (bypassRedirect) {
+        localStorage.removeItem('bypass_admin_redirect');
+      }
+    } catch (e) {
+      console.log("localStorage not available, skipping bypass check");
+    }
     
-    // If bypass flag is set, go to home page and clear the flag
+    // If bypass flag is set, go to home page
     if (bypassRedirect) {
       console.log("Bypass flag detected, going to regular user view");
-      localStorage.removeItem('bypass_admin_redirect');
       window.location.href = "/";
       return;
     }
