@@ -86,22 +86,22 @@ export default function LoginPage() {
     // If bypass flag is set, go to home page
     if (bypassRedirect) {
       console.log("Bypass flag detected, going to regular user view");
-      window.location.href = "/";
-      return;
+      navigate("/");
+      return null;
     }
     
-    // Regular role-based redirection
+    // Regular role-based redirection - use navigate to preserve React state
     if (user.role === "super_admin") {
       console.log("Already logged in as super admin, redirecting to dashboard");
-      window.location.href = "/super-admin-dashboard";
+      navigate("/super-admin-dashboard");
     } else if (user.role === "restaurant_admin") {
-      window.location.href = "/restaurant-admin-dashboard";
+      navigate("/restaurant-admin-dashboard");
     } else if (user.role === "admin") {
-      window.location.href = "/admin-dashboard";
+      navigate("/admin-dashboard");
     } else if (user.onboardingComplete) {
-      window.location.href = "/";
+      navigate("/");
     } else {
-      window.location.href = "/onboarding";
+      navigate("/onboarding");
     }
     
     return (
@@ -129,7 +129,7 @@ export default function LoginPage() {
         description: `Welcome back, ${userData.fullName || userData.username}!`,
       });
       
-      // Redirect based on role
+      // Redirect based on role - use navigate to preserve React state (cookies may be blocked in preview)
       setTimeout(() => {
         console.log("Redirecting user based on role:", userData.role);
         
@@ -147,24 +147,23 @@ export default function LoginPage() {
         // If bypass flag is set, go to home page
         if (bypassRedirect) {
           console.log("Bypass flag detected after login, going to regular user view");
-          window.location.href = "/";
+          navigate("/");
           return;
         }
         
-        // Regular role-based redirection
+        // Regular role-based redirection - use navigate to preserve React Query cache
         if (userData.role === "restaurant_admin") {
-          window.location.href = "/restaurant-admin-dashboard";
+          navigate("/restaurant-admin-dashboard");
         } else if (userData.role === "admin") {
-          window.location.href = "/admin-dashboard";
+          navigate("/admin-dashboard");
         } else if (userData.role === "super_admin") {
-          // Immediately redirect super admins to their dashboard
-          window.location.href = "/super-admin-dashboard";
+          navigate("/super-admin-dashboard");
         } else {
           // Regular user
           if (userData.onboardingComplete) {
-            window.location.href = "/";
+            navigate("/");
           } else {
-            window.location.href = "/onboarding";
+            navigate("/onboarding");
           }
         }
       }, 10);
