@@ -1,7 +1,15 @@
 import { DatabaseStorage } from "../database-storage";
-import { User, UserPreferences } from "../../shared/schema";
+import { User, UserPreferences, meetups, meetupParticipants } from "../../shared/schema";
+import { eq, and, gte, sql, desc, isNotNull, inArray } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
+import { db } from "../db";
+
+const meetupParticipants2 = alias(meetupParticipants, "mp2");
 
 const storage = new DatabaseStorage();
+
+const RECENCY_PENALTY_DAYS = 30;
+const RECENCY_PENALTY_AMOUNT = 25;
 
 interface DiningPreferences {
   cuisines: string[];
@@ -41,10 +49,12 @@ interface CompatibilityBreakdown {
   interestScore: number;
   practicalScore: number;
   atmosphereScore: number;
+  recencyPenalty: number;
   totalScore: number;
   bonuses: string[];
   penalties: string[];
   isComplete: boolean;
+  recentDiningDate?: Date;
 }
 
 export class CompatibilityCalculator {
@@ -79,9 +89,10 @@ export class CompatibilityCalculator {
     user1Id: number,
     user2Id: number
   ): Promise<CompatibilityBreakdown> {
-    const [prefs1, prefs2] = await Promise.all([
+    const [prefs1, prefs2, recentDining] = await Promise.all([
       this.getUserPreferences(user1Id),
       this.getUserPreferences(user2Id),
+      this.getRecentDiningHistory(user1Id, user2Id),
     ]);
 
     const bonuses: string[] = [];
@@ -94,6 +105,7 @@ export class CompatibilityCalculator {
         interestScore: 50,
         practicalScore: 50,
         atmosphereScore: 50,
+        recencyPenalty: 0,
         totalScore: 50,
         bonuses: [],
         penalties: ["Missing questionnaire data for one or both users"],
@@ -101,30 +113,50 @@ export class CompatibilityCalculator {
       };
     }
 
-    const socialScore = this.calculateSocialCompatibility(prefs1, prefs2, bonuses, penalties);
-    const diningScore = this.calculateDiningCompatibility(prefs1, prefs2, bonuses, penalties);
+    const frequencyScore = this.calculateFrequencyCompatibility(prefs1, prefs2, bonuses);
+    const groupSizeScore = this.calculateGroupSizeCompatibility(prefs1, prefs2, bonuses);
+    
+    const adjustedSocialScore = this.calculateSocialCompatibility(prefs1, prefs2, bonuses, penalties) * 0.85 + frequencyScore * 0.15;
+    const adjustedDiningScore = this.calculateDiningCompatibility(prefs1, prefs2, bonuses, penalties) * 0.85 + groupSizeScore * 0.15;
     const interestScore = this.calculateInterestCompatibility(prefs1, prefs2, bonuses);
     const practicalScore = this.calculatePracticalCompatibility(prefs1, prefs2, bonuses, penalties);
     const atmosphereScore = this.calculateAtmosphereCompatibility(prefs1, prefs2, bonuses);
 
-    const totalScore = Math.round(
-      socialScore * CompatibilityCalculator.WEIGHTS.social +
-      diningScore * CompatibilityCalculator.WEIGHTS.dining +
+    const baseScore = Math.min(100, Math.round(
+      adjustedSocialScore * CompatibilityCalculator.WEIGHTS.social +
+      adjustedDiningScore * CompatibilityCalculator.WEIGHTS.dining +
       interestScore * CompatibilityCalculator.WEIGHTS.interests +
       practicalScore * CompatibilityCalculator.WEIGHTS.practical +
       atmosphereScore * CompatibilityCalculator.WEIGHTS.atmosphere
-    );
+    ));
+
+    let recencyPenalty = 0;
+    if (recentDining) {
+      const daysSinceLastDining = Math.floor(
+        (Date.now() - recentDining.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      
+      if (daysSinceLastDining < RECENCY_PENALTY_DAYS) {
+        const penaltyFactor = 1 - (daysSinceLastDining / RECENCY_PENALTY_DAYS);
+        recencyPenalty = Math.round(RECENCY_PENALTY_AMOUNT * penaltyFactor);
+        penalties.push(`Recently dined together (${daysSinceLastDining} days ago)`);
+      }
+    }
+
+    const totalScore = Math.max(0, baseScore - recencyPenalty);
 
     return {
-      socialScore: Math.round(socialScore),
-      diningScore: Math.round(diningScore),
+      socialScore: Math.round(adjustedSocialScore),
+      diningScore: Math.round(adjustedDiningScore),
       interestScore: Math.round(interestScore),
       practicalScore: Math.round(practicalScore),
       atmosphereScore: Math.round(atmosphereScore),
-      totalScore: Math.min(100, Math.max(0, totalScore)),
+      recencyPenalty,
+      totalScore,
       bonuses,
       penalties,
       isComplete: true,
+      recentDiningDate: recentDining || undefined,
     };
   }
 
@@ -426,6 +458,113 @@ export class CompatibilityCalculator {
     if (both1 !== both2) return false;
     
     return true;
+  }
+
+  private async getRecentDiningHistory(user1Id: number, user2Id: number): Promise<Date | null> {
+    try {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - RECENCY_PENALTY_DAYS);
+
+      const result = await db
+        .select({
+          meetupDate: meetups.date,
+        })
+        .from(meetupParticipants)
+        .innerJoin(meetups, eq(meetups.id, meetupParticipants.meetupId))
+        .innerJoin(meetupParticipants2, eq(meetupParticipants2.meetupId, meetupParticipants.meetupId))
+        .where(
+          and(
+            eq(meetupParticipants.userId, user1Id),
+            eq(meetupParticipants2.userId, user2Id),
+            isNotNull(meetups.date),
+            gte(meetups.date, thirtyDaysAgo),
+            eq(meetups.status, "completed")
+          )
+        )
+        .orderBy(desc(meetups.date))
+        .limit(1);
+
+      return result.length > 0 ? result[0].meetupDate : null;
+    } catch (error) {
+      console.error(`Failed to get recent dining history for users ${user1Id} and ${user2Id}:`, error);
+      return null;
+    }
+  }
+
+  private calculateFrequencyCompatibility(
+    prefs1: UserPreferencesData,
+    prefs2: UserPreferencesData,
+    bonuses: string[]
+  ): number {
+    const freq1 = prefs1.socialPreferences.meetupFrequency;
+    const freq2 = prefs2.socialPreferences.meetupFrequency;
+
+    if (!freq1 || !freq2) return 50;
+
+    const frequencyOrder = [
+      "Once a month",
+      "Every two weeks", 
+      "Weekly",
+      "Multiple times a week"
+    ];
+
+    const idx1 = frequencyOrder.findIndex(f => freq1.toLowerCase().includes(f.toLowerCase()));
+    const idx2 = frequencyOrder.findIndex(f => freq2.toLowerCase().includes(f.toLowerCase()));
+
+    if (idx1 === -1 || idx2 === -1) return 50;
+
+    const diff = Math.abs(idx1 - idx2);
+    
+    if (diff === 0) {
+      bonuses.push("Same meetup frequency preference");
+      return 100;
+    } else if (diff === 1) {
+      return 75;
+    } else if (diff === 2) {
+      return 50;
+    } else {
+      return 25;
+    }
+  }
+
+  private calculateGroupSizeCompatibility(
+    prefs1: UserPreferencesData,
+    prefs2: UserPreferencesData,
+    bonuses: string[]
+  ): number {
+    const size1 = prefs1.diningPreferences.groupSize;
+    const size2 = prefs2.diningPreferences.groupSize;
+
+    if (!size1 || !size2) return 50;
+
+    const sizeOrder = [
+      "Small (2-4 people)",
+      "Medium (4-6 people)",
+      "Large (6-8 people)",
+      "Very large (8+ people)"
+    ];
+
+    const idx1 = sizeOrder.findIndex(s => 
+      size1.toLowerCase().includes(s.split(" ")[0].toLowerCase()) ||
+      s.toLowerCase().includes(size1.toLowerCase())
+    );
+    const idx2 = sizeOrder.findIndex(s => 
+      size2.toLowerCase().includes(s.split(" ")[0].toLowerCase()) ||
+      s.toLowerCase().includes(size2.toLowerCase())
+    );
+
+    if (idx1 === -1 || idx2 === -1) return 50;
+
+    const diff = Math.abs(idx1 - idx2);
+    
+    if (diff === 0) {
+      bonuses.push("Same group size preference");
+      return 100;
+    } else if (diff === 1) {
+      return 70;
+    } else {
+      return 40;
+    }
   }
 }
 
