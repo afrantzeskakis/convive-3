@@ -4,7 +4,7 @@ import {
   useMutation,
 } from "@tanstack/react-query";
 import { User, InsertUser } from "@shared/schema";
-import { apiRequest, getQueryFn, queryClient } from "../lib/queryClient";
+import { apiRequest, getQueryFn, queryClient, setAuthToken, clearAuthToken } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { safeStorage } from "../lib/safeStorage";
 
@@ -42,10 +42,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
-    onSuccess: (user: User) => {
+    onSuccess: (data: User & { token?: string }) => {
+      // Store the JWT token if present
+      if (data.token) {
+        console.log("[Auth] JWT token received and stored");
+        setAuthToken(data.token);
+      }
+      
+      // Remove token from user object before caching
+      const { token, ...user } = data;
+      
       // Set user data immediately for optimistic update
       queryClient.setQueryData(["/api/user"], user);
-      // Also invalidate to confirm session via cookie-backed fetch
+      // Also invalidate to confirm session via token-backed fetch
       queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
     onError: (error: Error) => {
@@ -82,6 +91,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
+      // Clear the JWT token
+      clearAuthToken();
+      console.log("[Auth] JWT token cleared");
+      
       // Clear user data and invalidate all queries
       queryClient.setQueryData(["/api/user"], null);
       queryClient.invalidateQueries();
@@ -99,6 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       // Even on error, try to clear client-side data
+      clearAuthToken();
       queryClient.setQueryData(["/api/user"], null);
       safeStorage.removeItem('bypass_admin_redirect');
     },

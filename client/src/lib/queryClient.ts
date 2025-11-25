@@ -1,5 +1,6 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 import { addItem, getAllItems, removeItem, OFFLINE_STORES } from "./indexedDB";
+import { safeStorage } from "./safeStorage";
 
 interface OfflineRequest {
   id?: string;
@@ -11,6 +12,34 @@ interface OfflineRequest {
 
 // Offline request store name
 const OFFLINE_REQUEST_STORE = 'offline-requests';
+
+// JWT token storage key
+const AUTH_TOKEN_KEY = 'auth_token';
+
+// Get the stored JWT token
+export function getAuthToken(): string | null {
+  return safeStorage.getItem(AUTH_TOKEN_KEY);
+}
+
+// Set the JWT token
+export function setAuthToken(token: string): void {
+  safeStorage.setItem(AUTH_TOKEN_KEY, token);
+}
+
+// Clear the JWT token
+export function clearAuthToken(): void {
+  safeStorage.removeItem(AUTH_TOKEN_KEY);
+}
+
+// Get headers with auth token
+function getAuthHeaders(additionalHeaders: Record<string, string> = {}): Record<string, string> {
+  const headers: Record<string, string> = { ...additionalHeaders };
+  const token = getAuthToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
 
 /**
  * Processes request errors and handles offline behavior
@@ -34,9 +63,10 @@ export async function apiRequest(
   data?: unknown | undefined,
 ): Promise<Response> {
   try {
+    const baseHeaders = data ? { "Content-Type": "application/json" } : {};
     const res = await fetch(url, {
       method,
-      headers: data ? { "Content-Type": "application/json" } : {},
+      headers: getAuthHeaders(baseHeaders),
       body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
     });
@@ -114,9 +144,10 @@ export async function syncOfflineRequests(): Promise<void> {
   
   for (const request of offlineRequests) {
     try {
+      const baseHeaders = request.data ? { "Content-Type": "application/json" } : {};
       await fetch(request.url, {
         method: request.method,
-        headers: request.data ? { "Content-Type": "application/json" } : {},
+        headers: getAuthHeaders(baseHeaders),
         body: request.data ? JSON.stringify(request.data) : undefined,
         credentials: "include",
       });
@@ -153,6 +184,7 @@ export const getQueryFn = <T>({
     try {
       // First try to get from network
       const res = await fetch(queryKey[0] as string, {
+        headers: getAuthHeaders(),
         credentials: "include",
       });
 

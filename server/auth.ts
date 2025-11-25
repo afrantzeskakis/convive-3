@@ -1,13 +1,65 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { scrypt, timingSafeEqual, randomBytes } from "crypto";
 import { promisify } from "util";
+import jwt from "jsonwebtoken";
 import { storage } from "./storage";
 import { User } from "@shared/schema";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+
+// JWT configuration
+const JWT_SECRET = process.env.SESSION_SECRET || "your-secret-key";
+const JWT_EXPIRES_IN = "24h";
+
+// Generate JWT token for a user
+export function generateToken(user: { id: number; username: string; role: string }): string {
+  return jwt.sign(
+    { id: user.id, username: user.username, role: user.role },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+}
+
+// Verify JWT token and return decoded payload
+export function verifyToken(token: string): { id: number; username: string; role: string } | null {
+  try {
+    return jwt.verify(token, JWT_SECRET) as { id: number; username: string; role: string };
+  } catch (error) {
+    return null;
+  }
+}
+
+// Middleware to authenticate via JWT token (checks Authorization header first, then falls back to session)
+export async function authenticateJWT(req: Request, res: Response, next: NextFunction) {
+  // First check for JWT in Authorization header
+  const authHeader = req.headers.authorization;
+  
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.substring(7);
+    const decoded = verifyToken(token);
+    
+    if (decoded) {
+      // Fetch full user from database
+      const user = await storage.getUser(decoded.id);
+      if (user) {
+        // Attach user to request (compatible with passport's req.user)
+        req.user = user;
+        return next();
+      }
+    }
+  }
+  
+  // Fall back to session-based auth
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  
+  // Not authenticated
+  return res.status(401).json({ message: "Not authenticated" });
+}
 
 declare global {
   namespace Express {
@@ -227,11 +279,16 @@ export function setupAuth(app: Express) {
           console.log("[AUTH] Session ID:", req.sessionID);
           console.log("[AUTH] Session saved successfully");
           
+          // Generate JWT token for the user
+          const token = generateToken({ id: user.id, username: user.username, role: user.role });
+          console.log("[AUTH] JWT token generated for user:", user.username);
+          
           // Don't send password to client
           const userWithoutPassword = { ...user };
           delete userWithoutPassword.password;
           
-          return res.json(userWithoutPassword);
+          // Return user data with JWT token
+          return res.json({ ...userWithoutPassword, token });
         });
       });
     })(req, res, next);
@@ -263,12 +320,32 @@ export function setupAuth(app: Express) {
     });
   });
 
-  // Get current user
-  app.get("/api/user", (req, res) => {
+  // Get current user - supports both JWT and session auth
+  app.get("/api/user", async (req, res) => {
     console.log("[AUTH] /api/user request");
-    console.log("[AUTH] Session ID:", req.sessionID);
-    console.log("[AUTH] Session cookie:", req.headers.cookie);
-    console.log("[AUTH] Is authenticated:", req.isAuthenticated());
+    console.log("[AUTH] Authorization header:", req.headers.authorization ? "present" : "none");
+    console.log("[AUTH] Session cookie:", req.headers.cookie ? "present" : "none");
+    
+    // First check for JWT in Authorization header
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      const decoded = verifyToken(token);
+      
+      if (decoded) {
+        console.log("[AUTH] JWT verified for user ID:", decoded.id);
+        const user = await storage.getUser(decoded.id);
+        if (user) {
+          const userWithoutPassword = { ...user };
+          delete (userWithoutPassword as any).password;
+          return res.json(userWithoutPassword);
+        }
+      }
+      console.log("[AUTH] JWT verification failed");
+    }
+    
+    // Fall back to session-based auth
+    console.log("[AUTH] Is authenticated (session):", req.isAuthenticated());
     console.log("[AUTH] User in session:", req.user ? `ID=${req.user.id}` : "none");
     
     if (!req.isAuthenticated()) {
