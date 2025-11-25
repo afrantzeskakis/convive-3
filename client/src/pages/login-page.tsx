@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContextProvider";
+import { safeStorage } from "@/lib/safe-storage";
 
 // Define login form schema
 const loginSchema = z.object({
@@ -72,15 +73,10 @@ export default function LoginPage() {
   if (user) {
     console.log("Already authenticated as:", user.username);
     
-    // Check for bypass flag in localStorage (with error handling for restricted contexts)
-    let bypassRedirect = false;
-    try {
-      bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
-      if (bypassRedirect) {
-        localStorage.removeItem('bypass_admin_redirect');
-      }
-    } catch (e) {
-      console.log("localStorage not available, skipping bypass check");
+    // Check for bypass flag in localStorage (using safe storage for restricted contexts)
+    const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
+    if (bypassRedirect) {
+      safeStorage.removeItem('bypass_admin_redirect');
     }
     
     // If bypass flag is set, go to home page
@@ -133,15 +129,10 @@ export default function LoginPage() {
       setTimeout(() => {
         console.log("Redirecting user based on role:", userData.role);
         
-        // Check for bypass flag in localStorage (with error handling for restricted contexts)
-        let bypassRedirect = false;
-        try {
-          bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
-          if (bypassRedirect) {
-            localStorage.removeItem('bypass_admin_redirect');
-          }
-        } catch (e) {
-          console.log("localStorage not available, skipping bypass check");
+        // Check for bypass flag in localStorage (using safe storage for restricted contexts)
+        const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
+        if (bypassRedirect) {
+          safeStorage.removeItem('bypass_admin_redirect');
         }
         
         // If bypass flag is set, go to home page

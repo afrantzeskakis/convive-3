@@ -1,6 +1,7 @@
 import { useAuth } from "../contexts/AuthContextProvider";
 import { Loader2 } from "lucide-react";
 import { Redirect, Route } from "wouter";
+import { safeStorage } from "./safe-storage";
 
 export function ProtectedRoute({
   path,
@@ -67,8 +68,8 @@ export function ProtectedRoute({
     );
   }
 
-  // Check for bypass flag in localStorage for admin users
-  const bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
+  // Check for bypass flag in localStorage for admin users (using safe storage for restricted contexts)
+  const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
   
   // If user is an admin trying to access regular user pages and no bypass flag
   // Allow super_admin to access wine-related pages without redirect
@@ -96,8 +97,7 @@ export function ProtectedRoute({
   
   // If we are using the bypass flag, clear it after use
   if (bypassRedirect && !path.includes("admin")) {
-    // Clear the flag after it's been used
-    localStorage.removeItem('bypass_admin_redirect');
+    safeStorage.removeItem('bypass_admin_redirect');
   }
 
   // If authenticated but onboarding not complete, redirect to onboarding

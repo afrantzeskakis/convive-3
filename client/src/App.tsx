@@ -1,5 +1,6 @@
 import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
+import { safeStorage } from "./lib/safe-storage";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "./components/ui/toaster";
 import NotFound from "./pages/not-found";
@@ -74,13 +75,13 @@ function Router() {
 
   // Automatic routing based on user role
   if (isAuthenticated && user && location === '/') {
-    // Check for bypass flag in localStorage
-    const bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
+    // Check for bypass flag in localStorage (using safe storage for restricted contexts)
+    const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
     
     // If bypass flag is set, clear it and don't redirect
     if (bypassRedirect) {
       console.log("Bypass flag detected in App.tsx, staying on user dashboard");
-      localStorage.removeItem('bypass_admin_redirect');
+      safeStorage.removeItem('bypass_admin_redirect');
       // Continue to home page
     } 
     // Otherwise perform standard role-based redirects
