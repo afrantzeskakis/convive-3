@@ -47,6 +47,7 @@ import PublicMobileNav from "./components/layout/PublicMobileNav";
 import InstallAppBanner from "./components/InstallAppBanner";
 import OfflineNotice from "./components/OfflineNotice";
 import SplashScreen from "./components/SplashScreen";
+import CookieBlockedBanner from "./components/CookieBlockedBanner";
 import { AuthProvider, useAuth } from './contexts/AuthContextProvider';
 import { ProtectedRoute } from "./lib/protected-route";
 
@@ -266,6 +267,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <CookieBlockedBanner />
         <SplashScreen />
         <OfflineNotice />
         <Router />
