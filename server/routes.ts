@@ -2447,6 +2447,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Compatibility check endpoint (super admin only)
+  app.post("/api/admin/compatibility-check", isSuperAdmin, async (req: Request, res: Response) => {
+    try {
+      const { userIds } = req.body;
+      
+      if (!userIds || !Array.isArray(userIds) || userIds.length < 2) {
+        return res.status(400).json({ message: "Please provide at least 2 user IDs" });
+      }
+      
+      // Dynamic import to avoid circular dependencies
+      const { compatibilityCalculator } = await import("./services/compatibility-calculator");
+      
+      const results: Array<{
+        user1Id: number;
+        user2Id: number;
+        user1Name: string;
+        user2Name: string;
+        breakdown: any;
+      }> = [];
+      
+      // Get user details
+      const users = await Promise.all(
+        userIds.map((id: number) => storage.getUser(id))
+      );
+      
+      const userMap = new Map(users.filter(Boolean).map(u => [u!.id, u!]));
+      
+      // Calculate compatibility for all pairs
+      for (let i = 0; i < userIds.length; i++) {
+        for (let j = i + 1; j < userIds.length; j++) {
+          const user1Id = userIds[i];
+          const user2Id = userIds[j];
+          
+          const breakdown = await compatibilityCalculator.calculateDetailedCompatibility(user1Id, user2Id);
+          
+          results.push({
+            user1Id,
+            user2Id,
+            user1Name: userMap.get(user1Id)?.fullName || userMap.get(user1Id)?.username || `User ${user1Id}`,
+            user2Name: userMap.get(user2Id)?.fullName || userMap.get(user2Id)?.username || `User ${user2Id}`,
+            breakdown
+          });
+        }
+      }
+      
+      res.json({ 
+        comparisons: results,
+        userCount: userIds.length,
+        totalComparisons: results.length
+      });
+    } catch (error) {
+      console.error("Error checking compatibility:", error);
+      res.status(500).json({ message: "Failed to check compatibility" });
+    }
+  });
+
   // Diagnostic endpoint to check database connection (public for debugging)
   app.get('/api/diagnostic/database-info', async (req: Request, res: Response) => {
     try {

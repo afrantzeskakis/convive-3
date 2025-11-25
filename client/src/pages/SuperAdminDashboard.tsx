@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { User as UserType, Restaurant, Meetup, DinnerCheckAverage, UserTicketHistory, CallScript, CallRecording } from "@shared/schema";
@@ -39,6 +39,416 @@ import RestaurantPartners from "@/pages/RestaurantPartners";
 import PublicHeader from "@/components/layout/PublicHeader";
 import PublicMobileNav from "@/components/layout/PublicMobileNav";
 import Footer from "@/components/layout/Footer";
+import { Checkbox } from "@/components/ui/checkbox";
+
+interface CompatibilityBreakdown {
+  socialScore: number;
+  diningScore: number;
+  interestScore: number;
+  practicalScore: number;
+  atmosphereScore: number;
+  recencyPenalty: number;
+  totalScore: number;
+  bonuses: string[];
+  penalties: string[];
+  isComplete: boolean;
+  recentDiningDate?: string;
+}
+
+interface CompatibilityResult {
+  user1Id: number;
+  user2Id: number;
+  user1Name: string;
+  user2Name: string;
+  breakdown: CompatibilityBreakdown;
+}
+
+interface CompatibilityResponse {
+  comparisons: CompatibilityResult[];
+  userCount: number;
+  totalComparisons: number;
+}
+
+interface CompatibilityMatrixProps {
+  results: CompatibilityResponse;
+  selectedUserIds: number[];
+  allUsers: UserType[];
+}
+
+const CompatibilityMatrix = ({ results, allUsers }: Omit<CompatibilityMatrixProps, 'selectedUserIds'>) => {
+  const userMap = new Map(allUsers.map(u => [u.id, u]));
+  
+  const userIds = useMemo(() => {
+    const ids = new Set<number>();
+    results.comparisons.forEach(c => {
+      ids.add(c.user1Id);
+      ids.add(c.user2Id);
+    });
+    return Array.from(ids).sort((a, b) => a - b);
+  }, [results.comparisons]);
+  
+  const getScoreForPair = (user1Id: number, user2Id: number): number | null => {
+    if (user1Id === user2Id) return null;
+    const result = results.comparisons.find(
+      c => (c.user1Id === user1Id && c.user2Id === user2Id) ||
+           (c.user1Id === user2Id && c.user2Id === user1Id)
+    );
+    return result?.breakdown.totalScore ?? null;
+  };
+
+  const getScoreBgColor = (score: number | null): string => {
+    if (score === null) return "bg-gray-100";
+    if (score >= 80) return "bg-green-500 text-white";
+    if (score >= 60) return "bg-yellow-400 text-gray-900";
+    if (score >= 40) return "bg-orange-400 text-white";
+    return "bg-red-500 text-white";
+  };
+
+  const getUserName = (userId: number): string => {
+    const user = userMap.get(userId);
+    return user?.fullName || user?.username || `User ${userId}`;
+  };
+
+  const getUserInitial = (userId: number): string => {
+    const name = getUserName(userId);
+    return name.charAt(0).toUpperCase();
+  };
+
+  return (
+    <div className="inline-block min-w-full" data-testid="compatibility-matrix-container">
+      <table className="border-collapse" data-testid="compatibility-matrix-table">
+        <thead>
+          <tr>
+            <th className="p-2 border bg-muted"></th>
+            {userIds.map(userId => (
+              <th key={userId} className="p-2 border bg-muted text-center min-w-[80px]" data-testid={`matrix-col-header-${userId}`}>
+                <div className="flex flex-col items-center gap-1">
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback className="text-xs">{getUserInitial(userId)}</AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-medium truncate max-w-[70px]">{getUserName(userId)}</span>
+                </div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {userIds.map(rowUserId => (
+            <tr key={rowUserId} data-testid={`matrix-row-${rowUserId}`}>
+              <td className="p-2 border bg-muted text-right">
+                <div className="flex items-center gap-2 justify-end">
+                  <span className="text-xs font-medium truncate max-w-[100px]">{getUserName(rowUserId)}</span>
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback className="text-xs">{getUserInitial(rowUserId)}</AvatarFallback>
+                  </Avatar>
+                </div>
+              </td>
+              {userIds.map(colUserId => {
+                const score = getScoreForPair(rowUserId, colUserId);
+                const isself = rowUserId === colUserId;
+                return (
+                  <td 
+                    key={colUserId} 
+                    className={`p-2 border text-center font-bold ${isself ? 'bg-gray-200' : getScoreBgColor(score)}`}
+                    data-testid={`matrix-cell-${rowUserId}-${colUserId}`}
+                  >
+                    {isself ? '-' : score !== null ? `${score}%` : '?'}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <div className="mt-4 flex items-center gap-4 text-xs" data-testid="compatibility-matrix-legend">
+        <span className="font-medium">Legend:</span>
+        <div className="flex items-center gap-1" data-testid="legend-excellent">
+          <div className="w-4 h-4 bg-green-500 rounded"></div>
+          <span>80-100 (Excellent)</span>
+        </div>
+        <div className="flex items-center gap-1" data-testid="legend-good">
+          <div className="w-4 h-4 bg-yellow-400 rounded"></div>
+          <span>60-79 (Good)</span>
+        </div>
+        <div className="flex items-center gap-1" data-testid="legend-fair">
+          <div className="w-4 h-4 bg-orange-400 rounded"></div>
+          <span>40-59 (Fair)</span>
+        </div>
+        <div className="flex items-center gap-1" data-testid="legend-low">
+          <div className="w-4 h-4 bg-red-500 rounded"></div>
+          <span>0-39 (Low)</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CompatibilityTester = () => {
+  const { toast } = useToast();
+  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [results, setResults] = useState<CompatibilityResponse | null>(null);
+
+  const { data: allUsers, isLoading: isLoadingUsers } = useQuery<UserType[]>({
+    queryKey: ["/api/users"],
+  });
+
+  const regularUsers = allUsers?.filter(u => u.role === "user" && u.onboardingComplete) || [];
+
+  const toggleUser = (userId: number) => {
+    setSelectedUserIds(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const checkCompatibility = async () => {
+    if (selectedUserIds.length < 2) {
+      toast({
+        title: "Select at least 2 users",
+        description: "Please select at least 2 users to check compatibility",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await apiRequest("POST", "/api/admin/compatibility-check", {
+        userIds: selectedUserIds
+      });
+      const data = await response.json();
+      setResults(data);
+      toast({
+        title: "Compatibility calculated",
+        description: `Analyzed ${data.totalComparisons} user pairs`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to check compatibility",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "text-green-600 bg-green-50";
+    if (score >= 60) return "text-yellow-600 bg-yellow-50";
+    if (score >= 40) return "text-orange-600 bg-orange-50";
+    return "text-red-600 bg-red-50";
+  };
+
+  const getScoreBg = (score: number) => {
+    if (score >= 80) return "bg-green-500";
+    if (score >= 60) return "bg-yellow-500";
+    if (score >= 40) return "bg-orange-500";
+    return "bg-red-500";
+  };
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Users className="h-5 w-5" />
+            Compatibility Tester
+          </CardTitle>
+          <CardDescription>
+            Select users to check their compatibility scores based on questionnaire responses
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Label>Select Users (min 2)</Label>
+            {isLoadingUsers ? (
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Loading users...</span>
+              </div>
+            ) : regularUsers.length === 0 ? (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  No users with completed questionnaires found
+                </AlertDescription>
+              </Alert>
+            ) : (
+              <ScrollArea className="h-64 border rounded-md p-4">
+                <div className="space-y-2">
+                  {regularUsers.map(user => (
+                    <div 
+                      key={user.id} 
+                      className={`flex items-center gap-3 p-2 rounded-md cursor-pointer hover:bg-muted ${
+                        selectedUserIds.includes(user.id) ? "bg-primary/10 border border-primary" : ""
+                      }`}
+                      onClick={() => toggleUser(user.id)}
+                      data-testid={`user-checkbox-${user.id}`}
+                    >
+                      <Checkbox 
+                        checked={selectedUserIds.includes(user.id)}
+                        onCheckedChange={() => toggleUser(user.id)}
+                      />
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>
+                          {(user.fullName || user.username || "U").charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <p className="font-medium">{user.fullName || user.username}</p>
+                        <p className="text-xs text-muted-foreground">ID: {user.id}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">
+              {selectedUserIds.length} users selected
+            </span>
+            <Button 
+              onClick={checkCompatibility}
+              disabled={selectedUserIds.length < 2 || isLoading}
+              data-testid="button-check-compatibility"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Calculating...
+                </>
+              ) : (
+                <>
+                  <Activity className="h-4 w-4 mr-2" />
+                  Check Compatibility
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {results && results.userCount > 2 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Compatibility Matrix</CardTitle>
+            <CardDescription>
+              Color-coded grid showing scores between all {results.userCount} users
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <CompatibilityMatrix results={results} allUsers={regularUsers} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {results && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Detailed Compatibility Results</CardTitle>
+            <CardDescription>
+              {results.totalComparisons} pair comparisons for {results.userCount} users
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {results.comparisons.map((result, idx) => (
+                <Card key={idx} className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>{result.user1Name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium">{result.user1Name}</span>
+                      <span className="text-muted-foreground">×</span>
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>{result.user2Name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium">{result.user2Name}</span>
+                    </div>
+                    <div className={`px-4 py-2 rounded-full font-bold text-lg ${getScoreColor(result.breakdown.totalScore)}`}>
+                      {result.breakdown.totalScore}%
+                    </div>
+                  </div>
+
+                  {!result.breakdown.isComplete && (
+                    <Alert className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Incomplete data - one or both users missing questionnaire responses
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <div className="grid grid-cols-5 gap-2 mb-4">
+                    {[
+                      { label: "Social", score: result.breakdown.socialScore },
+                      { label: "Dining", score: result.breakdown.diningScore },
+                      { label: "Interests", score: result.breakdown.interestScore },
+                      { label: "Practical", score: result.breakdown.practicalScore },
+                      { label: "Atmosphere", score: result.breakdown.atmosphereScore },
+                    ].map(item => (
+                      <div key={item.label} className="text-center">
+                        <div className="text-xs text-muted-foreground mb-1">{item.label}</div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className={`h-full ${getScoreBg(item.score)}`}
+                            style={{ width: `${item.score}%` }}
+                          />
+                        </div>
+                        <div className="text-xs font-medium mt-1">{item.score}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {result.breakdown.recencyPenalty > 0 && (
+                    <div className="bg-orange-50 text-orange-700 px-3 py-2 rounded-md text-sm mb-3">
+                      <strong>Recency Penalty:</strong> -{result.breakdown.recencyPenalty} points
+                      {result.breakdown.recentDiningDate && (
+                        <span className="ml-2 text-orange-600">
+                          (Last dined: {new Date(result.breakdown.recentDiningDate).toLocaleDateString()})
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {result.breakdown.bonuses.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      {result.breakdown.bonuses.map((bonus, i) => (
+                        <Badge key={i} variant="secondary" className="bg-green-100 text-green-700">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          {bonus}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  {result.breakdown.penalties.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {result.breakdown.penalties.map((penalty, i) => (
+                        <Badge key={i} variant="secondary" className="bg-red-100 text-red-700">
+                          <AlertCircle className="h-3 w-3 mr-1" />
+                          {penalty}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
 
 const SuperAdminDashboard = () => {
   const { toast } = useToast();
@@ -1794,6 +2204,7 @@ Convive: Curated Dining & Extraordinary Connections
                 <TabsTrigger value="call-management" className="flex-shrink-0">Call Management</TabsTrigger>
                 <TabsTrigger value="vc-valuation" className="flex-shrink-0">VC Valuation</TabsTrigger>
                 <TabsTrigger value="group-formation-test" className="flex-shrink-0">Group Formation</TabsTrigger>
+                <TabsTrigger value="compatibility-tester" className="flex-shrink-0">Compatibility Tester</TabsTrigger>
                 <TabsTrigger value="ai-testing" className="flex-shrink-0">AI Testing</TabsTrigger>
               </TabsList>
             </div>
@@ -5236,6 +5647,11 @@ Convive: Curated Dining & Extraordinary Connections
                 </p>
               </CardFooter>
             </Card>
+          </TabsContent>
+
+          {/* Compatibility Tester Tab */}
+          <TabsContent value="compatibility-tester" className="space-y-4">
+            <CompatibilityTester />
           </TabsContent>
           
           {/* AI Testing Tab */}
