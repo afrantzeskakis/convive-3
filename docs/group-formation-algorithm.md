@@ -13,19 +13,84 @@ The Convive (Come·Vibe) group formation algorithm optimizes dining groups by ba
 2. **Compatibility**: Within balanced groups, members should be matched based on compatibility scores 
 3. **Efficient Resources**: The algorithm aims to minimize the number of groups while respecting size constraints
 
+## Compatibility Score Calculation
+
+The compatibility score between two users is calculated using a weighted algorithm based on their questionnaire responses. The algorithm considers 5 dimensions:
+
+### Dimension Weights
+| Dimension | Weight | Description |
+|-----------|--------|-------------|
+| Social Compatibility | 35% | Conversation topics, style, personality traits, meetup goals |
+| Dining Preferences | 25% | Cuisine preferences, price range, noise level, ambiance |
+| Shared Interests | 20% | Personal interests and hobbies overlap |
+| Practical Compatibility | 15% | Dietary restrictions, drink preferences, group size, frequency |
+| Atmosphere Preferences | 5% | Music, seating, lighting preferences |
+
+### Social Compatibility (35%)
+Evaluates how well two users would interact socially:
+- **Conversation Topics**: Overlap in preferred discussion subjects (Travel, Food, Art, etc.)
+- **Conversation Style**: Complementary styles get a bonus (Listener + Talker = synergy)
+- **Personality Traits**: Overlap in self-identified traits (Outgoing, Creative, etc.)
+- **Meetup Goals**: Aligned goals (both seeking friends) = bonus; conflicting goals = penalty
+
+### Dining Preferences (25%)
+Evaluates alignment in restaurant preferences:
+- **Cuisine Preferences**: Overlap in preferred cuisine types
+- **Price Range**: Same range = full points; 1-tier difference = partial; 2+ tiers = penalty
+- **Noise Level**: Adjacent preferences (Moderate/Lively) are acceptable
+- **Ambiance**: Overlap in preferred restaurant vibes
+
+### Shared Interests (20%)
+Simple overlap calculation of personal interests and hobbies selected during onboarding.
+
+### Practical Compatibility (15%)
+Evaluates logistical alignment:
+- **Dietary Restrictions**: Conflicting needs (Vegan + Meat-lover) = penalty
+- **Drink Preferences**: Non-alcoholic vs alcoholic preferences
+- **Group Size Preference**: Similar preferences for intimate vs large gatherings
+- **Meetup Frequency**: How often users want to attend events
+
+### Atmosphere Preferences (5%)
+Low-weight matching of:
+- Music preferences (Jazz, Classical, No music, etc.)
+- Seating preferences (Booth, Table, etc.)
+- Lighting preferences (Dim, Bright, Natural)
+
+## Special Matching Logic
+
+### Complementary Styles Bonus
+When one user prefers listening and another prefers talking, they receive a compatibility bonus as these styles complement each other well in conversation.
+
+### Deal-Breaker Detection
+Certain preference combinations result in penalties:
+- Vegan + Meat-lover dietary preferences
+- Vegetarian + Meat-lover dietary preferences
+- Kosher/Halal + Pork preferences
+
+### Missing Data Handling
+When a user hasn't completed the questionnaire:
+- Score defaults to 50 (neutral baseline)
+- The system logs which users are missing data
+- Group formation continues but with reduced matching accuracy
+- Metrics track incomplete match rates
+
 ## Algorithm Phases
 
-### Phase 1: Initial Distribution
+### Phase 1: Build Compatibility Matrix
+1. Fetch all users' questionnaire data from the database
+2. Calculate pairwise compatibility scores using the weighted algorithm
+3. Log completion rates and identify users with missing data
+
+### Phase 2: Initial Distribution
 1. Calculate the ideal number of groups based on target size (5-6 users)
 2. Adjust the number of groups if needed to meet minimum/maximum constraints
 3. Distribute users evenly across groups (within 1 person difference)
 4. Ensure no group is below the minimum size (4 users) or above the maximum (7 users)
 
-### Phase 2: Compatibility Optimization
-1. Calculate compatibility scores between all users
-2. Attempt to swap users between groups to improve overall compatibility
-3. Only approve swaps that maintain group size balance (±1 person)
-4. Apply stricter rules for oversized groups (7 users):
+### Phase 3: Compatibility Optimization
+1. Attempt to swap users between groups to improve overall compatibility
+2. Only approve swaps that maintain group size balance (±1 person)
+3. Apply stricter rules for oversized groups (7 users):
    - Only approve creating a 7-person group when compatibility improvement is significant (>20%)
    - Never allow more than one 7-person group unless absolutely necessary
 
@@ -77,6 +142,7 @@ The algorithm strongly discourages 7-person groups by:
 ### Edge Cases
 - For fewer than 4 users, a single small group is created
 - For very large user pools, the algorithm maintains balance while scaling efficiently
+- For users without questionnaire data, a neutral baseline score is used
 
 ## Testing
 The algorithm has been validated against multiple test cases covering various user counts from 4 to 64, demonstrating optimal group formation in all scenarios.
