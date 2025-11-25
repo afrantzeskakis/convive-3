@@ -116,6 +116,17 @@ This repository contains Convive - a comprehensive dining and networking platfor
 - **Solution**: Replaced Vite with esbuild in build.sh for faster builds
 - **Result**: Frontend assets now build successfully in server/public directory
 
+### 7. User Compatibility Matching Algorithm
+- **Weighted Scoring System** - 5 dimensions with weighted importance
+- **Social Compatibility (35%)** - Conversation topics, style, personality traits, meetup goals
+- **Dining Preferences (25%)** - Cuisine preferences, price range, noise level, ambiance
+- **Shared Interests (20%)** - Personal interests and hobbies overlap
+- **Practical Compatibility (15%)** - Dietary restrictions, drink preferences, group size
+- **Atmosphere Preferences (5%)** - Music, seating, lighting preferences
+- **Complementary Matching** - Listener+Talker styles get bonus points
+- **Deal-Breaker Detection** - Vegan vs Meat-lover conflicts, dietary incompatibilities
+- **Missing Data Handling** - Fallback scores with logging for incomplete questionnaires
+
 ## Changelog
 
 Changelog:
@@ -123,6 +134,7 @@ Changelog:
 - July 02, 2025. Restored carousel version of recipe analysis tool with interactive culinary term education
 - July 07, 2025. Fixed Railway deployment issue - replaced Vite build with esbuild due to timeout issues
 - July 08, 2025. Fixed CSS styling in production - now properly processes Tailwind CSS during build
+- November 25, 2025. **MAJOR UPDATE:** Replaced random placeholder compatibility scoring with real preference-based matching algorithm that uses questionnaire data from user_preferences table
 - July 08, 2025. Successfully deployed complete Restaurant Wine Management System to Railway with full functionality
 - July 09, 2025. Refined Convive Select (formerly Convive Black) premium tier with updated pricing model and features
 - July 09, 2025. Successfully resolved GoDaddy DNS configuration for Railway custom domain - fixed "record data is invalid" error by using www subdomain with CNAME record
