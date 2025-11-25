@@ -1,4 +1,5 @@
 import express, { type Request, Response, NextFunction } from "express";
+import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { openaiService } from "./services/openai-service";
@@ -6,6 +7,21 @@ import { initializeWebSocketServer } from "./services/websocket-service";
 import http from "http";
 
 const app = express();
+
+// CORS configuration for Replit webview (iframe) compatibility
+const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
+if (isReplitEnv) {
+  app.use(cors({
+    origin: true, // Allow all origins in Replit environment
+    credentials: true, // Allow cookies to be sent
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie'],
+  }));
+}
+
+// Trust proxy for secure cookies behind Replit's reverse proxy
+app.set('trust proxy', 1);
 // Create HTTP server for both Express and WebSockets
 const server = http.createServer(app);
 

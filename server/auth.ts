@@ -66,6 +66,8 @@ export function setupAuth(app: Express) {
   
   // In Replit webview or production, cookies need sameSite=none + secure=true
   // to work across the iframe boundary
+  // Also adding partitioned=true for CHIPS (Cookies Having Independent Partitioned State)
+  // which allows cookies to work in third-party contexts (like iframes)
   const cookieSettings: session.CookieOptions = {
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
     httpOnly: true,
@@ -75,13 +77,15 @@ export function setupAuth(app: Express) {
     // Replit serves over HTTPS, so we can use secure cookies
     cookieSettings.secure = true;
     cookieSettings.sameSite = "none";
+    // Enable partitioned cookies (CHIPS) for iframe support in Chrome 114+
+    (cookieSettings as any).partitioned = true;
   } else {
     // Local development without HTTPS
     cookieSettings.secure = false;
     cookieSettings.sameSite = "lax";
   }
   
-  console.log(`[AUTH] Cookie settings - Replit: ${isReplitEnv}, Production: ${isProduction}, Secure: ${cookieSettings.secure}, SameSite: ${cookieSettings.sameSite}`);
+  console.log(`[AUTH] Cookie settings - Replit: ${isReplitEnv}, Production: ${isProduction}, Secure: ${cookieSettings.secure}, SameSite: ${cookieSettings.sameSite}, Partitioned: ${(cookieSettings as any).partitioned || false}`);
   
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "your-secret-key",
@@ -212,13 +216,23 @@ export function setupAuth(app: Express) {
           return next(err);
         }
         
-        console.log("Login successful for:", user.username);
-        
-        // Don't send password to client
-        const userWithoutPassword = { ...user };
-        delete userWithoutPassword.password;
-        
-        return res.json(userWithoutPassword);
+        // Explicitly save the session before responding to ensure it's persisted
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("[AUTH] Session save error:", saveErr);
+            return next(saveErr);
+          }
+          
+          console.log("Login successful for:", user.username);
+          console.log("[AUTH] Session ID:", req.sessionID);
+          console.log("[AUTH] Session saved successfully");
+          
+          // Don't send password to client
+          const userWithoutPassword = { ...user };
+          delete userWithoutPassword.password;
+          
+          return res.json(userWithoutPassword);
+        });
       });
     })(req, res, next);
   });
@@ -251,6 +265,12 @@ export function setupAuth(app: Express) {
 
   // Get current user
   app.get("/api/user", (req, res) => {
+    console.log("[AUTH] /api/user request");
+    console.log("[AUTH] Session ID:", req.sessionID);
+    console.log("[AUTH] Session cookie:", req.headers.cookie);
+    console.log("[AUTH] Is authenticated:", req.isAuthenticated());
+    console.log("[AUTH] User in session:", req.user ? `ID=${req.user.id}` : "none");
+    
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
