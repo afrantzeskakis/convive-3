@@ -66,9 +66,9 @@ export function setupAuth(app: Express) {
     saveUninitialized: false,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      secure: true, // Required for sameSite: none
+      secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: "none", // Allow cross-origin cookies for embedded contexts
+      sameSite: "lax",
     },
     store: new PostgresSessionStore({
       pool,
