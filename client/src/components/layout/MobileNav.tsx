@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { safeStorage } from "@/lib/safeStorage";
 
 export default function MobileNav() {
   const [location] = useLocation();
@@ -40,7 +41,7 @@ export default function MobileNav() {
           className={`flex flex-col items-center ${location === '/' ? 'text-primary' : 'text-gray-600'}`}
           onClick={() => {
             // Set bypass flag to prevent admin redirect
-            localStorage.setItem('bypass_admin_redirect', 'true');
+            safeStorage.setItem('bypass_admin_redirect', 'true');
             console.log("Setting bypass flag and navigating to user view");
           }}
         >

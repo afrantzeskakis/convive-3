@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { safeStorage } from "../lib/safeStorage";
 
 export type Theme = 'light' | 'dark' | 'restaurant';
 
@@ -12,7 +13,7 @@ interface UseDarkModeReturn {
 export function useDarkMode(): UseDarkModeReturn {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('convive-theme');
+      const saved = safeStorage.getItem('convive-theme');
       if (saved && ['light', 'dark', 'restaurant'].includes(saved)) {
         return saved as Theme;
       }
@@ -70,7 +71,7 @@ export function useDarkMode(): UseDarkModeReturn {
     }
     
     // Save to localStorage
-    localStorage.setItem('convive-theme', theme);
+    safeStorage.setItem('convive-theme', theme);
   }, [theme]);
 
   const setTheme = (newTheme: Theme) => {

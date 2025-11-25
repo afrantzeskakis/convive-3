@@ -48,6 +48,7 @@ import OfflineNotice from "./components/OfflineNotice";
 import SplashScreen from "./components/SplashScreen";
 import { AuthProvider, useAuth } from './contexts/AuthContextProvider';
 import { ProtectedRoute } from "./lib/protected-route";
+import { safeStorage } from "./lib/safeStorage";
 
 function Router() {
   const { user, isAuthenticated } = useAuth();
@@ -75,12 +76,12 @@ function Router() {
   // Automatic routing based on user role
   if (isAuthenticated && user && location === '/') {
     // Check for bypass flag in localStorage
-    const bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
+    const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
     
     // If bypass flag is set, clear it and don't redirect
     if (bypassRedirect) {
       console.log("Bypass flag detected in App.tsx, staying on user dashboard");
-      localStorage.removeItem('bypass_admin_redirect');
+      safeStorage.removeItem('bypass_admin_redirect');
       // Continue to home page
     } 
     // Otherwise perform standard role-based redirects

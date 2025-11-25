@@ -6,6 +6,7 @@ import {
 import { User, InsertUser } from "@shared/schema";
 import { apiRequest, getQueryFn, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { safeStorage } from "../lib/safeStorage";
 
 type AuthContextType = {
   user: User | null;
@@ -80,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       queryClient.invalidateQueries();
       
       // Clear any local storage items that might contain user state
-      localStorage.removeItem('bypass_admin_redirect');
+      safeStorage.removeItem('bypass_admin_redirect');
       
       // Force navigation to home page - will be handled by the logout function below
     },
@@ -93,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Even on error, try to clear client-side data
       queryClient.setQueryData(["/api/user"], null);
-      localStorage.removeItem('bypass_admin_redirect');
+      safeStorage.removeItem('bypass_admin_redirect');
     },
   });
 

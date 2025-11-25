@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContextProvider";
+import { safeStorage } from "@/lib/safeStorage";
 
 export default function Header() {
   const [location] = useLocation();
@@ -27,7 +28,7 @@ export default function Header() {
                 className="flex items-center"
                 onClick={() => {
                   // Set bypass flag to prevent admin redirect
-                  localStorage.setItem('bypass_admin_redirect', 'true');
+                  safeStorage.setItem('bypass_admin_redirect', 'true');
                   console.log("Setting bypass flag and navigating to user view");
                 }}
               >
@@ -43,7 +44,7 @@ export default function Header() {
                 className={`px-3 py-2 rounded-md text-sm font-medium ${location === '/' ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}
                 onClick={() => {
                   // Set bypass flag to prevent admin redirect
-                  localStorage.setItem('bypass_admin_redirect', 'true');
+                  safeStorage.setItem('bypass_admin_redirect', 'true');
                   console.log("Setting bypass flag and navigating to user view");
                 }}
               >

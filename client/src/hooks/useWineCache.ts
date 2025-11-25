@@ -7,6 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { WineData } from '../types/wine';
+import { safeStorage } from '../lib/safeStorage';
 
 interface WineCacheData {
   wines: WineData[];
@@ -46,13 +47,13 @@ export function useWineCache() {
   // Get wines from cache
   const getCachedWines = useCallback((): WineData[] => {
     try {
-      const cached = localStorage.getItem(CACHE_KEY);
+      const cached = safeStorage.getItem(CACHE_KEY);
       if (!cached) return [];
 
       const data = JSON.parse(cached);
       if (!validateCacheData(data)) {
         console.warn('Invalid cache data structure, clearing cache');
-        localStorage.removeItem(CACHE_KEY);
+        safeStorage.removeItem(CACHE_KEY);
         return [];
       }
 
@@ -85,7 +86,7 @@ export function useWineCache() {
         return false;
       }
 
-      localStorage.setItem(CACHE_KEY, serialized);
+      safeStorage.setItem(CACHE_KEY, serialized);
       setCacheSize(wines.length);
       setLastSync(new Date());
       setCacheStatus('ready');
@@ -142,7 +143,7 @@ export function useWineCache() {
   // Clear cache
   const clearCache = useCallback((): void => {
     try {
-      localStorage.removeItem(CACHE_KEY);
+      safeStorage.removeItem(CACHE_KEY);
       setCacheSize(0);
       setLastSync(null);
       setCacheStatus('ready');
@@ -171,7 +172,7 @@ export function useWineCache() {
   // Initialize cache status
   useEffect(() => {
     try {
-      const cached = localStorage.getItem(CACHE_KEY);
+      const cached = safeStorage.getItem(CACHE_KEY);
       if (cached) {
         const data = JSON.parse(cached);
         if (validateCacheData(data)) {

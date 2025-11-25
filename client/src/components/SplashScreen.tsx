@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { safeStorage } from '../lib/safeStorage';
 
 export default function SplashScreen() {
   const [show, setShow] = useState(true);
@@ -20,7 +21,7 @@ export default function SplashScreen() {
     }, 2000);
 
     // Remember that the user has seen the splash screen
-    localStorage.setItem('splash_screen_shown', 'true');
+    safeStorage.setItem('splash_screen_shown', 'true');
 
     return () => clearTimeout(timer);
   }, []);

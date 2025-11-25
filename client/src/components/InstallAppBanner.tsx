@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import { safeStorage } from '../lib/safeStorage';
 
 export default function InstallAppBanner() {
   const [showBanner, setShowBanner] = useState(false);
@@ -20,24 +21,13 @@ export default function InstallAppBanner() {
     
     // Only show banner if on iOS and not already installed
     // Also check if user has dismissed it before
-    let bannerDismissed = 'false';
-    try {
-      bannerDismissed = localStorage.getItem('pwa_banner_dismissed') || 'false';
-    } catch (error) {
-      // localStorage access denied in some environments (e.g., web preview)
-      console.log('localStorage access denied, defaulting to show banner');
-    }
+    const bannerDismissed = safeStorage.getItem('pwa_banner_dismissed') || 'false';
     setShowBanner(isIOSDevice && !isInStandaloneMode && bannerDismissed !== 'true');
   }, []);
 
   const dismissBanner = () => {
     setShowBanner(false);
-    try {
-      localStorage.setItem('pwa_banner_dismissed', 'true');
-    } catch (error) {
-      // localStorage access denied in some environments
-      console.log('Could not save banner dismissal preference');
-    }
+    safeStorage.setItem('pwa_banner_dismissed', 'true');
   };
 
   if (!showBanner) return null;
