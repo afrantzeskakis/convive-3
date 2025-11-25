@@ -195,12 +195,24 @@ export function setupAuth(app: Express) {
         }
         
         console.log("Login successful for:", user.username);
+        console.log("[AUTH] Session ID after login:", req.sessionID);
+        console.log("[AUTH] Session user:", req.session?.passport?.user);
         
-        // Don't send password to client
-        const userWithoutPassword = { ...user };
-        delete userWithoutPassword.password;
-        
-        return res.json(userWithoutPassword);
+        // Force session save before responding
+        req.session.save((saveErr) => {
+          if (saveErr) {
+            console.error("[AUTH] Session save error:", saveErr);
+            return next(saveErr);
+          }
+          
+          console.log("[AUTH] Session saved successfully");
+          
+          // Don't send password to client
+          const userWithoutPassword = { ...user };
+          delete userWithoutPassword.password;
+          
+          return res.json(userWithoutPassword);
+        });
       });
     })(req, res, next);
   });
@@ -233,6 +245,11 @@ export function setupAuth(app: Express) {
 
   // Get current user
   app.get("/api/user", (req, res) => {
+    console.log("[AUTH] GET /api/user - Session ID:", req.sessionID);
+    console.log("[AUTH] GET /api/user - Session passport:", req.session?.passport);
+    console.log("[AUTH] GET /api/user - isAuthenticated:", req.isAuthenticated());
+    console.log("[AUTH] GET /api/user - Cookies:", req.headers.cookie);
+    
     if (!req.isAuthenticated()) {
       return res.status(401).json({ message: "Not authenticated" });
     }
