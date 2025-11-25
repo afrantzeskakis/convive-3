@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { User as UserType, Restaurant, Meetup, DinnerCheckAverage, UserTicketHistory, CallScript, CallRecording } from "@shared/schema";
 import { Link } from "wouter";
+import { safeStorage } from "@/lib/safeStorage";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -4178,7 +4179,7 @@ Convive: Curated Dining & Extraordinary Connections
                       onClick={() => {
                         // Use a direct approach to navigate to home page
                         // Set the flag to bypass redirects
-                        localStorage.setItem('bypass_admin_redirect', 'true');
+                        safeStorage.setItem('bypass_admin_redirect', 'true');
                         console.log("Setting bypass flag and navigating to user view");
                         
                         // Force a hard navigation to the root path
