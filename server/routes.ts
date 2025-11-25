@@ -2447,53 +2447,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Compatibility matrix endpoint (super admin only) - for testing the matching algorithm
-  app.post("/api/admin/compatibility-matrix", isSuperAdmin, async (req: Request, res: Response) => {
-    try {
-      const { userIds } = req.body;
-      
-      if (!Array.isArray(userIds) || userIds.length < 2) {
-        return res.status(400).json({ message: "At least 2 user IDs are required" });
-      }
-      
-      // Import the compatibility calculator
-      const { compatibilityCalculator } = await import("./services/compatibility-calculator");
-      
-      // Get user info for all selected users
-      const users = await Promise.all(
-        userIds.map(async (id: number) => {
-          const user = await storage.getUser(id);
-          return user ? { id: user.id, fullName: user.fullName, username: user.username } : null;
-        })
-      );
-      
-      const validUsers = users.filter(u => u !== null);
-      
-      // Calculate compatibility for all pairs
-      const matrix: Record<string, Record<string, any>> = {};
-      
-      for (const user1 of validUsers) {
-        matrix[user1.id] = {};
-        for (const user2 of validUsers) {
-          if (user1.id === user2.id) {
-            matrix[user1.id][user2.id] = { totalScore: 100, isSelf: true };
-          } else {
-            const breakdown = await compatibilityCalculator.calculateDetailedCompatibility(user1.id, user2.id);
-            matrix[user1.id][user2.id] = breakdown;
-          }
-        }
-      }
-      
-      res.json({
-        users: validUsers,
-        matrix
-      });
-    } catch (error) {
-      console.error("Error calculating compatibility matrix:", error);
-      res.status(500).json({ message: "Failed to calculate compatibility matrix" });
-    }
-  });
-
   // Diagnostic endpoint to check database connection (public for debugging)
   app.get('/api/diagnostic/database-info', async (req: Request, res: Response) => {
     try {

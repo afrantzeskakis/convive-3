@@ -390,13 +390,6 @@ const SuperAdminDashboard = () => {
   });
   const [isRefreshingUxIssues, setIsRefreshingUxIssues] = useState(false);
   
-  // Compatibility Tester states
-  const [selectedUserIds, setSelectedUserIds] = useState<number[]>([]);
-  const [compatibilityMatrix, setCompatibilityMatrix] = useState<any>(null);
-  const [isCalculatingCompatibility, setIsCalculatingCompatibility] = useState(false);
-  const [compatibilityUsers, setCompatibilityUsers] = useState<any[]>([]);
-  const [compatibilitySearchTerm, setCompatibilitySearchTerm] = useState("");
-  
   // Function to update UX issue status
   const handleUxIssueStatusChange = (id: number, newStatus: 'pending' | 'in-progress' | 'resolved') => {
     setUiAuditResults(prev => prev.map(issue => 
@@ -1749,7 +1742,6 @@ Convive: Curated Dining & Extraordinary Connections
                   <SelectItem value="vc-valuation">VC Valuation</SelectItem>
                   <SelectItem value="group-formation-test">Group Formation</SelectItem>
                   <SelectItem value="ai-testing">AI Testing</SelectItem>
-                  <SelectItem value="compatibility-tester">Compatibility Tester</SelectItem>
                 </SelectContent>
               </Select>
               
@@ -1774,7 +1766,6 @@ Convive: Curated Dining & Extraordinary Connections
                   activeTab === "vc-valuation" ? "VC Valuation" :
                   activeTab === "group-formation-test" ? "Group Formation" :
                   activeTab === "ai-testing" ? "AI Testing" :
-                  activeTab === "compatibility-tester" ? "Compatibility Tester" :
                   "Dashboard"
                 }</h2>
               </div>
@@ -1802,7 +1793,6 @@ Convive: Curated Dining & Extraordinary Connections
                 <TabsTrigger value="vc-valuation" className="flex-shrink-0">VC Valuation</TabsTrigger>
                 <TabsTrigger value="group-formation-test" className="flex-shrink-0">Group Formation</TabsTrigger>
                 <TabsTrigger value="ai-testing" className="flex-shrink-0">AI Testing</TabsTrigger>
-                <TabsTrigger value="compatibility-tester" className="flex-shrink-0">Compatibility</TabsTrigger>
               </TabsList>
             </div>
           </div>
@@ -6333,280 +6323,6 @@ Convive: Curated Dining & Extraordinary Connections
                     </Tabs>
                   </TabsContent>
                 </Tabs>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Compatibility Tester Tab */}
-          <TabsContent value="compatibility-tester" className="space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Compatibility Matrix Tester</h2>
-            <p className="text-muted-foreground mb-6">
-              Test the preference-based matching algorithm by selecting users and viewing their compatibility scores.
-            </p>
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* User Selection Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Users className="h-5 w-5" />
-                    Select Users to Compare
-                  </CardTitle>
-                  <CardDescription>
-                    Choose at least 2 users to calculate their compatibility matrix
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex gap-2">
-                      <Input 
-                        placeholder="Search users by name..." 
-                        value={compatibilitySearchTerm}
-                        onChange={(e) => setCompatibilitySearchTerm(e.target.value)}
-                        data-testid="input-compatibility-search"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={async () => {
-                          try {
-                            const response = await fetch('/api/users');
-                            if (response.ok) {
-                              const allUsers = await response.json();
-                              setCompatibilityUsers(allUsers.filter((u: any) => u.role === 'user'));
-                            }
-                          } catch (error) {
-                            console.error('Error fetching users:', error);
-                          }
-                        }}
-                        data-testid="button-load-users"
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Load Users
-                      </Button>
-                    </div>
-                    
-                    <ScrollArea className="h-64 border rounded-md p-2">
-                      {compatibilityUsers.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                          <p>Click "Load Users" to fetch available users</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {compatibilityUsers
-                            .filter((u: any) => 
-                              u.fullName?.toLowerCase().includes(compatibilitySearchTerm.toLowerCase()) ||
-                              u.username?.toLowerCase().includes(compatibilitySearchTerm.toLowerCase())
-                            )
-                            .map((user: any) => (
-                              <div 
-                                key={user.id}
-                                className={`flex items-center justify-between p-2 rounded-md cursor-pointer transition-colors ${
-                                  selectedUserIds.includes(user.id) 
-                                    ? 'bg-primary/20 border border-primary' 
-                                    : 'hover:bg-muted'
-                                }`}
-                                onClick={() => {
-                                  setSelectedUserIds(prev => 
-                                    prev.includes(user.id)
-                                      ? prev.filter(id => id !== user.id)
-                                      : [...prev, user.id]
-                                  );
-                                }}
-                                data-testid={`user-item-${user.id}`}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-                                    <UserIcon className="h-4 w-4" />
-                                  </div>
-                                  <div>
-                                    <p className="font-medium text-sm">{user.fullName || user.username}</p>
-                                    <p className="text-xs text-muted-foreground">ID: {user.id}</p>
-                                  </div>
-                                </div>
-                                {selectedUserIds.includes(user.id) && (
-                                  <Check className="h-5 w-5 text-primary" />
-                                )}
-                              </div>
-                            ))}
-                        </div>
-                      )}
-                    </ScrollArea>
-                    
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-muted-foreground">
-                        {selectedUserIds.length} users selected
-                      </p>
-                      <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => setSelectedUserIds([])}
-                          disabled={selectedUserIds.length === 0}
-                          data-testid="button-clear-selection"
-                        >
-                          Clear
-                        </Button>
-                        <Button
-                          size="sm"
-                          disabled={selectedUserIds.length < 2 || isCalculatingCompatibility}
-                          onClick={async () => {
-                            setIsCalculatingCompatibility(true);
-                            try {
-                              const response = await fetch('/api/admin/compatibility-matrix', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ userIds: selectedUserIds })
-                              });
-                              if (response.ok) {
-                                const result = await response.json();
-                                setCompatibilityMatrix(result);
-                                toast({
-                                  title: "Compatibility calculated",
-                                  description: `Analyzed ${result.users.length} users`
-                                });
-                              } else {
-                                throw new Error('Failed to calculate compatibility');
-                              }
-                            } catch (error) {
-                              console.error('Error calculating compatibility:', error);
-                              toast({
-                                title: "Error",
-                                description: "Failed to calculate compatibility matrix",
-                                variant: "destructive"
-                              });
-                            } finally {
-                              setIsCalculatingCompatibility(false);
-                            }
-                          }}
-                          data-testid="button-calculate-compatibility"
-                        >
-                          {isCalculatingCompatibility ? (
-                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                          ) : (
-                            <Play className="h-4 w-4 mr-2" />
-                          )}
-                          Calculate
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {/* Results Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChartIcon className="h-5 w-5" />
-                    Compatibility Results
-                  </CardTitle>
-                  <CardDescription>
-                    View detailed compatibility scores between selected users
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {!compatibilityMatrix ? (
-                    <div className="text-center py-12 text-muted-foreground">
-                      <Database className="h-12 w-12 mx-auto mb-4 opacity-30" />
-                      <p>Select users and click Calculate to see results</p>
-                    </div>
-                  ) : (
-                    <ScrollArea className="h-96">
-                      <div className="space-y-4">
-                        {compatibilityMatrix.users.map((user1: any) => (
-                          <div key={user1.id} className="space-y-2">
-                            <h4 className="font-medium text-sm border-b pb-1">
-                              {user1.fullName || user1.username}
-                            </h4>
-                            <div className="grid gap-2">
-                              {compatibilityMatrix.users
-                                .filter((u: any) => u.id !== user1.id)
-                                .map((user2: any) => {
-                                  const score = compatibilityMatrix.matrix[user1.id]?.[user2.id];
-                                  if (!score || score.isSelf) return null;
-                                  
-                                  const totalScore = score.totalScore || 0;
-                                  const scoreColor = totalScore >= 80 ? 'text-green-600' :
-                                                     totalScore >= 60 ? 'text-yellow-600' :
-                                                     totalScore >= 40 ? 'text-orange-600' : 'text-red-600';
-                                  
-                                  return (
-                                    <div 
-                                      key={`${user1.id}-${user2.id}`}
-                                      className="bg-muted/50 rounded-lg p-3"
-                                    >
-                                      <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm">
-                                          → {user2.fullName || user2.username}
-                                        </span>
-                                        <span className={`font-bold ${scoreColor}`}>
-                                          {totalScore.toFixed(0)}%
-                                        </span>
-                                      </div>
-                                      <Progress value={totalScore} className="h-2 mb-2" />
-                                      
-                                      {/* Score breakdown */}
-                                      <div className="grid grid-cols-2 gap-1 text-xs text-muted-foreground">
-                                        <div>Social: {(score.dimensions?.social || 0).toFixed(0)}%</div>
-                                        <div>Dining: {(score.dimensions?.dining || 0).toFixed(0)}%</div>
-                                        <div>Interests: {(score.dimensions?.interests || 0).toFixed(0)}%</div>
-                                        <div>Practical: {(score.dimensions?.practical || 0).toFixed(0)}%</div>
-                                      </div>
-                                      
-                                      {/* Flags */}
-                                      {score.hasConflicts && (
-                                        <div className="mt-2 text-xs text-red-500 flex items-center gap-1">
-                                          <AlertCircle className="h-3 w-3" />
-                                          Potential conflicts detected
-                                        </div>
-                                      )}
-                                      {!score.isComplete && (
-                                        <div className="mt-1 text-xs text-yellow-500 flex items-center gap-1">
-                                          <Info className="h-3 w-3" />
-                                          Incomplete preference data
-                                        </div>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Legend Card */}
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Understanding Compatibility Scores</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-green-500"></div>
-                    <span>80-100%: Excellent match</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-yellow-500"></div>
-                    <span>60-79%: Good match</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-                    <span>40-59%: Fair match</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full bg-red-500"></div>
-                    <span>0-39%: Poor match</span>
-                  </div>
-                  <div className="text-muted-foreground">
-                    Weights: Social 35%, Dining 25%, Interests 20%, Practical 15%, Atmosphere 5%
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>

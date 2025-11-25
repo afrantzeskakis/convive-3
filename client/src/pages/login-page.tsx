@@ -11,7 +11,6 @@ import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContextProvider";
-import { safeStorage } from "@/lib/safe-storage";
 
 // Define login form schema
 const loginSchema = z.object({
@@ -73,20 +72,18 @@ export default function LoginPage() {
   if (user) {
     console.log("Already authenticated as:", user.username);
     
-    // Check for bypass flag in localStorage (using safe storage for restricted contexts)
-    const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
-    if (bypassRedirect) {
-      safeStorage.removeItem('bypass_admin_redirect');
-    }
+    // Check for bypass flag in localStorage
+    const bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
     
-    // If bypass flag is set, go to home page
+    // If bypass flag is set, go to home page and clear the flag
     if (bypassRedirect) {
       console.log("Bypass flag detected, going to regular user view");
+      localStorage.removeItem('bypass_admin_redirect');
       window.location.href = "/";
-      return null;
+      return;
     }
     
-    // Regular role-based redirection - use full page reload to establish session properly
+    // Regular role-based redirection
     if (user.role === "super_admin") {
       console.log("Already logged in as super admin, redirecting to dashboard");
       window.location.href = "/super-admin-dashboard";
@@ -125,29 +122,28 @@ export default function LoginPage() {
         description: `Welcome back, ${userData.fullName || userData.username}!`,
       });
       
-      // Redirect based on role - use navigate to preserve React state (cookies may be blocked in preview)
+      // Redirect based on role
       setTimeout(() => {
         console.log("Redirecting user based on role:", userData.role);
         
-        // Check for bypass flag in localStorage (using safe storage for restricted contexts)
-        const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
-        if (bypassRedirect) {
-          safeStorage.removeItem('bypass_admin_redirect');
-        }
+        // Check for bypass flag in localStorage
+        const bypassRedirect = localStorage.getItem('bypass_admin_redirect') === 'true';
         
-        // If bypass flag is set, go to home page
+        // If bypass flag is set, go to home page and clear the flag
         if (bypassRedirect) {
           console.log("Bypass flag detected after login, going to regular user view");
+          localStorage.removeItem('bypass_admin_redirect');
           window.location.href = "/";
           return;
         }
         
-        // Regular role-based redirection - use full page reload to establish session properly
+        // Regular role-based redirection
         if (userData.role === "restaurant_admin") {
           window.location.href = "/restaurant-admin-dashboard";
         } else if (userData.role === "admin") {
           window.location.href = "/admin-dashboard";
         } else if (userData.role === "super_admin") {
+          // Immediately redirect super admins to their dashboard
           window.location.href = "/super-admin-dashboard";
         } else {
           // Regular user
