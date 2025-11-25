@@ -1,6 +1,7 @@
 import { DatabaseStorage } from "../database-storage";
 const storage = new DatabaseStorage();
 import { User, MatchScore } from "../../shared/schema";
+import { compatibilityCalculator } from "./compatibility-calculator";
 
 /**
  * Optimized Group Formation Service
@@ -91,9 +92,9 @@ export class GroupFormationService {
         if (existingScore) {
           compatibilityScores.set(otherUser.id, existingScore.compatibilityScore);
         } else {
-          // Calculate new score if needed (this would use the real algorithm in production)
-          // For now using the placeholder from current code
-          const score = Math.floor(Math.random() * 40) + 60; // 60-100 range
+          // Calculate real compatibility score using questionnaire data
+          const score = await compatibilityCalculator.calculateCompatibilityScore(user.id, otherUser.id);
+          console.log(`[Compatibility] User ${user.id} <-> User ${otherUser.id}: ${score}`);
           compatibilityScores.set(otherUser.id, score);
           
           // Store the score for future use
