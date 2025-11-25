@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { User as UserType, Restaurant, Meetup, DinnerCheckAverage, UserTicketHistory, CallScript, CallRecording } from "@shared/schema";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { safeStorage } from "@/lib/safeStorage";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -42,6 +42,7 @@ import Footer from "@/components/layout/Footer";
 
 const SuperAdminDashboard = () => {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [activeTab, setActiveTab] = useState("wine");
   
   // Wine Database and Upload state
@@ -4177,14 +4178,12 @@ Convive: Curated Dining & Extraordinary Connections
                       size="lg" 
                       className="bg-gradient-to-r from-primary to-primary/80 gap-2"
                       onClick={() => {
-                        // Use a direct approach to navigate to home page
                         // Set the flag to bypass redirects
                         safeStorage.setItem('bypass_admin_redirect', 'true');
                         console.log("Setting bypass flag and navigating to user view");
                         
-                        // Force a hard navigation to the root path
-                        const rootUrl = window.location.origin;
-                        window.location.href = rootUrl + "/?admin_bypass=" + Date.now();
+                        // Use soft navigation (wouter) to preserve session
+                        navigate("/");
                       }}
                     >
                       <Users className="h-5 w-5" />

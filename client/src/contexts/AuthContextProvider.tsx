@@ -43,7 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: User) => {
+      // Set user data immediately for optimistic update
       queryClient.setQueryData(["/api/user"], user);
+      // Also invalidate to confirm session via cookie-backed fetch
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
     onError: (error: Error) => {
       toast({
@@ -60,7 +63,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: User) => {
+      // Set user data immediately for optimistic update
       queryClient.setQueryData(["/api/user"], user);
+      // Also invalidate to confirm session via cookie-backed fetch
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
     },
     onError: (error: Error) => {
       toast({

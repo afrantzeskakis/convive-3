@@ -60,16 +60,34 @@ async function comparePasswords(supplied: string, stored: string) {
 export function setupAuth(app: Express) {
   const PostgresSessionStore = connectPg(session);
   
+  // Detect if running in Replit environment (webview requires special cookie settings)
+  const isReplitEnv = !!(process.env.REPL_ID || process.env.REPL_SLUG);
+  const isProduction = process.env.NODE_ENV === "production";
+  
+  // In Replit webview or production, cookies need sameSite=none + secure=true
+  // to work across the iframe boundary
+  const cookieSettings: session.CookieOptions = {
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    httpOnly: true,
+  };
+  
+  if (isReplitEnv || isProduction) {
+    // Replit serves over HTTPS, so we can use secure cookies
+    cookieSettings.secure = true;
+    cookieSettings.sameSite = "none";
+  } else {
+    // Local development without HTTPS
+    cookieSettings.secure = false;
+    cookieSettings.sameSite = "lax";
+  }
+  
+  console.log(`[AUTH] Cookie settings - Replit: ${isReplitEnv}, Production: ${isProduction}, Secure: ${cookieSettings.secure}, SameSite: ${cookieSettings.sameSite}`);
+  
   const sessionSettings: session.SessionOptions = {
-    secret: "your-secret-key", // In production, use environment variables for secrets
+    secret: process.env.SESSION_SECRET || "your-secret-key",
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "lax",
-    },
+    cookie: cookieSettings,
     store: new PostgresSessionStore({
       pool,
       createTableIfMissing: true,

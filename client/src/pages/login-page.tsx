@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContextProvider";
 import { safeStorage } from "@/lib/safeStorage";
+import { queryClient } from "@/lib/queryClient";
 
 // Define login form schema
 const loginSchema = z.object({
@@ -69,41 +70,42 @@ export default function LoginPage() {
   const isLoginSubmitting = loginForm.formState.isSubmitting;
   const isRegisterSubmitting = registerForm.formState.isSubmitting;
 
-  // Redirect if already authenticated - must be after all hook calls
-  if (user) {
-    console.log("Already authenticated as:", user.username);
+  // Helper function to get redirect path based on user role
+  const getRedirectPath = (userData: typeof user) => {
+    if (!userData) return "/auth";
     
     // Check for bypass flag in localStorage
     const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
     
-    // If bypass flag is set, go to home page and clear the flag
     if (bypassRedirect) {
       console.log("Bypass flag detected, going to regular user view");
       safeStorage.removeItem('bypass_admin_redirect');
-      window.location.href = "/";
-      return;
+      return "/";
     }
     
     // Regular role-based redirection
-    if (user.role === "super_admin") {
-      console.log("Already logged in as super admin, redirecting to dashboard");
-      window.location.href = "/super-admin-dashboard";
-    } else if (user.role === "restaurant_admin") {
-      window.location.href = "/restaurant-admin-dashboard";
-    } else if (user.role === "admin") {
-      window.location.href = "/admin-dashboard";
-    } else if (user.onboardingComplete) {
-      window.location.href = "/";
+    if (userData.role === "super_admin") {
+      return "/super-admin-dashboard";
+    } else if (userData.role === "restaurant_admin") {
+      return "/restaurant-admin-dashboard";
+    } else if (userData.role === "admin") {
+      return "/admin-dashboard";
+    } else if (userData.onboardingComplete) {
+      return "/";
     } else {
-      window.location.href = "/onboarding";
+      return "/onboarding";
     }
-    
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  };
+
+  // Redirect if already authenticated - use useEffect for soft navigation
+  useEffect(() => {
+    if (user) {
+      console.log("Already authenticated as:", user.username);
+      const redirectPath = getRedirectPath(user);
+      console.log("Redirecting to:", redirectPath);
+      navigate(redirectPath);
+    }
+  }, [user, navigate]);
 
   // Login submission handler
   const onLoginSubmit = async (data: LoginFormValues) => {
@@ -123,38 +125,14 @@ export default function LoginPage() {
         description: `Welcome back, ${userData.fullName || userData.username}!`,
       });
       
-      // Redirect based on role
-      setTimeout(() => {
-        console.log("Redirecting user based on role:", userData.role);
-        
-        // Check for bypass flag in localStorage
-        const bypassRedirect = safeStorage.getItem('bypass_admin_redirect') === 'true';
-        
-        // If bypass flag is set, go to home page and clear the flag
-        if (bypassRedirect) {
-          console.log("Bypass flag detected after login, going to regular user view");
-          safeStorage.removeItem('bypass_admin_redirect');
-          window.location.href = "/";
-          return;
-        }
-        
-        // Regular role-based redirection
-        if (userData.role === "restaurant_admin") {
-          window.location.href = "/restaurant-admin-dashboard";
-        } else if (userData.role === "admin") {
-          window.location.href = "/admin-dashboard";
-        } else if (userData.role === "super_admin") {
-          // Immediately redirect super admins to their dashboard
-          window.location.href = "/super-admin-dashboard";
-        } else {
-          // Regular user
-          if (userData.onboardingComplete) {
-            window.location.href = "/";
-          } else {
-            window.location.href = "/onboarding";
-          }
-        }
-      }, 10);
+      // Invalidate user query to ensure fresh data
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Use soft navigation instead of window.location.href
+      const redirectPath = getRedirectPath(userData);
+      console.log("Redirecting user to:", redirectPath);
+      navigate(redirectPath);
+      
     } catch (error: any) {
       console.error("Login error:", error);
       toast({
@@ -186,11 +164,13 @@ export default function LoginPage() {
         description: "Your account has been created successfully!",
       });
       
-      // Redirect to onboarding
-      setTimeout(() => {
-        console.log("Redirecting new user to onboarding:", userData.username);
-        window.location.href = "/onboarding";
-      }, 100);
+      // Invalidate user query to ensure fresh data
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Redirect to onboarding using soft navigation
+      console.log("Redirecting new user to onboarding:", userData.username);
+      navigate("/onboarding");
+      
     } catch (error: any) {
       console.error("Registration error:", error);
       toast({
