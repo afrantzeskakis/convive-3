@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { format } from "date-fns";
-import { Calendar, Clock, MapPin, Users, CreditCard, ChevronRight } from "lucide-react";
+import { Calendar, Clock, ChevronRight } from "lucide-react";
 
 interface DinnerSlot {
   id: number;
@@ -54,8 +53,8 @@ export default function BookDinner() {
     checkoutMutation.mutate(slotId);
   };
 
-  const getSpotsRemaining = (slot: DinnerSlot) => {
-    return slot.capacity - slot.currentBookings;
+  const hasAvailability = (slot: DinnerSlot) => {
+    return slot.capacity - slot.currentBookings > 0;
   };
 
   if (isLoading) {
@@ -83,7 +82,7 @@ export default function BookDinner() {
     );
   }
 
-  const availableSlots = slots?.filter(s => s.status === 'open' && getSpotsRemaining(s) > 0) || [];
+  const availableSlots = slots?.filter(s => s.status === 'open' && hasAvailability(s)) || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -106,66 +105,43 @@ export default function BookDinner() {
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {availableSlots.map((slot) => {
-            const spotsRemaining = getSpotsRemaining(slot);
-            const isLowSpots = spotsRemaining <= 4;
-            
-            return (
-              <Card 
-                key={slot.id} 
-                className={`transition-shadow hover:shadow-lg ${selectedSlot === slot.id ? 'ring-2 ring-primary' : ''}`}
-                data-testid={`dinner-slot-${slot.id}`}
-              >
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <MapPin className="h-5 w-5" />
-                        {slot.city}
-                      </CardTitle>
-                      <CardDescription className="mt-1">
-                        {format(new Date(slot.date), 'EEEE, MMMM d, yyyy')}
-                      </CardDescription>
-                    </div>
-                    <Badge variant={isLowSpots ? "destructive" : "secondary"}>
-                      {spotsRemaining} spots left
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>{slot.timeSlot}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                    <span>Groups of 4-6 guests</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm font-medium">
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
-                    <span>${parseFloat(slot.pricePerPerson).toFixed(2)} per person</span>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className="w-full" 
-                    onClick={() => handleBookSlot(slot.id)}
-                    disabled={checkoutMutation.isPending && selectedSlot === slot.id}
-                    data-testid={`book-button-${slot.id}`}
-                  >
-                    {checkoutMutation.isPending && selectedSlot === slot.id ? (
-                      "Processing..."
-                    ) : (
-                      <>
-                        Book Now
-                        <ChevronRight className="h-4 w-4 ml-2" />
-                      </>
-                    )}
-                  </Button>
-                </CardFooter>
-              </Card>
-            );
-          })}
+          {availableSlots.map((slot) => (
+            <Card 
+              key={slot.id} 
+              className={`transition-shadow hover:shadow-lg ${selectedSlot === slot.id ? 'ring-2 ring-primary' : ''}`}
+              data-testid={`dinner-slot-${slot.id}`}
+            >
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  {format(new Date(slot.date), 'EEEE, MMMM d, yyyy')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <span>{slot.timeSlot}</span>
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button 
+                  className="w-full" 
+                  onClick={() => handleBookSlot(slot.id)}
+                  disabled={checkoutMutation.isPending && selectedSlot === slot.id}
+                  data-testid={`book-button-${slot.id}`}
+                >
+                  {checkoutMutation.isPending && selectedSlot === slot.id ? (
+                    "Processing..."
+                  ) : (
+                    <>
+                      Book Now
+                      <ChevronRight className="h-4 w-4 ml-2" />
+                    </>
+                  )}
+                </Button>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       )}
 
