@@ -292,6 +292,15 @@ export class CompatibilityCalculator {
     return Math.min(100, overlap * 100 + 20);
   }
 
+  private toRestrictionsArray(restrictions: any): string[] {
+    if (!restrictions) return [];
+    if (Array.isArray(restrictions)) return restrictions;
+    if (typeof restrictions === 'object') {
+      return Object.keys(restrictions).filter(key => restrictions[key]);
+    }
+    return [];
+  }
+
   private calculatePracticalCompatibility(
     prefs1: UserPreferencesData,
     prefs2: UserPreferencesData,
@@ -302,8 +311,13 @@ export class CompatibilityCalculator {
     const dining1 = prefs1.diningPreferences;
     const dining2 = prefs2.diningPreferences;
 
-    const restrictions1 = prefs1.dietaryRestrictions || dining1.dietaryRestrictions || [];
-    const restrictions2 = prefs2.dietaryRestrictions || dining2.dietaryRestrictions || [];
+    const r1Prefs = this.toRestrictionsArray(prefs1.dietaryRestrictions);
+    const r1Dining = this.toRestrictionsArray(dining1.dietaryRestrictions);
+    const restrictions1 = r1Prefs.length > 0 ? r1Prefs : r1Dining;
+    
+    const r2Prefs = this.toRestrictionsArray(prefs2.dietaryRestrictions);
+    const r2Dining = this.toRestrictionsArray(dining2.dietaryRestrictions);
+    const restrictions2 = r2Prefs.length > 0 ? r2Prefs : r2Dining;
 
     if (restrictions1.length === 0 && restrictions2.length === 0) {
       score += 15;
