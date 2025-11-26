@@ -11,44 +11,34 @@ const storage = new DatabaseStorage();
 const RECENCY_PENALTY_DAYS = 30;
 const RECENCY_PENALTY_AMOUNT = 25;
 
-interface DiningPreferences {
-  cuisines: string[];
-  noiseLevel: string;
-  priceRange: string;
-  ambiance: string[];
-  groupSize: string;
-  dietaryRestrictions?: string[];
-  drinkPreference: string;
+interface SocialStyle {
+  preferredGroupSize?: string;
+  comfortWithStrangers?: number;
+  conversationStyle?: string;
+  socialEnergy?: string;
+  conflictResolution?: string;
+  socialBoundaries?: number;
+  timeWithFriends?: string;
 }
 
-interface SocialPreferences {
-  conversationTopics: string[];
-  conversationStyle: string;
-  meetupFrequency: string;
-  meetupGoal: string;
-  personalityTraits: string[];
-}
-
-interface AtmospherePreferences {
-  musicPreference: string;
-  seatingPreference: string;
-  lightingPreference: string;
+interface LeisurePreferences {
+  activities?: string[];
+  weekendPreference?: string;
+  travelFrequency?: string;
 }
 
 interface UserPreferencesData {
-  diningPreferences: DiningPreferences;
-  socialPreferences: SocialPreferences;
-  atmospherePreferences: AtmospherePreferences;
-  dietaryRestrictions?: string[];
-  interests: string[];
+  socialStyle: SocialStyle;
+  leisurePreferences: LeisurePreferences;
+  rawSocialPrefs: any;
+  rawInterests: any;
 }
 
 interface CompatibilityBreakdown {
   socialScore: number;
-  diningScore: number;
+  lifestyleScore: number;
   interestScore: number;
   practicalScore: number;
-  atmosphereScore: number;
   recencyPenalty: number;
   totalScore: number;
   bonuses: string[];
@@ -59,30 +49,42 @@ interface CompatibilityBreakdown {
 
 export class CompatibilityCalculator {
   private static readonly WEIGHTS = {
-    social: 0.30,
-    dining: 0.30,
-    interests: 0.20,
+    social: 0.35,
+    lifestyle: 0.25,
+    interests: 0.30,
     practical: 0.10,
-    atmosphere: 0.10,
   };
 
-  private static readonly COMPLEMENTARY_STYLES: Record<string, string[]> = {
-    "Outgoing": ["Reserved", "Thoughtful", "Relaxed"],
-    "Reserved": ["Outgoing", "Thoughtful", "Relaxed"],
-    "Adventurous": ["Analytical", "Spontaneous", "Energetic"],
-    "Analytical": ["Creative", "Adventurous", "Thoughtful"],
-    "Creative": ["Analytical", "Organized", "Adventurous"],
-    "Organized": ["Spontaneous", "Creative", "Relaxed"],
-    "Spontaneous": ["Organized", "Adventurous", "Energetic"],
-    "Relaxed": ["Energetic", "Outgoing", "Reserved"],
-    "Energetic": ["Relaxed", "Spontaneous", "Adventurous"],
-    "Thoughtful": ["Outgoing", "Reserved", "Analytical"],
+  private static readonly SOCIAL_ENERGY_COMPATIBILITY: Record<string, Record<string, number>> = {
+    "introvert": { "introvert": 100, "ambivert": 70, "extrovert": 40 },
+    "ambivert": { "introvert": 70, "ambivert": 100, "extrovert": 70 },
+    "extrovert": { "introvert": 40, "ambivert": 70, "extrovert": 100 },
   };
 
-  private static readonly CONVERSATION_STYLE_COMPATIBILITY: Record<string, string[]> = {
-    "I prefer deep, meaningful conversations": ["I prefer deep, meaningful conversations", "I like a mix of both"],
-    "I enjoy light, casual banter": ["I enjoy light, casual banter", "I like a mix of both"],
-    "I like a mix of both": ["I prefer deep, meaningful conversations", "I enjoy light, casual banter", "I like a mix of both"],
+  private static readonly CONVERSATION_STYLE_COMPATIBILITY: Record<string, Record<string, number>> = {
+    "listener": { "listener": 60, "balanced": 80, "talker": 100 },
+    "balanced": { "listener": 80, "balanced": 90, "talker": 80 },
+    "talker": { "listener": 100, "balanced": 80, "talker": 50 },
+  };
+
+  private static readonly WEEKEND_PREFERENCE_COMPATIBILITY: Record<string, Record<string, number>> = {
+    "active": { "active": 100, "balanced": 75, "relaxed": 45 },
+    "balanced": { "active": 75, "balanced": 100, "relaxed": 75 },
+    "relaxed": { "active": 45, "balanced": 75, "relaxed": 100 },
+  };
+
+  private static readonly TIME_WITH_FRIENDS_COMPATIBILITY: Record<string, Record<string, number>> = {
+    "daily": { "daily": 100, "weekly": 70, "monthly": 45, "occasionally": 30 },
+    "weekly": { "daily": 70, "weekly": 100, "monthly": 75, "occasionally": 50 },
+    "monthly": { "daily": 45, "weekly": 75, "monthly": 100, "occasionally": 80 },
+    "occasionally": { "daily": 30, "weekly": 50, "monthly": 80, "occasionally": 100 },
+  };
+
+  private static readonly TRAVEL_FREQUENCY_COMPATIBILITY: Record<string, Record<string, number>> = {
+    "rarely": { "rarely": 100, "occasionally": 75, "regularly": 50, "whenever possible": 35 },
+    "occasionally": { "rarely": 75, "occasionally": 100, "regularly": 80, "whenever possible": 60 },
+    "regularly": { "rarely": 50, "occasionally": 80, "regularly": 100, "whenever possible": 85 },
+    "whenever possible": { "rarely": 35, "occasionally": 60, "regularly": 85, "whenever possible": 100 },
   };
 
   public async calculateDetailedCompatibility(
@@ -101,10 +103,9 @@ export class CompatibilityCalculator {
     if (!prefs1 || !prefs2) {
       return {
         socialScore: 50,
-        diningScore: 50,
+        lifestyleScore: 50,
         interestScore: 50,
         practicalScore: 50,
-        atmosphereScore: 50,
         recencyPenalty: 0,
         totalScore: 50,
         bonuses: [],
@@ -113,21 +114,16 @@ export class CompatibilityCalculator {
       };
     }
 
-    const frequencyScore = this.calculateFrequencyCompatibility(prefs1, prefs2, bonuses);
-    const groupSizeScore = this.calculateGroupSizeCompatibility(prefs1, prefs2, bonuses);
-    
-    const adjustedSocialScore = this.calculateSocialCompatibility(prefs1, prefs2, bonuses, penalties) * 0.85 + frequencyScore * 0.15;
-    const adjustedDiningScore = this.calculateDiningCompatibility(prefs1, prefs2, bonuses, penalties) * 0.85 + groupSizeScore * 0.15;
+    const socialScore = this.calculateSocialCompatibility(prefs1, prefs2, bonuses, penalties);
+    const lifestyleScore = this.calculateLifestyleCompatibility(prefs1, prefs2, bonuses, penalties);
     const interestScore = this.calculateInterestCompatibility(prefs1, prefs2, bonuses);
-    const practicalScore = this.calculatePracticalCompatibility(prefs1, prefs2, bonuses, penalties);
-    const atmosphereScore = this.calculateAtmosphereCompatibility(prefs1, prefs2, bonuses);
+    const practicalScore = this.calculatePracticalCompatibility(prefs1, prefs2, bonuses);
 
     const baseScore = Math.min(100, Math.round(
-      adjustedSocialScore * CompatibilityCalculator.WEIGHTS.social +
-      adjustedDiningScore * CompatibilityCalculator.WEIGHTS.dining +
+      socialScore * CompatibilityCalculator.WEIGHTS.social +
+      lifestyleScore * CompatibilityCalculator.WEIGHTS.lifestyle +
       interestScore * CompatibilityCalculator.WEIGHTS.interests +
-      practicalScore * CompatibilityCalculator.WEIGHTS.practical +
-      atmosphereScore * CompatibilityCalculator.WEIGHTS.atmosphere
+      practicalScore * CompatibilityCalculator.WEIGHTS.practical
     ));
 
     let recencyPenalty = 0;
@@ -146,11 +142,10 @@ export class CompatibilityCalculator {
     const totalScore = Math.max(0, baseScore - recencyPenalty);
 
     return {
-      socialScore: Math.round(adjustedSocialScore),
-      diningScore: Math.round(adjustedDiningScore),
+      socialScore: Math.round(socialScore),
+      lifestyleScore: Math.round(lifestyleScore),
       interestScore: Math.round(interestScore),
       practicalScore: Math.round(practicalScore),
-      atmosphereScore: Math.round(atmosphereScore),
       recencyPenalty,
       totalScore,
       bonuses,
@@ -170,17 +165,36 @@ export class CompatibilityCalculator {
       const prefs = await storage.getUserPreferences(userId);
       if (!prefs) return null;
       
+      const socialPrefs = prefs.socialPreferences as any || {};
+      const interests = prefs.interests as any || {};
+      
       return {
-        diningPreferences: prefs.diningPreferences as DiningPreferences,
-        socialPreferences: prefs.socialPreferences as SocialPreferences,
-        atmospherePreferences: prefs.atmospherePreferences as AtmospherePreferences,
-        dietaryRestrictions: prefs.dietaryRestrictions as string[] | undefined,
-        interests: prefs.interests as string[],
+        socialStyle: {
+          preferredGroupSize: this.normalizeString(socialPrefs.preferredGroupSize),
+          comfortWithStrangers: socialPrefs.comfortWithStrangers,
+          conversationStyle: this.normalizeString(socialPrefs.conversationStyle),
+          socialEnergy: this.normalizeString(socialPrefs.socialEnergy),
+          conflictResolution: this.normalizeString(socialPrefs.conflictResolution),
+          socialBoundaries: socialPrefs.socialBoundaries,
+          timeWithFriends: this.normalizeString(socialPrefs.timeWithFriends),
+        },
+        leisurePreferences: {
+          activities: interests.activities || [],
+          weekendPreference: this.normalizeString(interests.weekendPreference),
+          travelFrequency: this.normalizeString(interests.travelFrequency),
+        },
+        rawSocialPrefs: socialPrefs,
+        rawInterests: interests,
       };
     } catch (error) {
       console.error(`Failed to get preferences for user ${userId}:`, error);
       return null;
     }
+  }
+
+  private normalizeString(value: string | null | undefined): string | undefined {
+    if (!value) return undefined;
+    return value.toLowerCase().trim();
   }
 
   private calculateSocialCompatibility(
@@ -189,91 +203,129 @@ export class CompatibilityCalculator {
     bonuses: string[],
     penalties: string[]
   ): number {
-    let score = 0;
-    const social1 = prefs1.socialPreferences;
-    const social2 = prefs2.socialPreferences;
+    let totalScore = 0;
+    let factorCount = 0;
+    const social1 = prefs1.socialStyle;
+    const social2 = prefs2.socialStyle;
 
-    const topicOverlap = this.calculateArrayOverlap(
-      social1.conversationTopics,
-      social2.conversationTopics
-    );
-    score += topicOverlap * 30;
-    
-    if (topicOverlap >= 0.5) {
-      bonuses.push("Strong shared conversation interests");
+    // Social Energy compatibility (introvert/ambivert/extrovert)
+    if (social1.socialEnergy && social2.socialEnergy) {
+      factorCount++;
+      const score = CompatibilityCalculator.SOCIAL_ENERGY_COMPATIBILITY[social1.socialEnergy]?.[social2.socialEnergy] ?? 50;
+      totalScore += score;
+      
+      if (score >= 100) {
+        bonuses.push(`Both ${social1.socialEnergy}s - great energy match`);
+      } else if (score <= 45) {
+        penalties.push("Different social energy levels");
+      }
     }
 
-    const styleCompatible = this.areConversationStylesCompatible(
-      social1.conversationStyle,
-      social2.conversationStyle
-    );
-    score += styleCompatible ? 25 : 10;
-    
-    if (styleCompatible) {
-      bonuses.push("Compatible conversation styles");
+    // Conversation style compatibility (listener/balanced/talker)
+    if (social1.conversationStyle && social2.conversationStyle) {
+      factorCount++;
+      const score = CompatibilityCalculator.CONVERSATION_STYLE_COMPATIBILITY[social1.conversationStyle]?.[social2.conversationStyle] ?? 50;
+      totalScore += score;
+      
+      if (score >= 100) {
+        bonuses.push("Perfect conversation dynamic");
+      } else if (score >= 80) {
+        bonuses.push("Good conversation balance");
+      }
     }
 
-    if (social1.meetupGoal === social2.meetupGoal) {
-      score += 25;
-      bonuses.push(`Both looking for: ${social1.meetupGoal}`);
-    } else {
-      score += 10;
+    // Comfort with strangers (1-5 scale)
+    if (social1.comfortWithStrangers !== undefined && social2.comfortWithStrangers !== undefined) {
+      factorCount++;
+      const diff = Math.abs(social1.comfortWithStrangers - social2.comfortWithStrangers);
+      const score = diff === 0 ? 100 : diff === 1 ? 85 : diff === 2 ? 65 : diff === 3 ? 45 : 30;
+      totalScore += score;
+      
+      if (diff === 0 && social1.comfortWithStrangers >= 4) {
+        bonuses.push("Both comfortable meeting new people");
+      }
     }
 
-    const personalityScore = this.calculatePersonalityCompatibility(
-      social1.personalityTraits,
-      social2.personalityTraits
-    );
-    score += personalityScore * 20;
+    // Preferred group size (small/medium/large)
+    if (social1.preferredGroupSize && social2.preferredGroupSize) {
+      factorCount++;
+      if (social1.preferredGroupSize === social2.preferredGroupSize) {
+        totalScore += 100;
+        bonuses.push(`Both prefer ${social1.preferredGroupSize} groups`);
+      } else {
+        const sizes = ["small", "medium", "large"];
+        const idx1 = sizes.indexOf(social1.preferredGroupSize);
+        const idx2 = sizes.indexOf(social2.preferredGroupSize);
+        if (idx1 !== -1 && idx2 !== -1) {
+          const diff = Math.abs(idx1 - idx2);
+          totalScore += diff === 1 ? 70 : 40;
+        } else {
+          totalScore += 50;
+        }
+      }
+    }
 
-    return Math.min(100, score);
+    // Social boundaries (1-5 scale)
+    if (social1.socialBoundaries !== undefined && social2.socialBoundaries !== undefined) {
+      factorCount++;
+      const diff = Math.abs(social1.socialBoundaries - social2.socialBoundaries);
+      totalScore += diff === 0 ? 100 : diff === 1 ? 80 : diff === 2 ? 60 : 40;
+    }
+
+    return factorCount > 0 ? totalScore / factorCount : 50;
   }
 
-  private calculateDiningCompatibility(
+  private calculateLifestyleCompatibility(
     prefs1: UserPreferencesData,
     prefs2: UserPreferencesData,
     bonuses: string[],
     penalties: string[]
   ): number {
-    let score = 0;
-    const dining1 = prefs1.diningPreferences;
-    const dining2 = prefs2.diningPreferences;
+    let totalScore = 0;
+    let factorCount = 0;
+    const social1 = prefs1.socialStyle;
+    const social2 = prefs2.socialStyle;
+    const leisure1 = prefs1.leisurePreferences;
+    const leisure2 = prefs2.leisurePreferences;
 
-    const cuisineOverlap = this.calculateArrayOverlap(
-      dining1.cuisines,
-      dining2.cuisines
-    );
-    score += cuisineOverlap * 35;
-    
-    if (cuisineOverlap >= 0.4) {
-      bonuses.push("Great cuisine compatibility");
+    // Time with friends frequency
+    if (social1.timeWithFriends && social2.timeWithFriends) {
+      factorCount++;
+      const score = CompatibilityCalculator.TIME_WITH_FRIENDS_COMPATIBILITY[social1.timeWithFriends]?.[social2.timeWithFriends] ?? 50;
+      totalScore += score;
+      
+      if (score >= 100) {
+        bonuses.push("Same social frequency preferences");
+      } else if (score <= 45) {
+        penalties.push("Different socializing frequencies");
+      }
     }
 
-    if (dining1.priceRange === dining2.priceRange) {
-      score += 25;
-      bonuses.push("Same price range preference");
-    } else if (this.arePriceRangesClose(dining1.priceRange, dining2.priceRange)) {
-      score += 15;
-    } else {
-      score += 5;
-      penalties.push("Different budget expectations");
+    // Weekend preference
+    if (leisure1.weekendPreference && leisure2.weekendPreference) {
+      factorCount++;
+      const score = CompatibilityCalculator.WEEKEND_PREFERENCE_COMPATIBILITY[leisure1.weekendPreference]?.[leisure2.weekendPreference] ?? 50;
+      totalScore += score;
+      
+      if (score >= 100) {
+        bonuses.push(`Both prefer ${leisure1.weekendPreference} weekends`);
+      } else if (score <= 50) {
+        penalties.push("Different weekend activity levels");
+      }
     }
 
-    if (dining1.noiseLevel === dining2.noiseLevel) {
-      score += 20;
-    } else if (this.areNoiseLevelsCompatible(dining1.noiseLevel, dining2.noiseLevel)) {
-      score += 12;
-    } else {
-      score += 5;
+    // Travel frequency
+    if (leisure1.travelFrequency && leisure2.travelFrequency) {
+      factorCount++;
+      const score = CompatibilityCalculator.TRAVEL_FREQUENCY_COMPATIBILITY[leisure1.travelFrequency]?.[leisure2.travelFrequency] ?? 50;
+      totalScore += score;
+      
+      if (score >= 100) {
+        bonuses.push("Similar travel enthusiasm");
+      }
     }
 
-    const ambianceOverlap = this.calculateArrayOverlap(
-      dining1.ambiance,
-      dining2.ambiance
-    );
-    score += ambianceOverlap * 20;
-
-    return Math.min(100, score);
+    return factorCount > 0 ? totalScore / factorCount : 50;
   }
 
   private calculateInterestCompatibility(
@@ -281,96 +333,54 @@ export class CompatibilityCalculator {
     prefs2: UserPreferencesData,
     bonuses: string[]
   ): number {
-    const overlap = this.calculateArrayOverlap(prefs1.interests, prefs2.interests);
-    
-    if (overlap >= 0.5) {
-      bonuses.push("Many shared interests");
-    } else if (overlap >= 0.3) {
+    const activities1 = prefs1.leisurePreferences.activities || [];
+    const activities2 = prefs2.leisurePreferences.activities || [];
+
+    if (activities1.length === 0 && activities2.length === 0) {
+      return 50; // No data to compare
+    }
+
+    if (activities1.length === 0 || activities2.length === 0) {
+      return 40; // One user has no activities listed
+    }
+
+    const overlap = this.calculateArrayOverlap(activities1, activities2);
+    const sharedCount = this.countSharedItems(activities1, activities2);
+
+    // Base score from overlap ratio
+    let score = overlap * 80 + 20; // Scale from 20-100 based on overlap
+
+    // Bonus for having multiple shared activities
+    if (sharedCount >= 3) {
+      score = Math.min(100, score + 15);
+      bonuses.push(`${sharedCount} shared interests - great match!`);
+    } else if (sharedCount >= 2) {
+      score = Math.min(100, score + 8);
+      bonuses.push("Multiple shared interests");
+    } else if (sharedCount === 1) {
       bonuses.push("Some shared interests");
     }
 
-    return Math.min(100, overlap * 100 + 20);
-  }
-
-  private toRestrictionsArray(restrictions: any): string[] {
-    if (!restrictions) return [];
-    if (Array.isArray(restrictions)) return restrictions;
-    if (typeof restrictions === 'object') {
-      return Object.keys(restrictions).filter(key => restrictions[key]);
-    }
-    return [];
+    return Math.min(100, Math.round(score));
   }
 
   private calculatePracticalCompatibility(
     prefs1: UserPreferencesData,
     prefs2: UserPreferencesData,
-    bonuses: string[],
-    penalties: string[]
-  ): number {
-    let score = 70;
-    const dining1 = prefs1.diningPreferences;
-    const dining2 = prefs2.diningPreferences;
-
-    const r1Prefs = this.toRestrictionsArray(prefs1.dietaryRestrictions);
-    const r1Dining = this.toRestrictionsArray(dining1.dietaryRestrictions);
-    const restrictions1 = r1Prefs.length > 0 ? r1Prefs : r1Dining;
-    
-    const r2Prefs = this.toRestrictionsArray(prefs2.dietaryRestrictions);
-    const r2Dining = this.toRestrictionsArray(dining2.dietaryRestrictions);
-    const restrictions2 = r2Prefs.length > 0 ? r2Prefs : r2Dining;
-
-    if (restrictions1.length === 0 && restrictions2.length === 0) {
-      score += 15;
-      bonuses.push("No dietary restrictions to coordinate");
-    } else if (this.areDietaryRestrictionsConflicting(restrictions1, restrictions2)) {
-      score -= 20;
-      penalties.push("Conflicting dietary restrictions");
-    } else {
-      const restrictionOverlap = this.calculateArrayOverlap(restrictions1, restrictions2);
-      if (restrictionOverlap > 0.5) {
-        score += 10;
-        bonuses.push("Similar dietary needs");
-      }
-    }
-
-    if (dining1.drinkPreference === dining2.drinkPreference) {
-      score += 15;
-    } else if (this.areDrinkPreferencesCompatible(dining1.drinkPreference, dining2.drinkPreference)) {
-      score += 8;
-    }
-
-    return Math.min(100, Math.max(0, score));
-  }
-
-  private calculateAtmosphereCompatibility(
-    prefs1: UserPreferencesData,
-    prefs2: UserPreferencesData,
     bonuses: string[]
   ): number {
-    let score = 0;
-    const atm1 = prefs1.atmospherePreferences;
-    const atm2 = prefs2.atmospherePreferences;
+    // For now, focus on group size preference alignment (important for dining meetups)
+    const social1 = prefs1.socialStyle;
+    const social2 = prefs2.socialStyle;
 
-    if (atm1.musicPreference === atm2.musicPreference) {
-      score += 35;
-    } else {
-      score += 15;
-    }
+    let score = 70; // Base score
 
-    if (atm1.seatingPreference === atm2.seatingPreference) {
-      score += 35;
-    } else {
-      score += 15;
-    }
-
-    if (atm1.lightingPreference === atm2.lightingPreference) {
-      score += 30;
-    } else {
-      score += 15;
-    }
-
-    if (score >= 90) {
-      bonuses.push("Perfect atmosphere match");
+    if (social1.preferredGroupSize && social2.preferredGroupSize) {
+      if (social1.preferredGroupSize === social2.preferredGroupSize) {
+        score += 30;
+      } else {
+        score += 10;
+      }
     }
 
     return Math.min(100, score);
@@ -379,8 +389,8 @@ export class CompatibilityCalculator {
   private calculateArrayOverlap(arr1: string[], arr2: string[]): number {
     if (!arr1?.length || !arr2?.length) return 0;
     
-    const set1 = new Set(arr1.map(s => s.toLowerCase()));
-    const set2 = new Set(arr2.map(s => s.toLowerCase()));
+    const set1 = new Set(arr1.map(s => s?.toLowerCase?.() || String(s)));
+    const set2 = new Set(arr2.map(s => s?.toLowerCase?.() || String(s)));
     
     let intersection = 0;
     set1.forEach(item => {
@@ -391,87 +401,18 @@ export class CompatibilityCalculator {
     return union > 0 ? intersection / union : 0;
   }
 
-  private areConversationStylesCompatible(style1: string, style2: string): boolean {
-    if (style1 === style2) return true;
+  private countSharedItems(arr1: string[], arr2: string[]): number {
+    if (!arr1?.length || !arr2?.length) return 0;
     
-    const compatible = CompatibilityCalculator.CONVERSATION_STYLE_COMPATIBILITY[style1];
-    return compatible?.includes(style2) || false;
-  }
-
-  private calculatePersonalityCompatibility(traits1: string[], traits2: string[]): number {
-    if (!traits1?.length || !traits2?.length) return 0.5;
-
-    let compatibilityScore = 0;
-    let comparisons = 0;
-
-    for (const trait1 of traits1) {
-      for (const trait2 of traits2) {
-        comparisons++;
-        
-        if (trait1 === trait2) {
-          compatibilityScore += 0.8;
-        } else if (CompatibilityCalculator.COMPLEMENTARY_STYLES[trait1]?.includes(trait2)) {
-          compatibilityScore += 1.0;
-        } else {
-          compatibilityScore += 0.3;
-        }
-      }
-    }
-
-    return comparisons > 0 ? compatibilityScore / comparisons : 0.5;
-  }
-
-  private arePriceRangesClose(range1: string, range2: string): boolean {
-    const priceOrder = ["$", "$$", "$$$", "$$$$"];
-    const idx1 = priceOrder.indexOf(range1);
-    const idx2 = priceOrder.indexOf(range2);
+    const set1 = new Set(arr1.map(s => s?.toLowerCase?.() || String(s)));
+    const set2 = new Set(arr2.map(s => s?.toLowerCase?.() || String(s)));
     
-    if (idx1 === -1 || idx2 === -1) return false;
-    return Math.abs(idx1 - idx2) <= 1;
-  }
-
-  private areNoiseLevelsCompatible(level1: string, level2: string): boolean {
-    const noiseOrder = ["Quiet", "Moderate", "Lively", "Loud"];
-    const idx1 = noiseOrder.findIndex(n => level1.toLowerCase().includes(n.toLowerCase()));
-    const idx2 = noiseOrder.findIndex(n => level2.toLowerCase().includes(n.toLowerCase()));
+    let count = 0;
+    set1.forEach(item => {
+      if (set2.has(item)) count++;
+    });
     
-    if (idx1 === -1 || idx2 === -1) return true;
-    return Math.abs(idx1 - idx2) <= 1;
-  }
-
-  private areDietaryRestrictionsConflicting(restrictions1: string[], restrictions2: string[]): boolean {
-    const conflictPairs = [
-      ["Vegan", "Keto"],
-      ["Vegan", "Paleo"],
-      ["Vegetarian", "Keto"],
-    ];
-
-    for (const [r1, r2] of conflictPairs) {
-      if (
-        (restrictions1.includes(r1) && restrictions2.includes(r2)) ||
-        (restrictions1.includes(r2) && restrictions2.includes(r1))
-      ) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private areDrinkPreferencesCompatible(pref1: string, pref2: string): boolean {
-    if (pref1 === pref2) return true;
-    
-    const alcoholFree = ["Non-alcoholic", "No preference"];
-    const alcoholic = ["Wine", "Cocktails", "Beer", "Spirits"];
-    
-    if (pref1 === "No preference" || pref2 === "No preference") return true;
-    
-    const both1 = alcoholFree.includes(pref1);
-    const both2 = alcoholFree.includes(pref2);
-    
-    if (both1 !== both2) return false;
-    
-    return true;
+    return count;
   }
 
   private async getRecentDiningHistory(user1Id: number, user2Id: number): Promise<Date | null> {
@@ -502,82 +443,6 @@ export class CompatibilityCalculator {
     } catch (error) {
       console.error(`Failed to get recent dining history for users ${user1Id} and ${user2Id}:`, error);
       return null;
-    }
-  }
-
-  private calculateFrequencyCompatibility(
-    prefs1: UserPreferencesData,
-    prefs2: UserPreferencesData,
-    bonuses: string[]
-  ): number {
-    const freq1 = prefs1.socialPreferences.meetupFrequency;
-    const freq2 = prefs2.socialPreferences.meetupFrequency;
-
-    if (!freq1 || !freq2) return 50;
-
-    const frequencyOrder = [
-      "Once a month",
-      "Every two weeks", 
-      "Weekly",
-      "Multiple times a week"
-    ];
-
-    const idx1 = frequencyOrder.findIndex(f => freq1.toLowerCase().includes(f.toLowerCase()));
-    const idx2 = frequencyOrder.findIndex(f => freq2.toLowerCase().includes(f.toLowerCase()));
-
-    if (idx1 === -1 || idx2 === -1) return 50;
-
-    const diff = Math.abs(idx1 - idx2);
-    
-    if (diff === 0) {
-      bonuses.push("Same meetup frequency preference");
-      return 100;
-    } else if (diff === 1) {
-      return 75;
-    } else if (diff === 2) {
-      return 50;
-    } else {
-      return 25;
-    }
-  }
-
-  private calculateGroupSizeCompatibility(
-    prefs1: UserPreferencesData,
-    prefs2: UserPreferencesData,
-    bonuses: string[]
-  ): number {
-    const size1 = prefs1.diningPreferences.groupSize;
-    const size2 = prefs2.diningPreferences.groupSize;
-
-    if (!size1 || !size2) return 50;
-
-    const sizeOrder = [
-      "Small (2-4 people)",
-      "Medium (4-6 people)",
-      "Large (6-8 people)",
-      "Very large (8+ people)"
-    ];
-
-    const idx1 = sizeOrder.findIndex(s => 
-      size1.toLowerCase().includes(s.split(" ")[0].toLowerCase()) ||
-      s.toLowerCase().includes(size1.toLowerCase())
-    );
-    const idx2 = sizeOrder.findIndex(s => 
-      size2.toLowerCase().includes(s.split(" ")[0].toLowerCase()) ||
-      s.toLowerCase().includes(size2.toLowerCase())
-    );
-
-    if (idx1 === -1 || idx2 === -1) return 50;
-
-    const diff = Math.abs(idx1 - idx2);
-    
-    if (diff === 0) {
-      bonuses.push("Same group size preference");
-      return 100;
-    } else if (diff === 1) {
-      return 70;
-    } else {
-      return 40;
     }
   }
 }
