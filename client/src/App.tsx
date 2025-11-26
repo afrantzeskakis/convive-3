@@ -35,6 +35,9 @@ import WineDatabase from "./pages/WineDatabase";
 import WineRecommendations from "./pages/WineRecommendations";
 import WineVerificationDashboard from "./pages/WineVerificationDashboard";
 import WineConciergePage from "./pages/WineConciergePage";
+import BookDinner from "./pages/BookDinner";
+import BookingSuccess from "./pages/BookingSuccess";
+import MyBookings from "./pages/MyBookings";
 
 import RecipeMenu from "./pages/recipe-menu";
 import RecipeDetail from "./pages/recipe-detail";
@@ -152,6 +155,9 @@ function Router() {
           <ProtectedRoute path="/messages" component={Messages} requiredRole="user" />
           <ProtectedRoute path="/onboarding" component={Onboarding} requiredRole="user" />
           <ProtectedRoute path="/table-access" component={TableAccess} requiredRole="user" />
+          <ProtectedRoute path="/book-dinner" component={BookDinner} requiredRole="user" />
+          <ProtectedRoute path="/booking/success" component={BookingSuccess} requiredRole="user" />
+          <ProtectedRoute path="/my-bookings" component={MyBookings} requiredRole="user" />
           
           {/* Admin routes */}
           <ProtectedRoute 

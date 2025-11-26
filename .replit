@@ -18,6 +18,10 @@ externalPort = 3001
 localPort = 5000
 externalPort = 80
 
+[[ports]]
+localPort = 41549
+externalPort = 3000
+
 [workflows]
 runButton = "Project"
 
@@ -46,4 +50,4 @@ args = "npm run dev"
 waitForPort = 5000
 
 [agent]
-integrations = ["javascript_openai==1.0.0"]
+integrations = ["javascript_openai:1.0.0", "stripe:1.0.0"]

@@ -2556,6 +2556,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register group meetups routes
   app.use("/api/group-meetups", groupMeetupsRoutes);
   
+  // Register booking routes for dinner slot system
+  try {
+    const { default: bookingRoutes } = await import('./routes/booking');
+    app.use('/api/booking', bookingRoutes);
+    console.log('✓ Booking routes registered successfully');
+  } catch (error) {
+    console.log('Booking routes registration failed:', (error as Error).message);
+  }
+  
   // Call management routes for super admin
   app.use("/api/call-management", callManagementRoutes);
   

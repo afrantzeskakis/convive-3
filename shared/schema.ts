@@ -755,3 +755,72 @@ export const insertRecipeTrainingDataSchema = createInsertSchema(recipeTrainingD
 export type InsertRecipeTrainingData = z.infer<typeof insertRecipeTrainingDataSchema>;
 export type RecipeTrainingData = typeof recipeTrainingData.$inferSelect;
 
+// Dinner Slots - available time slots that users can book into
+export const dinnerSlots = pgTable("dinner_slots", {
+  id: serial("id").primaryKey(),
+  city: text("city").notNull(),
+  date: timestamp("date").notNull(),
+  timeSlot: text("time_slot").notNull(), // "7:00 PM", "8:30 PM"
+  capacity: integer("capacity").default(24).notNull(), // Total seats available across all groups
+  currentBookings: integer("current_bookings").default(0).notNull(), // Number of paid bookings
+  pricePerPerson: decimal("price_per_person", { precision: 10, scale: 2 }).notNull(), // Booking fee
+  status: text("status").default("open").notNull(), // "open", "full", "closed", "completed"
+  restaurantRevealAt: timestamp("restaurant_reveal_at"), // When to reveal restaurant (24-48 hours before)
+  createdBy: integer("created_by").notNull().references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertDinnerSlotSchema = createInsertSchema(dinnerSlots).omit({
+  id: true,
+  createdAt: true,
+  currentBookings: true
+});
+export type InsertDinnerSlot = z.infer<typeof insertDinnerSlotSchema>;
+export type DinnerSlot = typeof dinnerSlots.$inferSelect;
+
+// Dinner Bookings - tracks user bookings with payment status
+export const dinnerBookings = pgTable("dinner_bookings", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  slotId: integer("slot_id").notNull().references(() => dinnerSlots.id),
+  groupId: integer("group_id"), // Assigned after payment, groups compatible users together
+  paymentStatus: text("payment_status").notNull().default("pending"), // "pending", "processing", "paid", "failed", "refunded"
+  stripeSessionId: text("stripe_session_id"), // Stripe checkout session ID
+  stripePaymentIntentId: text("stripe_payment_intent_id"), // Stripe payment intent ID
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }),
+  restaurantId: integer("restaurant_id").references(() => restaurants.id), // Assigned restaurant for this group
+  restaurantRevealed: boolean("restaurant_revealed").default(false), // Whether restaurant has been shown to user
+  bookedAt: timestamp("booked_at").defaultNow().notNull(),
+  paidAt: timestamp("paid_at"), // When payment was confirmed
+  canceledAt: timestamp("canceled_at"),
+});
+
+export const insertDinnerBookingSchema = createInsertSchema(dinnerBookings).omit({
+  id: true,
+  bookedAt: true,
+  paidAt: true,
+  canceledAt: true,
+  groupId: true,
+  restaurantId: true,
+  restaurantRevealed: true
+});
+export type InsertDinnerBooking = z.infer<typeof insertDinnerBookingSchema>;
+export type DinnerBooking = typeof dinnerBookings.$inferSelect;
+
+// Dining History - tracks who has dined together for recency avoidance
+export const diningHistory = pgTable("dining_history", {
+  id: serial("id").primaryKey(),
+  user1Id: integer("user1_id").notNull().references(() => users.id),
+  user2Id: integer("user2_id").notNull().references(() => users.id),
+  slotId: integer("slot_id").notNull().references(() => dinnerSlots.id),
+  groupId: integer("group_id").notNull(),
+  dinedAt: timestamp("dined_at").defaultNow().notNull(),
+});
+
+export const insertDiningHistorySchema = createInsertSchema(diningHistory).omit({
+  id: true,
+  dinedAt: true
+});
+export type InsertDiningHistory = z.infer<typeof insertDiningHistorySchema>;
+export type DiningHistory = typeof diningHistory.$inferSelect;
+

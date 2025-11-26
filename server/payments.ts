@@ -404,6 +404,9 @@ export async function handleStripeWebhook(req: Request, res: Response) {
       case 'customer.subscription.created':
         await handleSubscriptionCreated(event.data.object);
         break;
+      case 'checkout.session.completed':
+        await handleCheckoutSessionCompleted(event.data.object);
+        break;
       default:
         console.log(`Unhandled event type ${event.type}`);
     }
@@ -700,4 +703,28 @@ async function handleSubscriptionCreated(subscription: any) {
   // This is mostly handled when creating the subscription in our database
   // But we'll add a log to confirm the event was received
   console.log(`Stripe subscription created: ${subscription.id}`);
+}
+
+/**
+ * Handle checkout session completed - primarily for dinner bookings
+ */
+async function handleCheckoutSessionCompleted(session: any) {
+  const { userId, slotId, type } = session.metadata || {};
+  
+  if (type === 'dinner_booking') {
+    try {
+      const { bookingService } = await import('./services/booking-service');
+      
+      const amount = session.amount_total ? session.amount_total / 100 : 0;
+      const paymentIntentId = session.payment_intent as string;
+      
+      await bookingService.confirmPayment(session.id, paymentIntentId, amount);
+      
+      console.log(`Dinner booking confirmed for user ${userId}, slot ${slotId}`);
+    } catch (error) {
+      console.error('Error processing dinner booking:', error);
+    }
+  } else {
+    console.log(`Checkout session completed: ${session.id} (type: ${type || 'unknown'})`);
+  }
 }
