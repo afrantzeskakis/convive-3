@@ -68,6 +68,13 @@ This repository contains Convive - a comprehensive dining and networking platfor
 - **Wild Card Option** - 3rd recommendation is adventurous choice
 - **Embedding Management** - Automatic generation and storage of wine vectors
 
+### 7. Dinner Booking System
+- **Payment-First Flow** - Users pay via Stripe, then get automatically matched to groups
+- **Compatibility-Based Matching** - Uses questionnaire data to form groups of 4-6 compatible guests
+- **Recency Avoidance** - Penalizes matching users who've dined together in past 12 weeks
+- **Restaurant Reveal** - Location hidden until 24-48 hours before dinner for surprise element
+- **Dining History Tracking** - Records past co-diners for future matching optimization
+
 ## Data Flow
 
 1. **Wine List Upload**: Restaurant admins upload wine lists via web interface
@@ -137,6 +144,7 @@ Changelog:
 - August 06, 2025. **CRITICAL FIX:** Restored ALL 211 original wine descriptors from comprehensive source document - previous merge had lost 75+ descriptors, now complete vocabulary preserved with all original definitions intact
 - August 14, 2025. Added interactive culinary term highlighting and educational carousel to restaurant user view recipes - clicking highlighted terms opens educational slides with techniques, culture, wine pairings, and tips
 - August 14, 2025. **Verified complete data pathway** between restaurant admin and user views - both use same `recipe_analyses` table ensuring consistent enhanced content with 28+ highlighted culinary terms per recipe
+- November 26, 2025. Implemented Dinner Booking System with payment-first flow, automatic group matching based on compatibility scores, recency avoidance (12-week penalty), and restaurant reveal 24-48 hours before dinner
 
 ## User Preferences
 
