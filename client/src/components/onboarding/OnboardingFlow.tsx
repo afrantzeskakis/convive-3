@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useDevice } from '@/hooks/useDevice';
+import { queryClient } from '@/lib/queryClient';
 import WelcomePage from './WelcomePage';
 import LocationPage from './LocationPage';
 import QuestionnairePage from './QuestionnairePage';
@@ -141,6 +142,9 @@ export default function OnboardingFlow() {
       if (!preferencesResponse.ok) {
         throw new Error('Failed to save preferences');
       }
+      
+      // Invalidate user query to refresh auth context with updated onboardingComplete
+      await queryClient.invalidateQueries({ queryKey: ['/api/user'] });
       
       toast({
         title: 'Onboarding complete!',
