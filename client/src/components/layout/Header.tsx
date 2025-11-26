@@ -56,11 +56,11 @@ export default function Header() {
               <Link href="/restaurant-partners" className={`px-3 py-2 rounded-md text-sm font-medium ${location === '/restaurant-partners' ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}>
                 Restaurants
               </Link>
-              <Link href="/my-meetups" className={`px-3 py-2 rounded-md text-sm font-medium ${location === '/my-meetups' ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}>
-                My Meetups
+              <Link href="/my-bookings" className={`px-3 py-2 rounded-md text-sm font-medium ${location === '/my-bookings' ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}>
+                My Dinners
               </Link>
-              <Link href="/find-group-meetups" className={`px-3 py-2 rounded-md text-sm font-medium ${location === '/find-group-meetups' ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}>
-                Find Meetups
+              <Link href="/book-dinner" className={`px-3 py-2 rounded-md text-sm font-medium ${location === '/book-dinner' ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}>
+                Book Dinner
               </Link>
               <Link href="/messages" className={`px-3 py-2 rounded-md text-sm font-medium ${location === '/messages' ? 'text-primary' : 'text-gray-600 hover:text-primary'}`}>
                 Messages
@@ -94,10 +94,10 @@ export default function Header() {
                       <Link href="/how-it-works">How It Works</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/my-meetups">My Meetups</Link>
+                      <Link href="/my-bookings">My Dinners</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/find-group-meetups">Find Group Meetups</Link>
+                      <Link href="/book-dinner">Book Dinner</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/table-access">Table Access</Link>

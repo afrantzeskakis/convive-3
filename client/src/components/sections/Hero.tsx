@@ -29,7 +29,7 @@ export default function Hero() {
                     <Link href="/table-access">Browse Experiences</Link>
                   </Button>
                   <Button asChild variant="outline" size="lg" className="border-slate-300 text-slate-600 hover:bg-slate-50 rounded-sm">
-                    <Link href="/my-meetups">View My Reservations</Link>
+                    <Link href="/my-bookings">View My Reservations</Link>
                   </Button>
                 </>
               ) : (

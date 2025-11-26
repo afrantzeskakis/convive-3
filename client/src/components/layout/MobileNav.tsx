@@ -52,13 +52,13 @@ export default function MobileNav() {
           <i className="fas fa-info-circle text-xl"></i>
           <span className="text-xs mt-1">How It Works</span>
         </Link>
-        <Link href="/my-meetups" className={`flex flex-col items-center ${location === '/my-meetups' ? 'text-primary' : 'text-gray-600'}`}>
+        <Link href="/my-bookings" className={`flex flex-col items-center ${location === '/my-bookings' ? 'text-primary' : 'text-gray-600'}`}>
           <i className="fas fa-calendar-alt text-xl"></i>
-          <span className="text-xs mt-1">My Meetups</span>
+          <span className="text-xs mt-1">My Dinners</span>
         </Link>
-        <Link href="/find-group-meetups" className={`flex flex-col items-center ${location === '/find-group-meetups' ? 'text-primary' : 'text-gray-600'}`}>
-          <i className="fas fa-users text-xl"></i>
-          <span className="text-xs mt-1">Find Groups</span>
+        <Link href="/book-dinner" className={`flex flex-col items-center ${location === '/book-dinner' ? 'text-primary' : 'text-gray-600'}`}>
+          <i className="fas fa-utensils text-xl"></i>
+          <span className="text-xs mt-1">Book Dinner</span>
         </Link>
         <Link href="/messages" className={`flex flex-col items-center ${location === '/messages' ? 'text-primary' : 'text-gray-600'}`}>
           <i className="fas fa-comment-alt text-xl"></i>

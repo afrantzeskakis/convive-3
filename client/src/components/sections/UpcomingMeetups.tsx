@@ -14,7 +14,7 @@ export default function UpcomingMeetups() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8 flex justify-between items-center">
           <h2 className="text-2xl font-bold font-poppins text-gray-900">Upcoming Meetups</h2>
-          <Link href="/my-meetups" className="text-primary font-medium hover:text-primary/90">
+          <Link href="/my-bookings" className="text-primary font-medium hover:text-primary/90">
             View All
           </Link>
         </div>
