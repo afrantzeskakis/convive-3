@@ -8,7 +8,6 @@ export default function AboutUs() {
   
   return (
     <>
-
       <div className="bg-white">
         {/* Hero Section */}
         <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-slate-50 to-white">
@@ -49,9 +48,7 @@ export default function AboutUs() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
                 <h3 className="text-2xl font-serif font-bold text-slate-800 mb-6">Unlocking What Restaurants Do Best</h3>
-                <p className="text-slate-500 mb-4 leading-relaxed">
-                  Convive was founded on a simple but powerful insight: most people never experience a restaurant at its full potential. The best dishes go unordered, the finest wines unpaired, and the chef's true vision unseen.
-                </p>
+                <p className="text-slate-500 mb-4 leading-relaxed">Convive was founded on a simple but powerful insight: most people never experience a restaurant at its full potential. The mystique that Anthony Bourdain showed the world, the passion that made Gordon Ramsey famous, and the grit that makes shows like "The Bear" captivating, is completely hidden from the communities they, literally, serve. The best dishes go unordered, the finest wines unpaired, and the chef's true vision unseen.</p>
                 <p className="text-slate-500 mb-4 leading-relaxed">
                   We recognized that someone who lives inside a restaurant's world, who has watched the chef perfect a sauce over months and knows why certain ingredients are sourced from certain places, could open a door that most diners never even know exists.
                 </p>
