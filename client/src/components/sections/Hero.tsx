@@ -16,11 +16,11 @@ export default function Hero() {
               <p className="text-slate-500 font-medium uppercase tracking-wider text-sm">Convive</p>
             </div>
             <h1 className="text-4xl font-bold font-serif tracking-tight sm:text-5xl md:text-6xl">
-              <span className="block text-slate-800">Curated Dining</span>
-              <span className="block text-slate-600">Extraordinary Connections</span>
+              <span className="block text-slate-800">Every Restaurant</span>
+              <span className="block text-slate-600">At Its Absolute Best</span>
             </h1>
             <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">
-              Join an exclusive community where fine dining becomes a social adventure. Engage in thoughtful conversation, savor exceptional cuisine, and learn from a dedicated host at the finest restaurants in your city.
+              Experience dining the way it was meant to be. A dedicated host unlocks the best a restaurant has to offer — from insider menu knowledge to expert wine guidance — so every course is elevated beyond what you'd get on your own.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               {isAuthenticated ? (
@@ -49,8 +49,8 @@ export default function Hero() {
                   <UtensilsCrossed className="h-5 w-5 text-slate-500" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-slate-800">Curated Experiences</h3>
-                  <p className="mt-1 text-sm text-slate-500">4-6 guests + dedicated host at exclusive partner restaurants</p>
+                  <h3 className="font-medium text-slate-800">Dedicated Host</h3>
+                  <p className="mt-1 text-sm text-slate-500">Your personal guide to the restaurant's best dishes, wines, and hidden gems</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -58,8 +58,8 @@ export default function Hero() {
                   <GlassWater className="h-5 w-5 text-slate-500" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-slate-800">Guided Discovery</h3>
-                  <p className="mt-1 text-sm text-slate-500">Educated by a restaurant expert on fine cuisine and dining culture</p>
+                  <h3 className="font-medium text-slate-800">Elevated Experience</h3>
+                  <p className="mt-1 text-sm text-slate-500">Intimate tables of 4-6 at exclusive partner restaurants, curated for you</p>
                 </div>
               </div>
             </div>

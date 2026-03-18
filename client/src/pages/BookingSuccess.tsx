@@ -24,7 +24,7 @@ export default function BookingSuccess() {
           </div>
           <CardTitle className="text-2xl">You're Confirmed!</CardTitle>
           <CardDescription className="text-base mt-2">
-            Your dinner booking has been confirmed. We're now matching you with compatible guests.
+            Your dinner booking has been confirmed. We're preparing an exceptional experience for you.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -32,9 +32,9 @@ export default function BookingSuccess() {
             <div className="flex items-start gap-3">
               <Users className="h-5 w-5 mt-0.5 text-muted-foreground" />
               <div>
-                <p className="font-medium">Group Matching in Progress</p>
+                <p className="font-medium">Your Experience Is Being Curated</p>
                 <p className="text-sm text-muted-foreground">
-                  We're matching you with guests who share your interests and dining preferences.
+                  We're selecting the perfect host and coordinating with the restaurant to deliver their very best.
                 </p>
               </div>
             </div>

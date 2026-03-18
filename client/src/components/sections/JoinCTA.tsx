@@ -9,11 +9,11 @@ export default function JoinCTA() {
   if (isAuthenticated) return null;
 
   const membershipBenefits = [
-    "Be matched with compatible dining companions",
-    "Enjoy your first drink complimentary at each meal",
-    "Learn about fine cuisine from your dedicated host",
-    "Connect through meaningful conversation",
-    "Discover exclusive partner restaurants"
+    "Access to exclusive partner restaurants at their very best",
+    "A dedicated host who guides you through every course",
+    "Insider knowledge of menus, wines, and chef specialties",
+    "Intimate tables of 4-6 with great company",
+    "Complimentary welcome drink to start the evening"
   ];
 
   return (
@@ -26,7 +26,7 @@ export default function JoinCTA() {
             </div>
             <h2 className="text-4xl font-serif font-bold mb-6 text-slate-50">Become a Convive Member</h2>
             <p className="text-lg mb-8 leading-relaxed text-slate-300">
-              Join our exclusive community of discerning professionals who value exceptional dining experiences and meaningful connections.
+              Unlock the best version of every restaurant with a dedicated host who transforms a great meal into an unforgettable experience.
             </p>
             
             <div className="space-y-4 mb-10">

@@ -5,7 +5,7 @@ export default function HowItWorks() {
     {
       icon: <UserRound className="h-6 w-6" />,
       title: "Let Us Get to Know You",
-      description: "Share your culinary preferences, conversation interests, and dining style to find compatible dining companions.",
+      description: "Share your culinary preferences and dining interests so we can tailor the perfect experience for you.",
       number: "01"
     },
     {
@@ -16,14 +16,14 @@ export default function HowItWorks() {
     },
     {
       icon: <MapPin className="h-6 w-6" />,
-      title: "Join the Table",
-      description: "Meet your dedicated host and fellow guests for an evening of exceptional food and engaging conversation.",
+      title: "Experience the Best",
+      description: "Your dedicated host guides you through the restaurant's finest dishes, wines, and hidden gems.",
       number: "03"
     },
     {
       icon: <GlassWater className="h-6 w-6" />,
       title: "Savor & Learn",
-      description: "Enjoy a curated dining experience while learning about fine cuisine from your expert restaurant host.",
+      description: "Every detail is elevated — from wine pairings to course timing — so you simply sit back and enjoy.",
       number: "04"
     }
   ];
@@ -35,7 +35,7 @@ export default function HowItWorks() {
           <h2 className="text-3xl font-bold font-serif text-gray-900 sm:text-4xl">How Convive Works</h2>
           <div className="h-1 w-20 bg-primary mx-auto mt-4"></div>
           <p className="mt-6 text-lg text-slate-600">
-            We connect you with compatible dining companions at exclusive restaurants, creating personalized experiences that blend culinary discovery with meaningful conversation.
+            A dedicated host unlocks the best a restaurant has to offer — guiding your experience from the first course to the last at our exclusive partner venues.
           </p>
         </div>
 
@@ -59,10 +59,10 @@ export default function HowItWorks() {
         <div className="mt-16 bg-primary/5 border border-primary/10 rounded-sm p-8 text-center">
           <h3 className="text-xl font-medium text-gray-900">What Makes Convive Different</h3>
           <p className="mt-3 text-slate-600 max-w-3xl mx-auto">
-            Unlike typical dining reservations, Convive matches you with compatible dining companions based on your preferences.
-            Each experience includes a dedicated restaurant host who ensures conversation flows naturally and provides expert 
-            insight into the cuisine. Your first drink is complimentary, creating a welcoming atmosphere for connection and 
-            culinary discovery at the finest restaurants in your city.
+            Unlike typical dining reservations, every Convive evening is guided by a dedicated host who knows the restaurant inside 
+            and out. They'll walk you through the chef's best dishes, recommend perfect wine pairings, and share the stories 
+            behind the cuisine. Your first drink is complimentary, setting the tone for an evening of exceptional dining at 
+            the finest restaurants in your city.
           </p>
         </div>
       </div>

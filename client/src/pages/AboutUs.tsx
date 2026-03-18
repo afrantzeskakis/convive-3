@@ -33,7 +33,7 @@ export default function AboutUs() {
             </div>
             
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium">
-              More than just a dining platform, Convive is a curated social experience that brings together culinary excellence and meaningful conversation.
+              Convive unlocks the best version of every restaurant through dedicated hosts who transform a great meal into an unforgettable experience.
             </p>
           </div>
         </section>
@@ -48,15 +48,15 @@ export default function AboutUs() {
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
-                <h3 className="text-2xl font-serif font-bold text-slate-800 mb-6">A New Kind of Social Dining</h3>
+                <h3 className="text-2xl font-serif font-bold text-slate-800 mb-6">Unlocking What Restaurants Do Best</h3>
                 <p className="text-slate-500 mb-4 leading-relaxed">
-                  Convive was founded on a simple but powerful insight: in our increasingly digital world, meaningful face-to-face connections have become rare and valuable.
+                  Convive was founded on a simple but powerful insight: most people never experience a restaurant at its full potential. The best dishes go unordered, the finest wines unpaired, and the chef's true vision unseen.
                 </p>
                 <p className="text-slate-500 mb-4 leading-relaxed">
-                  We recognized that the dining table has always been where the most authentic conversations happen—where strangers become friends and ideas flow freely.
+                  We recognized that a dedicated host — someone who knows the kitchen, the cellar, and the story behind every plate — could transform an ordinary dinner into something extraordinary.
                 </p>
                 <p className="text-slate-500 leading-relaxed">
-                  Our mission became clear: to curate exceptional dining experiences that foster genuine connections between like-minded individuals who value both culinary excellence and stimulating conversation, creating memorable evenings where friendships are formed and ideas are shared.
+                  Our mission became clear: to partner with exceptional restaurants and provide expert hosts who guide every course, so our guests experience dining the way it was always meant to be. The intimate table setting naturally sparks great conversation along the way.
                 </p>
               </div>
               <div className="relative">
@@ -87,9 +87,9 @@ export default function AboutUs() {
                     <Star className="h-8 w-8 text-slate-500" />
                   </div>
                 </div>
-                <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Authentic Connection</h3>
+                <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Expert Hosts</h3>
                 <p className="text-slate-500 leading-relaxed text-center">
-                  We believe in creating spaces where authentic human connections flourish through shared experiences and meaningful conversation around the dining table.
+                  Every Convive dinner is led by a dedicated host who knows the restaurant intimately — guiding you through the menu, wines, and the story behind the cuisine.
                 </p>
               </div>
               
@@ -101,7 +101,7 @@ export default function AboutUs() {
                 </div>
                 <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Culinary Excellence</h3>
                 <p className="text-slate-500 leading-relaxed text-center">
-                  We partner with exceptional restaurants that share our commitment to extraordinary cuisine, expert hospitality, and creating memorable dining experiences.
+                  We partner with exceptional restaurants and work directly with their kitchens to craft experiences that showcase their finest dishes and hidden specialties.
                 </p>
               </div>
               
@@ -111,9 +111,9 @@ export default function AboutUs() {
                     <Users className="h-8 w-8 text-slate-500" />
                   </div>
                 </div>
-                <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Shared Learning</h3>
+                <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Elevated Every Detail</h3>
                 <p className="text-slate-500 leading-relaxed text-center">
-                  Every Convive experience balances exceptional dining with opportunities to learn, share perspectives, and expand horizons through guided conversation.
+                  From wine pairings to course timing, every element is thoughtfully orchestrated so you can simply sit back and enjoy the best the restaurant has to offer.
                 </p>
               </div>
             </div>
@@ -135,8 +135,8 @@ export default function AboutUs() {
                     <UtensilsCrossed className="h-8 w-8 text-slate-500" />
                   </div>
                 </div>
-                <h3 className="text-lg font-medium text-slate-800">Curated Groups</h3>
-                <p className="mt-2 text-slate-500">Groups of 4-6 diners paired with a dedicated restaurant host to ensure engaging conversation.</p>
+                <h3 className="text-lg font-medium text-slate-800">Dedicated Host</h3>
+                <p className="mt-2 text-slate-500">A personal guide who knows every dish, every wine, and every story behind the restaurant's best offerings.</p>
               </div>
               
               <div className="text-center">
@@ -145,8 +145,8 @@ export default function AboutUs() {
                     <GlassWater className="h-8 w-8 text-slate-500" />
                   </div>
                 </div>
-                <h3 className="text-lg font-medium text-slate-800">Expert Guidance</h3>
-                <p className="mt-2 text-slate-500">A restaurant host who educates diners about cuisine while facilitating meaningful conversation.</p>
+                <h3 className="text-lg font-medium text-slate-800">Insider Access</h3>
+                <p className="mt-2 text-slate-500">Experience off-menu items, perfect wine pairings, and chef-recommended courses you'd never discover alone.</p>
               </div>
               
               <div className="text-center">
@@ -188,13 +188,13 @@ export default function AboutUs() {
               <div className="order-1 lg:order-2">
                 <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6">Who We Serve</h2>
                 <p className="text-slate-500 mb-4 leading-relaxed">
-                  Convive is designed for sophisticated individuals who value meaningful social interactions and exceptional culinary experiences in a refined atmosphere.
+                  Convive is for anyone who believes a great restaurant deserves more than a quick visit — people who want to truly understand and appreciate what makes a kitchen exceptional.
                 </p>
                 <p className="text-slate-500 mb-4 leading-relaxed">
-                  Our members are curious, open-minded individuals who seek to expand their social circles and cultural horizons through the shared language of fine dining.
+                  Our members are curious diners who want the insider experience: the dishes the chef is proudest of, the wines that pair perfectly, and the stories that bring a meal to life.
                 </p>
                 <p className="text-slate-500 leading-relaxed">
-                  They appreciate the curated nature of our experiences, where both the venue and the company have been thoughtfully selected to create memorable evenings of conversation and connection.
+                  They appreciate that dining at its best is not just about food — it's about the full experience, expertly guided, with good company as a natural part of the evening.
                 </p>
               </div>
             </div>
@@ -206,7 +206,7 @@ export default function AboutUs() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6"><span className="italic">(Come·Vibe)</span> With Us</h2>
             <p className="text-xl text-slate-500 mb-8 leading-relaxed">
-              Join our community of culinary explorers and conversation enthusiasts. Discover a new way to dine, connect, and grow.
+              Discover what your favorite restaurants are truly capable of. Let a dedicated host show you dining the way it was meant to be.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-slate-800 text-white hover:bg-slate-700 rounded-sm shadow-sm">

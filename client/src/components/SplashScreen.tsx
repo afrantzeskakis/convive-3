@@ -34,7 +34,7 @@ export default function SplashScreen() {
         C
       </div>
       <h1 className="text-2xl font-bold mb-2">Convive</h1>
-      <p className="text-white/80 text-sm">Curated Social Dining</p>
+      <p className="text-white/80 text-sm">Dining, Elevated</p>
     </div>
   );
 }

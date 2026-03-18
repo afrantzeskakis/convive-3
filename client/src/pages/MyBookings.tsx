@@ -116,7 +116,7 @@ export default function MyBookings() {
             <Calendar className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <h3 className="text-lg font-semibold mb-2">No Bookings Yet</h3>
             <p className="text-muted-foreground mb-4">
-              Book your first dinner and meet new people.
+              Book your first curated dining experience.
             </p>
             <Button onClick={() => setLocation("/book-dinner")}>
               Browse Dinners
