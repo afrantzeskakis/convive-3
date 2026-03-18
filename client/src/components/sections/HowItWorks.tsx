@@ -56,12 +56,7 @@ export default function HowItWorks() {
         
         <div className="mt-16 bg-primary/5 border border-primary/10 rounded-sm p-8 text-center">
           <h3 className="text-xl font-medium text-gray-900">What Makes Convive Different</h3>
-          <p className="mt-3 text-slate-600 max-w-3xl mx-auto">
-            Unlike typical dining reservations, every Convive evening features a host who works at the restaurant and knows it 
-            from the inside. They'll reveal the craft behind each dish, share the chef's inspirations, and make sure everyone 
-            has a wonderful time. Your first drink is complimentary, setting the tone for an evening of exceptional dining at 
-            the finest restaurants in your city.
-          </p>
+          <p className="mt-3 text-slate-600 max-w-3xl mx-auto">Unlike typical dining reservations, every Convive evening features a host who works at the restaurant and knows it from the inside. They'll help you see the restaurant in a new light, acting as a concierge for your palate, and making sure everyone experiences the best version of a restaurant. Your first drink is guided by the host and then on the house, setting the tone for an evening of exceptional dining at the finest restaurants in your city.</p>
         </div>
       </div>
     </div>
