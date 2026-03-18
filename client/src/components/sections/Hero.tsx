@@ -19,9 +19,7 @@ export default function Hero() {
               <span className="block text-slate-800">Curated Dining</span>
               <span className="block text-slate-600">Extraordinary Connections</span>
             </h1>
-            <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">
-              Experience dining the way it was meant to be. A dedicated host unlocks the best a restaurant has to offer — from insider menu knowledge to expert wine guidance — so every course is elevated beyond what you'd get on your own.
-            </p>
+            <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">Experience dining the way it was meant to be. A dedicated host unlocks the best a restaurant has to offer, from insider menu knowledge to truly bespoke wine and cocktail guidance, so every dinner is elevated to a level that only insiders experience.</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               {isAuthenticated ? (
                 <>
