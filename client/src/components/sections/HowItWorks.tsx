@@ -17,7 +17,7 @@ export default function HowItWorks() {
     {
       icon: <MapPin className="h-6 w-6" />,
       title: "Experience the Best",
-      description: "Your host brings the evening to life — sharing what makes the restaurant special while ensuring every guest feels welcome.",
+      description: "Your host reveals the craft and intention behind every plate — the stories, the artistry, and the details most diners never see.",
       number: "03"
     },
     {
@@ -35,7 +35,7 @@ export default function HowItWorks() {
           <h2 className="text-3xl font-bold font-serif text-gray-900 sm:text-4xl">How Convive Works</h2>
           <div className="h-1 w-20 bg-primary mx-auto mt-4"></div>
           <p className="mt-6 text-lg text-slate-600">
-            An attentive host brings personality and deep knowledge to every course, making sure you enjoy the very best our exclusive partner venues have to offer.
+            Every Convive evening features someone who genuinely knows the restaurant — its kitchen, its philosophy, and the hidden details that make each venue extraordinary.
           </p>
         </div>
 
@@ -59,8 +59,8 @@ export default function HowItWorks() {
         <div className="mt-16 bg-primary/5 border border-primary/10 rounded-sm p-8 text-center">
           <h3 className="text-xl font-medium text-gray-900">What Makes Convive Different</h3>
           <p className="mt-3 text-slate-600 max-w-3xl mx-auto">
-            Unlike typical dining reservations, every Convive evening features an engaging host who brings personal attention and 
-            real enthusiasm to the table. They'll share what makes each dish special, recommend wines they love, and make sure everyone 
+            Unlike typical dining reservations, every Convive evening features a host who works at the restaurant and knows it 
+            from the inside. They'll reveal the craft behind each dish, share the chef's inspirations, and make sure everyone 
             has a wonderful time. Your first drink is complimentary, setting the tone for an evening of exceptional dining at 
             the finest restaurants in your city.
           </p>

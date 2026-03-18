@@ -39,8 +39,8 @@ export default function FeaturedRestaurants() {
                 <Award className="h-8 w-8 text-slate-500" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-slate-800">Engaging Hosts</h3>
-            <p className="mt-2 text-slate-500">Each venue features a personable, knowledgeable host who loves sharing what makes the restaurant special.</p>
+            <h3 className="text-lg font-medium text-slate-800">Insider Hosts</h3>
+            <p className="mt-2 text-slate-500">Each venue features a host who has spent real time in the kitchen and knows the chef's vision, the seasonal details, and the best-kept secrets of the menu.</p>
           </div>
           
           <div className="text-center">

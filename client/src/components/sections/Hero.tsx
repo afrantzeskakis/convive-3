@@ -19,7 +19,7 @@ export default function Hero() {
               <span className="block text-slate-800">Curated Dining</span>
               <span className="block text-slate-600">Extraordinary Connections</span>
             </h1>
-            <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">Experience restaurants the way they were meant to be. Your host loves great food as much as you do — combining deep knowledge with personal charm to make every course feel effortless and truly unforgettable.</p>
+            <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">Experience restaurants the way they were meant to be. Your host knows this restaurant from the inside — the chef's inspirations, the craft behind every plate, and the stories you'd never discover on your own. They're there to share it all with you.</p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               {isAuthenticated ? (
                 <>
@@ -48,7 +48,7 @@ export default function Hero() {
                 </div>
                 <div>
                   <h3 className="font-medium text-slate-800">Your Host</h3>
-                  <p className="mt-1 text-sm text-slate-500">An engaging host who pairs personality with expertise across every dish, wine, and moment of the evening</p>
+                  <p className="mt-1 text-sm text-slate-500">Someone who knows the kitchen's rhythms, the chef's inspirations, and the stories behind every plate</p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
