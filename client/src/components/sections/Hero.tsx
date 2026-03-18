@@ -17,7 +17,7 @@ export default function Hero() {
             </div>
             <h1 className="text-4xl font-bold font-serif tracking-tight sm:text-5xl md:text-6xl">
               <span className="block text-slate-800">Curated Dining</span>
-              <span className="block text-slate-600">At Its Absolute Best</span>
+              <span className="block text-slate-600">Extraordinary Connections</span>
             </h1>
             <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">
               Experience dining the way it was meant to be. A dedicated host unlocks the best a restaurant has to offer — from insider menu knowledge to expert wine guidance — so every course is elevated beyond what you'd get on your own.
