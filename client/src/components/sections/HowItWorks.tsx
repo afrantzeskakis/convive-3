@@ -5,7 +5,7 @@ export default function HowItWorks() {
     {
       icon: <UserRound className="h-6 w-6" />,
       title: "Let Us Get to Know You",
-      description: "Share your culinary preferences and dining interests so we can tailor the perfect experience for you.",
+      description: "Let us get to know you so we can tailor the perfect experience for you.",
       number: "01"
     },
     {
@@ -17,13 +17,13 @@ export default function HowItWorks() {
     {
       icon: <MapPin className="h-6 w-6" />,
       title: "Experience the Best",
-      description: "Your host reveals the craft and intention behind every plate — the stories, the artistry, and the details most diners never see.",
+      description: "Your host reveals the craft and artistry behind every plate, the stories, and the details most diners never get to see.",
       number: "03"
     },
     {
       icon: <GlassWater className="h-6 w-6" />,
       title: "Savor & Learn",
-      description: "Every detail is elevated — from wine pairings to course timing — so you simply sit back and enjoy.",
+      description: "Every detail is elevated and bespoke, so you can simply sit back and enjoy your meal with the expert.",
       number: "04"
     }
   ];
