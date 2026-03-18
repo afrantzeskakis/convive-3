@@ -864,7 +864,7 @@ const SuperAdminDashboard = () => {
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <button className="rounded-md px-6 py-3 text-base font-medium bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
-                  Join Convive
+                  Request Membership
                 </button>
               </div>
               <div className="mt-10 grid grid-cols-2 gap-8">
