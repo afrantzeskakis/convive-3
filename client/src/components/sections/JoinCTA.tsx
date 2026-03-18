@@ -26,7 +26,7 @@ export default function JoinCTA() {
             </div>
             <h2 className="text-4xl font-serif font-bold mb-6 text-slate-50">Become a Convive Member</h2>
             <p className="text-lg mb-8 leading-relaxed text-slate-300">
-              Step behind the curtain at the city's best restaurants — with someone who knows their world intimately and can't wait to share it with you.
+              Step behind the curtain at the city's best restaurants, with someone who knows their world intimately and can't wait to share it with you.
             </p>
             
             <div className="space-y-4 mb-10">

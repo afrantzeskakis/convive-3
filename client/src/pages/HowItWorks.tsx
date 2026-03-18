@@ -28,7 +28,7 @@ export default function HowItWorks() {
       title: "Choose Your Evening",
       description: "Browse available dates at our exclusive restaurant partners and pick the time that suits you.",
       icon: <Clock className="h-8 w-8 text-primary" />,
-      details: "We offer flexible scheduling with various time slots throughout the week. Each evening is hosted at one of our carefully selected partner restaurants — the venue is revealed 24-48 hours before dinner, adding to the anticipation."
+      details: "We offer flexible scheduling with various time slots throughout the week. Each evening is hosted at one of our carefully selected partner restaurants. The venue is revealed 24-48 hours before dinner, adding to the anticipation."
     },
     {
       title: "Secure Your Seat",
@@ -38,9 +38,9 @@ export default function HowItWorks() {
     },
     {
       title: "Experience the Best",
-      description: "Your host opens a window into the restaurant's world — the artistry, the intention, and the stories most diners never hear.",
+      description: "Your host opens a window into the restaurant's world: the artistry, the intention, and the stories most diners never hear.",
       icon: <Heart className="h-8 w-8 text-primary" />,
-      details: "Your host works at the restaurant and knows it deeply. They've watched the chef refine every dish, understand why certain wines belong with certain courses, and can share the inspiration behind the menu. You'll experience the restaurant the way the kitchen intended — with someone who genuinely loves this place by your side."
+      details: "Your host works at the restaurant and knows it deeply. They've watched the chef refine every dish, understand why certain wines belong with certain courses, and can share the inspiration behind the menu. You'll experience the restaurant the way the kitchen intended, with someone who genuinely loves this place by your side."
     },
     {
       title: "Stay Connected",
@@ -56,7 +56,7 @@ export default function HowItWorks() {
         <h1 className="text-4xl font-bold font-serif mb-6 text-slate-800">How Convive Works</h1>
         <div className="h-0.5 w-20 bg-slate-300 mx-auto mb-6"></div>
         <p className="text-lg text-slate-600">
-          Convive pairs you with someone who genuinely knows the restaurant — its kitchen, its philosophy, 
+          Convive pairs you with someone who genuinely knows the restaurant, its kitchen, its philosophy, 
           and the hidden details that transform a great meal into something unforgettable. Here's how it works:
         </p>
       </div>
@@ -224,7 +224,7 @@ export default function HowItWorks() {
             <Users className="h-10 w-10 text-primary mb-4" />
             <h3 className="text-xl font-bold text-slate-800 mb-2">Insider Hosts</h3>
             <p className="text-slate-600">
-              Your host works at the restaurant and knows it from the inside — they're there to share the craft and make sure you have a wonderful evening.
+              Your host works at the restaurant and knows it from the inside. They're there to share the craft and make sure you have a wonderful evening.
             </p>
           </div>
           
@@ -232,7 +232,7 @@ export default function HowItWorks() {
             <Heart className="h-10 w-10 text-primary mb-4" />
             <h3 className="text-xl font-bold text-slate-800 mb-2">The Full Experience</h3>
             <p className="text-slate-600">
-              Every detail is orchestrated — from wine pairings to course timing — so you can simply enjoy.
+              Every detail is orchestrated, from wine pairings to course timing, so you can simply enjoy.
             </p>
           </div>
           
@@ -240,7 +240,7 @@ export default function HowItWorks() {
             <Clock className="h-10 w-10 text-primary mb-4" />
             <h3 className="text-xl font-bold text-slate-800 mb-2">Time Well Spent</h3>
             <p className="text-slate-600">
-              No awkward silences or forced conversations — our hosts ensure a natural, enjoyable flow.
+              No awkward silences or forced conversations. Our hosts ensure a natural, enjoyable flow.
             </p>
           </div>
           
@@ -290,7 +290,7 @@ export default function HowItWorks() {
             <h3 className="text-xl font-bold text-slate-800 mb-2">Can I join as a solo diner?</h3>
             <p className="text-slate-600">
               Absolutely! Many of our guests come solo. It's the perfect way to enjoy an expertly 
-              guided dining experience — and the intimate table setting means great conversation happens naturally.
+              guided dining experience, and the intimate table setting means great conversation happens naturally.
             </p>
           </div>
           
@@ -299,7 +299,7 @@ export default function HowItWorks() {
             <p className="text-slate-600">
               We thoughtfully compose each table based on dining preferences and interests, 
               ensuring a comfortable, engaging atmosphere. The focus is on the dining experience 
-              itself — with compatible company as a natural complement.
+              itself, with compatible company as a natural complement.
             </p>
           </div>
           
@@ -308,7 +308,7 @@ export default function HowItWorks() {
             <p className="text-slate-600">
               Your host has spent countless hours in this restaurant. They know the rhythm of the 
               kitchen, the philosophy behind the menu, and the quiet details that make each 
-              evening unique. They're there to share that world with you — and to make sure 
+              evening unique. They're there to share that world with you and to make sure 
               you feel like an insider, not a visitor.
             </p>
           </div>
@@ -320,7 +320,7 @@ export default function HowItWorks() {
         <h2 className="text-3xl font-bold font-serif mb-4 text-slate-800">Ready to Experience Convive?</h2>
         <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
           Experience what happens when someone who truly knows a restaurant 
-          shares its world with you — the craft, the stories, and the evening of a lifetime.
+          shares its world with you: the craft, the stories, and the evening of a lifetime.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
