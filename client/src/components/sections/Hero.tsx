@@ -19,7 +19,7 @@ export default function Hero() {
               <span className="block text-slate-800">Curated Dining</span>
               <span className="block text-slate-600">Extraordinary Connections</span>
             </h1>
-            <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">Experience restaurants the way they were meant to be. Your host knows this restaurant from the inside — the chef's inspirations, the craft behind every plate, and the stories you'd never discover on your own. They're there to share it all with you.</p>
+            <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">Experience restaurants the way they were meant to be. Your host knows this restaurant from the inside, the craft behind every plate, the stories you'd never discover on your own, and how it all fits with your palate. </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4">
               {isAuthenticated ? (
                 <>
