@@ -860,7 +860,7 @@ const SuperAdminDashboard = () => {
                 <span className="block text-slate-600">At Its Absolute Best</span>
               </h1>
               <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">
-                Experience dining the way it was meant to be. A dedicated host unlocks the best a restaurant has to offer — from insider menu knowledge to expert wine guidance — so every course is elevated beyond what you'd get on your own.
+                Experience restaurants the way they were meant to be. A passionate host who loves great food as much as you do brings warmth, deep knowledge, and genuine care to every course — making the evening feel effortless and truly unforgettable.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <button className="rounded-md px-6 py-3 text-base font-medium bg-primary text-primary-foreground shadow-sm hover:bg-primary/90">
@@ -873,8 +873,8 @@ const SuperAdminDashboard = () => {
                     <UtensilsCrossed className="h-5 w-5 text-slate-500" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-slate-800">Dedicated Host</h3>
-                    <p className="mt-1 text-sm text-slate-500">Your personal guide to the restaurant's best dishes, wines, and hidden gems</p>
+                    <h3 className="font-medium text-slate-800">Your Host</h3>
+                    <p className="mt-1 text-sm text-slate-500">A passionate host who brings warmth and deep knowledge to every dish, wine, and moment of the evening</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -907,7 +907,7 @@ const SuperAdminDashboard = () => {
   const PreviewJoinCTA = () => {
     const membershipBenefits = [
       "Access to exclusive partner restaurants at their very best",
-      "A dedicated host who guides you through every course",
+      "A passionate host who makes the evening warm, seamless, and enjoyable",
       "Insider knowledge of menus, wines, and chef specialties",
       "Intimate tables of 4-6 with great company",
       "Complimentary welcome drink to start the evening"
@@ -923,7 +923,7 @@ const SuperAdminDashboard = () => {
               </div>
               <h2 className="text-4xl font-serif font-bold mb-6 text-slate-50">Become a Convive Member</h2>
               <p className="text-lg mb-8 leading-relaxed text-slate-300">
-                Unlock the best version of every restaurant with a dedicated host who transforms a great meal into an unforgettable experience.
+                Unlock the best version of every restaurant with a passionate host who brings warmth, knowledge, and genuine care to every evening.
               </p>
               
               <div className="space-y-4 mb-10">
@@ -1041,7 +1041,7 @@ const SuperAdminDashboard = () => {
                 </div>
                 
                 <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium">
-                  Convive unlocks the best version of every restaurant through dedicated hosts who transform a great meal into an unforgettable experience.
+                  Convive unlocks the best version of every restaurant through passionate hosts who bring warmth, knowledge, and genuine care to every evening.
                 </p>
               </div>
             </section>
@@ -1061,10 +1061,10 @@ const SuperAdminDashboard = () => {
                       Convive was founded on a simple but powerful insight: most people never experience a restaurant at its full potential. The best dishes go unordered, the finest wines unpaired, and the chef's true vision unseen.
                     </p>
                     <p className="text-slate-500 mb-4 leading-relaxed">
-                      We recognized that a dedicated host — someone who knows the kitchen, the cellar, and the story behind every plate — could transform an ordinary dinner into something extraordinary.
+                      We recognized that a warm, passionate host — someone who genuinely loves the kitchen, the cellar, and the story behind every plate — could transform an ordinary dinner into something extraordinary.
                     </p>
                     <p className="text-slate-500 leading-relaxed">
-                      Our mission became clear: to partner with exceptional restaurants and provide expert hosts who guide every course, so our guests experience dining the way it was always meant to be. The intimate table setting naturally sparks great conversation along the way.
+                      Our mission became clear: to partner with exceptional restaurants and provide passionate hosts who make every guest feel welcome, share what makes each dish special, and ensure everyone has a wonderful time. The intimate table setting naturally sparks great conversation along the way.
                     </p>
                   </div>
                   <div className="relative">
@@ -1095,9 +1095,9 @@ const SuperAdminDashboard = () => {
                         <Star className="h-8 w-8 text-slate-500" />
                       </div>
                     </div>
-                    <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Expert Hosts</h3>
+                    <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Passionate Hosts</h3>
                     <p className="text-slate-500 leading-relaxed text-center">
-                      Every Convive dinner is led by a dedicated host who knows the restaurant intimately — guiding you through the menu, wines, and the story behind the cuisine.
+                      Every Convive dinner is led by a host who brings warmth and deep knowledge to the table — sharing what makes each dish special and ensuring everyone feels welcome.
                     </p>
                   </div>
                   
@@ -1143,8 +1143,8 @@ const SuperAdminDashboard = () => {
                         <UtensilsCrossed className="h-8 w-8 text-slate-500" />
                       </div>
                     </div>
-                    <h3 className="text-lg font-medium text-slate-800">Dedicated Host</h3>
-                    <p className="mt-2 text-slate-500">A personal guide who knows every dish, every wine, and every story behind the restaurant's best offerings.</p>
+                    <h3 className="text-lg font-medium text-slate-800">Your Host</h3>
+                    <p className="mt-2 text-slate-500">A passionate host who loves great food as much as you do — and knows exactly how to make the evening unforgettable.</p>
                   </div>
                   
                   <div className="text-center">
@@ -1214,7 +1214,7 @@ const SuperAdminDashboard = () => {
               <div className="max-w-4xl mx-auto text-center">
                 <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6"><span className="italic">(Come·Vibe)</span> With Us</h2>
                 <p className="text-xl text-slate-500 mb-8 leading-relaxed">
-                  Discover what your favorite restaurants are truly capable of. Let a dedicated host show you dining the way it was meant to be.
+                  Discover what your favorite restaurants are truly capable of. Let a passionate host show you an evening of warmth, wonderful food, and genuine enjoyment.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button 

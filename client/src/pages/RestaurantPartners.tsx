@@ -100,8 +100,8 @@ export default function RestaurantPartners() {
           <div className="h-0.5 w-20 bg-slate-300 mx-auto mb-6"></div>
           <p className="text-lg text-slate-600">
             We partner exclusively with high-end restaurants to create unique dining experiences. 
-            Each venue provides a dedicated host who ensures conversation flows and educates diners 
-            about the cuisine, creating an unforgettable social and culinary journey.
+            Each venue features a passionate host who brings warmth and genuine enthusiasm to the 
+            table, sharing what makes the cuisine special and ensuring every guest has a wonderful evening.
           </p>
         </div>
 
@@ -289,10 +289,10 @@ function RestaurantPartnerCard({ restaurant }: { restaurant: Restaurant }) {
             <div className="flex items-start gap-2 mb-2">
               <GraduationCap className="h-5 w-5 text-slate-500 mt-0.5" />
               <div>
-                <h4 className="text-sm font-medium text-slate-700">Dedicated Host</h4>
+                <h4 className="text-sm font-medium text-slate-700">Your Host</h4>
                 <p className="text-sm text-slate-600">
-                  A restaurant host will guide your experience, share culinary insights, and 
-                  facilitate engaging conversation.
+                  A passionate host who brings warmth to every course, shares what makes each 
+                  dish special, and ensures everyone has a wonderful time.
                 </p>
               </div>
             </div>

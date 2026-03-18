@@ -38,9 +38,9 @@ export default function HowItWorks() {
     },
     {
       title: "Experience the Best",
-      description: "Your dedicated host guides you through the restaurant's finest — from hidden menu gems to perfect wine pairings.",
+      description: "Your host brings the evening to life — sharing what makes the restaurant special and ensuring every guest has a wonderful time.",
       icon: <Heart className="h-8 w-8 text-primary" />,
-      details: "Your host knows the restaurant inside and out. They'll guide you through the best dishes, recommend wine pairings, and share the stories behind the cuisine. You'll experience the restaurant the way the chef intended — with great company around the table."
+      details: "Your host genuinely loves the restaurant and it shows. They'll share what makes each dish special, recommend wines they're passionate about, and make sure everyone at the table feels welcome. You'll enjoy the restaurant the way it was meant to be experienced — with warmth and great company."
     },
     {
       title: "Stay Connected",
@@ -56,8 +56,8 @@ export default function HowItWorks() {
         <h1 className="text-4xl font-bold font-serif mb-6 text-slate-800">How Convive Works</h1>
         <div className="h-0.5 w-20 bg-slate-300 mx-auto mb-6"></div>
         <p className="text-lg text-slate-600">
-          Convive gives you the best version of every restaurant through a dedicated host who 
-          guides your experience from the first course to the last. Here's how it works:
+          Convive gives you the best version of every restaurant through a passionate host who 
+          brings warmth and care to every moment of the evening. Here's how it works:
         </p>
       </div>
       
@@ -222,9 +222,9 @@ export default function HowItWorks() {
           
           <div className="flex flex-col items-center text-center p-4">
             <Users className="h-10 w-10 text-primary mb-4" />
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Dedicated Hosts</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Passionate Hosts</h3>
             <p className="text-slate-600">
-              Expert hosts who know the restaurant inside and out, guiding you through the best it has to offer.
+              Warm, knowledgeable hosts who love what they do and make sure every guest has a wonderful evening.
             </p>
           </div>
           
@@ -306,10 +306,10 @@ export default function HowItWorks() {
           <div>
             <h3 className="text-xl font-bold text-slate-800 mb-2">What is the role of the restaurant host?</h3>
             <p className="text-slate-600">
-              Your host is the centerpiece of the Convive experience. They know the restaurant 
-              intimately — the chef's proudest dishes, the perfect wine pairings, the stories 
-              behind the cuisine. They guide you through an elevated evening that you simply 
-              couldn't get dining on your own.
+              Your host is there to make the evening seamless and enjoyable. They bring genuine 
+              passion for the restaurant's craft, share what makes each dish special, and ensure 
+              everyone at the table feels welcome and well taken care of. It's the kind of 
+              evening you simply couldn't have dining on your own.
             </p>
           </div>
         </div>
@@ -319,8 +319,8 @@ export default function HowItWorks() {
       <div className="bg-primary/5 rounded-lg p-8 text-center">
         <h2 className="text-3xl font-bold font-serif mb-4 text-slate-800">Ready to Experience Convive?</h2>
         <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
-          Discover what your favorite restaurants are truly capable of when guided by a 
-          dedicated host who brings out the very best in every course.
+          Discover what your favorite restaurants are truly capable of with a passionate 
+          host who makes every evening warm, memorable, and truly enjoyable.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

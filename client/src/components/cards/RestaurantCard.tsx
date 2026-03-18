@@ -124,7 +124,7 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
         
         <p className="text-slate-500 text-sm mb-5 leading-relaxed">
           Experience {restaurant.ambiance} dining at one of our most exclusive partner venues. 
-          A dedicated host from {restaurant.name} will guide you through their exceptional menu.
+          A passionate host from {restaurant.name} will make sure you enjoy the very best of their exceptional menu.
         </p>
         
         <div className="flex justify-between items-center">

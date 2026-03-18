@@ -89,7 +89,7 @@ export default function BookDinner() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Book a Dinner</h1>
         <p className="text-muted-foreground">
-          Select a date for your next curated dining experience. Your dedicated host and restaurant will be revealed closer to the evening.
+          Select a date for your next curated dining experience. Your host and restaurant will be revealed closer to the evening — anticipation is part of the fun.
         </p>
       </div>
 
@@ -150,7 +150,7 @@ export default function BookDinner() {
         <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
           <li>Choose a date and time that works for you</li>
           <li>Complete your payment to secure your spot</li>
-          <li>We pair you with a dedicated host who knows the restaurant inside and out</li>
+          <li>We pair you with a passionate host who loves the restaurant and makes sure you have a wonderful time</li>
           <li>Your restaurant is revealed 24-48 hours before dinner — adding to the anticipation</li>
         </ol>
       </div>
