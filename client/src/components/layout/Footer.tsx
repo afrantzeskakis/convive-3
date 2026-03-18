@@ -10,7 +10,7 @@ export default function Footer() {
               <span className="text-primary font-poppins font-bold text-2xl">Convive</span>
               <span className="text-gray-500 italic text-base ml-2.5 font-light tracking-wide">(Come·Vibe)</span>
             </div>
-            <p className="mt-2 text-gray-400">Every restaurant at its absolute best, with a passionate host by your side.</p>
+            <p className="mt-2 text-gray-400">Every restaurant at its absolute best, with an engaging host by your side.</p>
             <div className="mt-4 flex space-x-6">
               <a href="#" className="text-gray-400 hover:text-white">
                 <i className="fab fa-facebook-f"></i>

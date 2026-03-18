@@ -100,7 +100,7 @@ export default function RestaurantPartners() {
           <div className="h-0.5 w-20 bg-slate-300 mx-auto mb-6"></div>
           <p className="text-lg text-slate-600">
             We partner exclusively with high-end restaurants to create unique dining experiences. 
-            Each venue features a passionate host who brings warmth and genuine enthusiasm to the 
+            Each venue features an engaging host who brings real enthusiasm and personal attention to the 
             table, sharing what makes the cuisine special and ensuring every guest has a wonderful evening.
           </p>
         </div>
@@ -291,7 +291,7 @@ function RestaurantPartnerCard({ restaurant }: { restaurant: Restaurant }) {
               <div>
                 <h4 className="text-sm font-medium text-slate-700">Your Host</h4>
                 <p className="text-sm text-slate-600">
-                  A passionate host who brings warmth to every course, shares what makes each 
+                  A devoted host who brings personal attention to every course, shares what makes each 
                   dish special, and ensures everyone has a wonderful time.
                 </p>
               </div>

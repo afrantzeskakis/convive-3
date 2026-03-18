@@ -40,7 +40,7 @@ export default function HowItWorks() {
       title: "Experience the Best",
       description: "Your host brings the evening to life — sharing what makes the restaurant special and ensuring every guest has a wonderful time.",
       icon: <Heart className="h-8 w-8 text-primary" />,
-      details: "Your host genuinely loves the restaurant and it shows. They'll share what makes each dish special, recommend wines they're passionate about, and make sure everyone at the table feels welcome. You'll enjoy the restaurant the way it was meant to be experienced — with warmth and great company."
+      details: "Your host genuinely loves the restaurant and it shows. They'll share what makes each dish special, recommend wines they believe in, and make sure everyone at the table feels welcome. You'll enjoy the restaurant the way it was meant to be experienced — relaxed, well cared for, and in great company."
     },
     {
       title: "Stay Connected",
@@ -56,8 +56,8 @@ export default function HowItWorks() {
         <h1 className="text-4xl font-bold font-serif mb-6 text-slate-800">How Convive Works</h1>
         <div className="h-0.5 w-20 bg-slate-300 mx-auto mb-6"></div>
         <p className="text-lg text-slate-600">
-          Convive gives you the best version of every restaurant through a passionate host who 
-          brings warmth and care to every moment of the evening. Here's how it works:
+          Convive gives you the best version of every restaurant through an attentive host who 
+          brings personality and care to every moment of the evening. Here's how it works:
         </p>
       </div>
       
@@ -222,9 +222,9 @@ export default function HowItWorks() {
           
           <div className="flex flex-col items-center text-center p-4">
             <Users className="h-10 w-10 text-primary mb-4" />
-            <h3 className="text-xl font-bold text-slate-800 mb-2">Passionate Hosts</h3>
+            <h3 className="text-xl font-bold text-slate-800 mb-2">Engaging Hosts</h3>
             <p className="text-slate-600">
-              Warm, knowledgeable hosts who love what they do and make sure every guest has a wonderful evening.
+              Personable, knowledgeable hosts who love what they do and make sure every guest has a wonderful evening.
             </p>
           </div>
           
@@ -319,8 +319,8 @@ export default function HowItWorks() {
       <div className="bg-primary/5 rounded-lg p-8 text-center">
         <h2 className="text-3xl font-bold font-serif mb-4 text-slate-800">Ready to Experience Convive?</h2>
         <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
-          Discover what your favorite restaurants are truly capable of with a passionate 
-          host who makes every evening warm, memorable, and truly enjoyable.
+          Discover what your favorite restaurants are truly capable of with a devoted 
+          host who makes every evening memorable, relaxed, and truly enjoyable.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">

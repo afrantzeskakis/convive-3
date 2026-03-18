@@ -33,7 +33,7 @@ export default function AboutUs() {
             </div>
             
             <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed font-medium">
-              Convive unlocks the best version of every restaurant through passionate hosts who bring warmth, knowledge, and genuine care to every evening.
+              Convive unlocks the best version of every restaurant through attentive hosts who bring personality, knowledge, and thoughtful care to every evening.
             </p>
           </div>
         </section>
@@ -53,10 +53,10 @@ export default function AboutUs() {
                   Convive was founded on a simple but powerful insight: most people never experience a restaurant at its full potential. The best dishes go unordered, the finest wines unpaired, and the chef's true vision unseen.
                 </p>
                 <p className="text-slate-500 mb-4 leading-relaxed">
-                  We recognized that a warm, passionate host — someone who genuinely loves the kitchen, the cellar, and the story behind every plate — could transform an ordinary dinner into something extraordinary.
+                  We recognized that the right host — someone who genuinely loves the kitchen, the cellar, and the story behind every plate — could transform an ordinary dinner into something extraordinary.
                 </p>
                 <p className="text-slate-500 leading-relaxed">
-                  Our mission became clear: to partner with exceptional restaurants and provide passionate hosts who make every guest feel welcome, share what makes each dish special, and ensure everyone has a wonderful time. The intimate table setting naturally sparks great conversation along the way.
+                  Our mission became clear: to partner with exceptional restaurants and provide hosts who make every guest feel welcome, share what makes each dish special, and ensure everyone has a wonderful time. The intimate table setting naturally sparks great conversation along the way.
                 </p>
               </div>
               <div className="relative">
@@ -87,9 +87,9 @@ export default function AboutUs() {
                     <Star className="h-8 w-8 text-slate-500" />
                   </div>
                 </div>
-                <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Passionate Hosts</h3>
+                <h3 className="text-xl font-serif font-bold text-slate-800 text-center mb-4">Engaging Hosts</h3>
                 <p className="text-slate-500 leading-relaxed text-center">
-                  Every Convive dinner is led by a host who brings warmth and deep knowledge to the table — sharing what makes each dish special and ensuring everyone feels welcome.
+                  Every Convive dinner is led by a host who pairs charm with deep knowledge — sharing what makes each dish special and ensuring everyone feels welcome.
                 </p>
               </div>
               
@@ -136,7 +136,7 @@ export default function AboutUs() {
                   </div>
                 </div>
                 <h3 className="text-lg font-medium text-slate-800">Your Host</h3>
-                <p className="mt-2 text-slate-500">A passionate host who loves great food as much as you do — and knows exactly how to make the evening unforgettable.</p>
+                <p className="mt-2 text-slate-500">A personable host who loves great food as much as you do — and knows exactly how to make the evening unforgettable.</p>
               </div>
               
               <div className="text-center">
@@ -206,7 +206,7 @@ export default function AboutUs() {
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl font-serif font-bold text-slate-800 mb-6"><span className="italic">(Come·Vibe)</span> With Us</h2>
             <p className="text-xl text-slate-500 mb-8 leading-relaxed">
-              Discover what your favorite restaurants are truly capable of. Let a passionate host show you an evening of warmth, wonderful food, and genuine enjoyment.
+              Discover what your favorite restaurants are truly capable of. Let a devoted host show you an evening of wonderful food, great company, and genuine enjoyment.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-slate-800 text-white hover:bg-slate-700 rounded-sm shadow-sm">

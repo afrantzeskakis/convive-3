@@ -10,7 +10,7 @@ export default function JoinCTA() {
 
   const membershipBenefits = [
     "Access to exclusive partner restaurants at their very best",
-    "A passionate host who makes the evening warm, seamless, and enjoyable",
+    "An attentive host who makes the evening seamless and enjoyable",
     "Insider knowledge of menus, wines, and chef specialties",
     "Intimate tables of 4-6 with great company",
     "Complimentary welcome drink to start the evening"
@@ -26,7 +26,7 @@ export default function JoinCTA() {
             </div>
             <h2 className="text-4xl font-serif font-bold mb-6 text-slate-50">Become a Convive Member</h2>
             <p className="text-lg mb-8 leading-relaxed text-slate-300">
-              Unlock the best version of every restaurant with a passionate host who brings warmth, knowledge, and genuine care to every evening.
+              Unlock the best version of every restaurant with a devoted host who brings personality, knowledge, and thoughtful attention to every evening.
             </p>
             
             <div className="space-y-4 mb-10">
