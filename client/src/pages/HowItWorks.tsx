@@ -22,7 +22,7 @@ export default function HowItWorks() {
       title: "Tell Us What You Love",
       description: "Let us get to know you, so you can spend the evening with people you'd even get dinner with normally.",
       icon: <Users className="h-8 w-8 text-primary" />,
-      details: "Your preferences help us match you with the right restaurant and host. We consider cuisine interests, dietary needs, and experience level so your host can tailor the evening to exactly what you'll love."
+      details: "We give you a questionnaire to help us match you with the right group, so your host can focus on tailoring the evening to exactly what you'll love."
     },
     {
       title: "Choose Your Evening",
