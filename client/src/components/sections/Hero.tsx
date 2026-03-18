@@ -16,7 +16,7 @@ export default function Hero() {
               <p className="text-slate-500 font-medium uppercase tracking-wider text-sm">Convive</p>
             </div>
             <h1 className="text-4xl font-bold font-serif tracking-tight sm:text-5xl md:text-6xl">
-              <span className="block text-slate-800">Every Restaurant</span>
+              <span className="block text-slate-800">Curated Dining</span>
               <span className="block text-slate-600">At Its Absolute Best</span>
             </h1>
             <p className="mt-6 text-lg text-slate-500 leading-relaxed max-w-xl">
