@@ -34,9 +34,7 @@ export default function HowItWorks() {
         <div className="text-center max-w-3xl mx-auto">
           <h2 className="text-3xl font-bold font-serif text-gray-900 sm:text-4xl">How Convive Works</h2>
           <div className="h-1 w-20 bg-primary mx-auto mt-4"></div>
-          <p className="mt-6 text-lg text-slate-600">
-            Every Convive evening features someone who genuinely knows the restaurant — its kitchen, its philosophy, and the hidden details that make each venue extraordinary.
-          </p>
+          <p className="mt-6 text-lg text-slate-600">Every Convive evening features someone who genuinely knows the restaurant, its kitchen, its philosophy, the hidden details that make each venue extraordinary, and we provide perfect company to enjoy it with.</p>
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-4">
